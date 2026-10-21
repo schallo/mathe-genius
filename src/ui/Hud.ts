@@ -6,6 +6,7 @@ import { icon } from '../art/icons'
 import { isMuted, setMuted } from '../audio/sfx'
 import { GAME_WIDTH } from '../display'
 import { palette } from '../palette'
+import { coinBalance } from '../state/save'
 import { getSave } from '../state/store'
 import { addText } from './text'
 
@@ -34,7 +35,7 @@ export class Hud extends Phaser.GameObjects.Container {
     this.add(mute.parts)
     if (options.onHome) this.add(pillButton(scene, 24, icon(scene, 'house'), options.onHome).parts)
 
-    this.coins = getSave().coins
+    this.coins = coinBalance(getSave())
     const g = scene.add.graphics()
     g.fillStyle(palette.paperWhite).fillRoundedRect(GAME_WIDTH - 50, 3, 46, 14, 3)
     g.lineStyle(1, palette.ink).strokeRoundedRect(GAME_WIDTH - 50, 3, 46, 14, 3)

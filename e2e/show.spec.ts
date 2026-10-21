@@ -120,7 +120,11 @@ test('play a whole show: hint, worked solution, coins, show end', async ({ page 
   await page.screenshot({ path: `test-results/show-end-${test.info().project.name}.png` })
 
   // 1 (after solution) + 8 × 5 + 1 × 10 (challenge) + 1 streak bonus (tasks 2–6) + 10 show bonus
-  const coins = await page.evaluate(() => JSON.parse(localStorage.getItem('mathe-buehne')!).coins)
+  const coins = await page.evaluate(() => {
+    const { earned, spent } = JSON.parse(localStorage.getItem('mathe-buehne')!).coins
+    const sum = (c: Record<string, number>) => Object.values(c).reduce((s, n) => s + n, 0)
+    return sum(earned) - sum(spent)
+  })
   expect(coins).toBe(1 + 8 * 5 + 10 + 5 + 10)
 
   await tapWorld(page, 127, 275) // Ins Dorf

@@ -13,7 +13,7 @@
 - **Pets:** she loves cats and dogs (most variety there). Everyday pets (hamster, mouse, turtle, …) are bought; wildlife (lion, …), dinosaurs (T-Rex, Brachiosaurus) and fantasy animals (unicorn) are befriended in later wild areas. Roster in `GAME_DESIGN.md` §4. Traits by **family**: Katzen & Hunde none, Kleintiere +time, Wildtiere Rechentipp, Urzeittiere stronger hits, Fabeltiere Joker (§4 "Pet traits").
 - **Math focus:** all main topics; priority order in `GAME_DESIGN.md` §11. Sachaufgaben: money (€/ct) for now.
 - **Offline PWA**, fonts bundled via `@fontsource`; no runtime network requests except the optional cloud sync.
-- **Cloud sync** (decided 2026-10-21): Firebase Auth (Google login by the parent, once per device) + Firestore, built in step 5 together with the save system. Setup guide for the Firebase project follows in step 5.
+- **Cloud sync** (decided 2026-10-21): Firebase Auth (**email + password** of the parent, once per device – Google login fails in the iPhone home-screen app) + Firestore, built in step 5 together with the save system. Setup guide for the Firebase project follows in step 5.
 - **Hosting:** GitHub Pages (`.github/workflows/deploy.yml`). **Git:** one commit per finished build step.
 - The first React prototype was removed. Its tested generators in `src/math/aufgaben.ts` are ported into `src/math/generators/` in step 3, then the old file is deleted.
 
@@ -43,10 +43,27 @@
 - Movement uses the real frame time (`game.loop.rawDelta`), not Phaser's smoothed delta, so walking speed stays right on slow frames.
 - **Starting look** is modelled on her (from a photo, not stored in the repo): fair skin (`skin1`), ginger hair (`hair-ginger`, new palette colour) pulled back into a ponytail, mint dress, pink bow.
 
-## Left for later steps
+## Next tasks (as of 2026-10-21)
 
-- Mute button ("always visible") → added together with the first sounds.
-- Save: step 2 already stores character and pets (`src/state/save.ts`, version 1); step 5 adds coins, progress and JSON export/import.
+Done: steps 1–4 and step 5 except the live Firebase connection. Live: https://schallo.github.io/mathe-genius/ (steps 1–4).
+
+1. **Firebase setup (you):** follow `docs/SETUP_FIREBASE.md`, paste the config into the chat. Then: fill `src/firebaseConfig.ts`, test login + sync PC ↔ iPhone, push. Finishes step 5.
+2. **Push** the step 5 commit (parent area, export/import) so it is live.
+3. **Playtest the shows with Leni** (number pad, hints, coins): too easy/hard? Which topic should be the focus (currently Einmaleins level 2)?
+4. **Check with school** the open assumptions in "Math engine assumptions" below (subtraction method etc.).
+5. **Step 6 – Laden, Mein Haus, Tierheim, wish goal** with the first ~15 items (2 adoptable pets with naming, 3 haircuts, 3 dresses). ⏸ checkpoint.
+6. **Step 7 – Battles:** Blumenwiese, first wild creatures (Igel, Eichhörnchen, Fuchs), battle screen, adaptive timer, pet XP, family traits, befriending. ⏸ checkpoint.
+7. **Step 8 – Einmaleins-Dojo:** 200 facts, Leitner boxes, Üben, Blitzrunde, 10 × 10 grid, Turbo-Duell, Reihen-Meister. ⏸ checkpoint.
+8. **Step 9 – Learning huts** (Rechenwerkstatt with the written calculation grid, Zahlenturm, Marktstand); written tasks join the shows.
+9. **Step 10 – Adaptive difficulty**, mistakes coming back, stars per level.
+10. **Step 11 – Album, daily calendar, full parent area** (settings, progress overview, bonus coins, shows per day).
+11. **Step 12 – More areas and animals**, 60–80 items.
+
+Smaller follow-ups:
+
+- Village: parent mailbox (currently only the lock on the title screen).
+- iPhone: real-device test of the home-screen app (sizes, sounds, safe areas).
+- Sound: check the "−" glyph and sounds on the real iPhone.
 
 ## Playtest feedback (2026-10-21)
 

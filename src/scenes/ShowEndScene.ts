@@ -7,8 +7,8 @@ import { sfx } from '../audio/sfx'
 import { texts } from '../data/texts'
 import { GAME_WIDTH } from '../display'
 import { REWARD, summarizeShow, type TaskResult } from '../state/economy'
-import { activePet } from '../state/save'
-import { getSave, updateSave } from '../state/store'
+import { activePet, coinBalance } from '../state/save'
+import { addCoins, getSave } from '../state/store'
 import { Hud } from '../ui/Hud'
 import { Key } from '../ui/Key'
 import { SpeechCard } from '../ui/SpeechCard'
@@ -36,7 +36,7 @@ export class ShowEndScene extends PixelScene {
       .setOrigin(0)
 
     // Per-task coins were paid during the show; the show bonus is paid now
-    updateSave((s) => ({ ...s, coins: s.coins + REWARD.showBonus }))
+    addCoins(REWARD.showBonus)
     const hud = new Hud(this)
     const summary = summarizeShow(this.results)
 
@@ -67,7 +67,7 @@ export class ShowEndScene extends PixelScene {
         if (shown % 2 === 0) sfx.coin()
       },
     })
-    hud.setCoins(getSave().coins)
+    hud.setCoins(coinBalance(getSave()))
 
     new Key(this, 20, 260, 66, 30, texts.show.again, () => this.goTo('Show'), {
       label: true,

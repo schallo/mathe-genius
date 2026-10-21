@@ -50,6 +50,10 @@ const ICONS: Record<string, Icon> = {
     ],
     legend: { a: palette.ink, b: palette.paperWhite },
   },
+  lock: {
+    map: ['..aaa..', '.a...a.', '.a...a.', 'aaaaaaa', 'aaabaaa', 'aaabaaa', 'aaaaaaa'],
+    legend: { a: palette.cream, b: palette.ink },
+  },
   star: {
     map: ['...a...', '...a...', 'aaaaaaa', '.aaaaa.', '..aaa..', '.aa.aa.', 'aa...aa'],
     legend: { a: palette.gold },

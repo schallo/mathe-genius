@@ -1,6 +1,7 @@
 // Title (GAME_DESIGN §9): closed curtains, her character on stage, "SPIELEN".
 import { Character } from '../art/character/Character'
 import { DEFAULT_LOOK } from '../art/character/look'
+import { icon } from '../art/icons'
 import { Pet } from '../art/pets/Pet'
 import { STAGE_FLOOR_Y, ensureStageTexture } from '../art/stage'
 import { texts } from '../data/texts'
@@ -46,6 +47,13 @@ export class TitleScene extends PixelScene {
       { fill: 'gold', label: true, fontSize: 10 },
     )
     play.setName('play')
+
+    // Parent area: small lock in the corner, behind a grown-up question
+    const lock = this.add.image(14, 346, icon(this, 'lock'), 'icon').setAlpha(0.7)
+    this.add
+      .zone(lock.x, lock.y, 24, 24)
+      .setInteractive({ useHandCursor: true })
+      .on('pointerdown', () => this.goTo('Parent'))
   }
 
   update(_time: number, delta: number) {

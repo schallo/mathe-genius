@@ -2,9 +2,11 @@ import Phaser from 'phaser'
 import './style.css'
 import { GAME_HEIGHT, GAME_WIDTH, computeRenderSize, setRenderScale } from './display'
 import { palette } from './palette'
+import { startSync } from './state/sync'
 import { BootScene } from './scenes/BootScene'
 import { CharacterCreateScene } from './scenes/CharacterCreateScene'
 import { NameEntryScene } from './scenes/NameEntryScene'
+import { ParentScene } from './scenes/ParentScene'
 import { ShowEndScene } from './scenes/ShowEndScene'
 import { ShowScene } from './scenes/ShowScene'
 import { StarterPetScene } from './scenes/StarterPetScene'
@@ -38,6 +40,8 @@ window.addEventListener('resize', () => {
   container.style.height = `${GAME_HEIGHT * fit}px`
 })
 
+startSync()
+
 const game = new Phaser.Game({
   type: Phaser.AUTO,
   parent: container,
@@ -56,6 +60,7 @@ const game = new Phaser.Game({
     VillageScene,
     ShowScene,
     ShowEndScene,
+    ParentScene,
   ],
 })
 

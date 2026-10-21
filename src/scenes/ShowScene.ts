@@ -16,7 +16,7 @@ import type { Answer, Task } from '../math/types'
 import { palette } from '../palette'
 import { answerReward, streakBonus, type TaskResult } from '../state/economy'
 import { activePet } from '../state/save'
-import { getSave, updateSave } from '../state/store'
+import { addCoins, getSave } from '../state/store'
 import { Caption } from '../ui/Caption'
 import { Hud } from '../ui/Hud'
 import { Key } from '../ui/Key'
@@ -168,7 +168,7 @@ export class ShowScene extends PixelScene {
     this.streak = this.attempt === 1 ? this.streak + 1 : 0
     const reward = answerReward(this.attempt, challenge)
     const bonus = streakBonus(this.streak)
-    updateSave((s) => ({ ...s, coins: s.coins + reward + bonus }))
+    addCoins(reward + bonus)
 
     sfx.pling()
     this.hero.jump()

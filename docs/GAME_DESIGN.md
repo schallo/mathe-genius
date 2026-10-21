@@ -267,7 +267,7 @@ Timed mental-math battles in the style of classic 2D monster-RPG battle screens.
 - Progress overview: tasks solved per topic, accuracy, mastery level, frequent mistakes, Einmaleins grid with the slowest/most-missed facts.
 - Option to give bonus coins (e.g. for homework done outside the game).
 - Reset / export / import progress (JSON file) so progress can move between devices.
-- **Cloud sync (parent login):** the parent signs in once per device with a Google account (Firebase Auth); the save syncs automatically via Firestore. The game always works offline from the local save and syncs when online. Only the parent's account can read or write the data. If both devices changed the save, the newer save wins per field, and counters (coins, stars, XP, solved tasks) never go down.
+- **Cloud sync (parent login):** the parent signs in once per device with email + password (Firebase Auth; Google login does not work reliably in the iPhone home-screen app); the save syncs automatically via Firestore. The game always works offline from the local save and syncs when online. Only the parent's account can read or write the data. If both devices changed the save, the newer save wins per field, and counters (coins, stars, XP, solved tasks) never go down.
 
 ## 9. Screens
 
