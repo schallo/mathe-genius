@@ -106,6 +106,16 @@ describe('save', () => {
     expect(writeSave(broken, emptySave())).toBe(false)
   })
 
+  it('reads saves from before coins and settings existed', () => {
+    const storage = memory()
+    const old = { version: 1, character: null, pets: [], activePetId: null }
+    storage.setItem(SAVE_KEY, JSON.stringify(old))
+    expect(loadSave(storage)).toEqual(emptySave())
+    storage.setItem(SAVE_KEY, JSON.stringify({ ...old, coins: -5, settings: { muted: true } }))
+    expect(loadSave(storage).coins).toBe(0)
+    expect(loadSave(storage).settings.muted).toBe(true)
+  })
+
   it('keeps the first pet active when more are added', () => {
     const data = addPet(addPet(emptySave(), 'hund', 'Bello'), 'katze', 'Mimi')
     expect(data.activePetId).toBe('hund-1')

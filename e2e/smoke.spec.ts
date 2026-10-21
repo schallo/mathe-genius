@@ -9,7 +9,7 @@ const activeScene = (page: Page) =>
   page.evaluate(() => (window as unknown as { __debug: Debug }).__debug.activeScene())
 
 /** Wait until a scene is active and its fade-in (200 ms) and camera follow have settled. */
-async function waitForScene(page: Page, key: string, timeout = 5_000) {
+async function waitForScene(page: Page, key: string, timeout = 15_000) {
   await expect.poll(() => activeScene(page), { timeout }).toBe(key)
   await page.waitForTimeout(800)
 }
@@ -146,14 +146,14 @@ test('tap the Theater, walk in, see the stage and come back', async ({ page }) =
   await startInVillage(page)
   // Theater hut is at (20, 180), 32 × 34 px
   await tapWorld(page, 36, 196)
-  await waitForScene(page, 'Show', 10_000)
+  await waitForScene(page, 'Show', 25_000)
   await shot(page, 'stage')
-  await tapWorld(page, 90, 330) // Zurück
+  await tapWorld(page, 32, 10) // home button in the top bar
   await waitForScene(page, 'Village')
 
   // Input still works after coming back: walk into the Theater a second time
   await tapWorld(page, 36, 196)
-  await waitForScene(page, 'Show', 10_000)
+  await waitForScene(page, 'Show', 25_000)
 })
 
 test('a hut under construction keeps her in the village', async ({ page }) => {

@@ -13,10 +13,19 @@ export type SaveData = {
   character: { name: string; look: CharacterLook } | null
   pets: PetSave[]
   activePetId: string | null
+  coins: number
+  settings: { muted: boolean }
 }
 
 export function emptySave(): SaveData {
-  return { version: SAVE_VERSION, character: null, pets: [], activePetId: null }
+  return {
+    version: SAVE_VERSION,
+    character: null,
+    pets: [],
+    activePetId: null,
+    coins: 0,
+    settings: { muted: false },
+  }
 }
 
 type Reader = Pick<Storage, 'getItem'>
@@ -37,7 +46,10 @@ export function loadSave(storage: Reader | undefined): SaveData {
       data.character && typeof data.character.name === 'string' && data.character.look
         ? data.character
         : null
-    return { version: SAVE_VERSION, character, pets, activePetId }
+    // Fields added after the first release default to their empty values
+    const coins = Number.isInteger(data.coins) && data.coins! >= 0 ? data.coins! : 0
+    const settings = { muted: data.settings?.muted === true }
+    return { version: SAVE_VERSION, character, pets, activePetId, coins, settings }
   } catch {
     return emptySave()
   }

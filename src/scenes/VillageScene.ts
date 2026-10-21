@@ -7,10 +7,12 @@ import { ensureBarrierTexture, ensureHutTexture } from '../art/hut'
 import { addFrames, rasterize } from '../art/pixels'
 import { ensureVillageTexture } from '../art/village'
 import { texts } from '../data/texts'
+import { GAME_HEIGHT } from '../display'
 import { palette } from '../palette'
 import { activePet } from '../state/save'
 import { getSave } from '../state/store'
 import { Caption } from '../ui/Caption'
+import { Hud } from '../ui/Hud'
 import { LabelPill } from '../ui/LabelPill'
 import { findPath, isBlocked, nearestFree, type Grid } from '../world/path'
 import {
@@ -44,6 +46,7 @@ export class VillageScene extends PixelScene {
   private trail: { x: number; y: number }[] = []
   private grid!: Grid
   private caption!: Caption
+  private hud!: Hud
   private tapMark!: Phaser.GameObjects.Image
   private pos = { x: SPAWN.x, y: SPAWN.y }
   private waypoints: { x: number; y: number }[] = []
@@ -64,7 +67,7 @@ export class VillageScene extends PixelScene {
   }
 
   create() {
-    const cam = this.setupCamera(VILLAGE_WIDTH, VILLAGE_HEIGHT)
+    this.setupCamera(VILLAGE_WIDTH, VILLAGE_HEIGHT)
     this.grid = buildWalkGrid()
     this.add.image(0, 0, ensureVillageTexture(this)).setOrigin(0)
 
@@ -95,7 +98,6 @@ export class VillageScene extends PixelScene {
       this.pet.showName(false)
     }
     this.trail = [{ x: this.pos.x - PET_DISTANCE, y: this.pos.y }, { ...this.pos }]
-    cam.startFollow(this.hero, true)
 
     if (!this.textures.exists('tap-mark')) {
       const map = ['.a.', 'aba', '.a.']
@@ -105,6 +107,8 @@ export class VillageScene extends PixelScene {
     }
     this.tapMark = this.add.image(0, 0, 'tap-mark', 'mark').setVisible(false).setDepth(1)
     this.caption = new Caption(this)
+    this.hud = new Hud(this)
+    this.followCamera()
 
     this.input.on('pointerup', (p: Phaser.Input.Pointer) => this.onTap(p.worldX, p.worldY))
     const kb = this.input.keyboard!
@@ -118,6 +122,8 @@ export class VillageScene extends PixelScene {
   }
 
   private onTap(x: number, y: number) {
+    // Taps on the top bar (mute, coins) are not walking targets
+    if (y - this.cameras.main.worldView.y < 20) return
     if (this.pet && Math.abs(x - this.pet.x) < 10 && y < this.pet.y + 3 && y > this.pet.y - 16) {
       this.pet.hop()
       this.pet.showName(true)
@@ -195,6 +201,14 @@ export class VillageScene extends PixelScene {
     this.hero.setWalking(moving)
     this.hero.tick(delta)
     this.followWithPet(delta)
+    this.followCamera()
+  }
+
+  /** Camera centred on her; top bar and captions stay pinned to the view. */
+  private followCamera() {
+    const top = this.scrollViewTo(this.hero.y - GAME_HEIGHT / 2, VILLAGE_HEIGHT)
+    this.hud.setViewY(top)
+    this.caption.setViewY(top)
   }
 
   /** The pet walks PET_DISTANCE px behind her along the path she took. */

@@ -1,5 +1,5 @@
 // Caption/overlay box (STYLE_GUIDE §8): dark semi-transparent, rounded, cream text,
-// centred at the bottom of the frame. Fixed to the camera.
+// centred at the bottom of the visible area (scrolling scenes call setViewY).
 import Phaser from 'phaser'
 import { GAME_HEIGHT, GAME_WIDTH } from '../display'
 import { overlay } from '../palette'
@@ -15,8 +15,12 @@ export class Caption extends Phaser.GameObjects.Container {
     this.bg = scene.add.graphics()
     this.label = addText(scene, 0, 0, '', 'title', 14, 'cream')
     this.add([this.bg, this.label])
-    this.setScrollFactor(0).setDepth(1000).setVisible(false)
+    this.setDepth(1000).setVisible(false)
     scene.add.existing(this)
+  }
+
+  setViewY(viewY: number): this {
+    return this.setY(viewY + GAME_HEIGHT - 24)
   }
 
   show(text: string, ms = 2200): void {

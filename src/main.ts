@@ -5,6 +5,7 @@ import { palette } from './palette'
 import { BootScene } from './scenes/BootScene'
 import { CharacterCreateScene } from './scenes/CharacterCreateScene'
 import { NameEntryScene } from './scenes/NameEntryScene'
+import { ShowEndScene } from './scenes/ShowEndScene'
 import { ShowScene } from './scenes/ShowScene'
 import { StarterPetScene } from './scenes/StarterPetScene'
 import { TitleScene } from './scenes/TitleScene'
@@ -54,6 +55,7 @@ const game = new Phaser.Game({
     StarterPetScene,
     VillageScene,
     ShowScene,
+    ShowEndScene,
   ],
 })
 
@@ -65,12 +67,18 @@ declare global {
       activeScene(): string | undefined
       /** Page coordinates of a world point in the active scene. */
       toPage(x: number, y: number): { x: number; y: number }
+      /** State of the running show (answer, format, attempt) */
+      show(): ReturnType<ShowScene['debugState']> | undefined
     }
   }
 }
 window.__game = game
 window.__debug = {
   activeScene: () => game.scene.getScenes(true)[0]?.scene.key,
+  show: () => {
+    const scene = game.scene.getScene('Show') as ShowScene
+    return game.scene.isActive('Show') ? scene.debugState() : undefined
+  },
   toPage(x, y) {
     const scene = game.scene.getScenes(true)[0]
     const cam = scene.cameras.main

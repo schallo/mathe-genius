@@ -19,6 +19,7 @@ export class Character extends Phaser.GameObjects.Container {
   private flip = false
   private walking = false
   private clock = 0
+  private jumpOffset = 0
 
   constructor(scene: Phaser.Scene, x: number, y: number, look: CharacterLook) {
     super(scene, x, y)
@@ -77,6 +78,18 @@ export class Character extends Phaser.GameObjects.Container {
     return this
   }
 
+  /** Happy jump (STYLE_GUIDE §5): squash, stretch up, land with a little squash. */
+  jump(): this {
+    const offsets = [1, -2, -4, -5, -4, -2, 0, 1, 0]
+    offsets.forEach((dy, i) =>
+      this.scene.time.delayedCall(i * 40, () => {
+        this.jumpOffset = dy
+        this.render()
+      }),
+    )
+    return this
+  }
+
   /** Call from the scene's update with the frame delta. */
   tick(delta: number): void {
     this.clock += delta
@@ -94,7 +107,7 @@ export class Character extends Phaser.GameObjects.Container {
     for (const part of this.parts) {
       part.setFrame(`${this.dir}-${frame}`)
       part.setFlipX(this.flip)
-      part.setY(1 - bob)
+      part.setY(1 - bob + this.jumpOffset)
     }
     this.shadowImage.setFrame(bob ? 'small' : 'big')
   }

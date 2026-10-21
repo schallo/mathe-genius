@@ -8,6 +8,7 @@ const FOLD = 6
 
 export class SpeechCard extends Phaser.GameObjects.Container {
   private label: Phaser.GameObjects.Text
+  private typing?: Phaser.Time.TimerEvent
 
   constructor(
     scene: Phaser.Scene,
@@ -45,8 +46,32 @@ export class SpeechCard extends Phaser.GameObjects.Container {
     scene.add.existing(this)
   }
 
-  setText(text: string): this {
+  setText(text: string, size?: number): this {
+    this.typing?.remove()
+    if (size) this.label.setFontSize(size)
     this.label.setText(text)
+    return this
+  }
+
+  /** Typewriter effect (STYLE_GUIDE §7): letter by letter, ~30 ms each, with a soft click. */
+  typeText(text: string, size: number, onTick?: () => void): this {
+    this.setText('', size)
+    let shown = 0
+    this.typing = this.scene.time.addEvent({
+      delay: 30,
+      repeat: text.length - 1,
+      callback: () => {
+        shown++
+        this.label.setText(text.slice(0, shown))
+        if (shown % 2 === 1) onTick?.()
+      },
+    })
+    return this
+  }
+
+  /** Moves the text block, e.g. up to leave room for the answer box. */
+  setTextY(y: number): this {
+    this.label.setY(y)
     return this
   }
 }

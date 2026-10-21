@@ -36,5 +36,18 @@ export const texts = {
   show: {
     soon: 'Bald geht’s los!',
     back: 'Zurück',
+    praise: ['Richtig!', 'Super!', 'Klasse!', 'Genau!', 'Stark gerechnet!'],
+    praiseName: (name: string) => [`Super, ${name}!`, `Klasse, ${name}!`],
+    hint: 'Fast! Schau mal:',
+    solution: 'Kein Problem – so geht’s:',
+    retype: 'Tipp das Ergebnis ab!',
+    rest: 'Rest',
+    challenge: 'Extra',
+    streak: 'Fünf in Folge!',
+    endSolved: (solved: number, total: number) => `Du hast ${solved} von ${total} geschafft!`,
+    endEffort: 'Du bist drangeblieben!',
+    endCoins: (coins: number) => `+${coins} Münzen`,
+    again: 'Nochmal',
+    toVillage: 'Ins Dorf',
   },
 }

@@ -21,6 +21,18 @@ export abstract class PixelScene extends Phaser.Scene {
     return cam
   }
 
+  /**
+   * Scrolls the camera so the view starts at `top` (whole pixels, clamped to the world).
+   * Scrolling scenes use this instead of startFollow, so objects pinned to the view
+   * (top bar, captions) can be placed at exactly the same position in the same frame.
+   * Returns the view's top edge.
+   */
+  protected scrollViewTo(top: number, worldHeight: number): number {
+    const y = Math.round(Phaser.Math.Clamp(top, 0, worldHeight - GAME_HEIGHT))
+    this.cameras.main.centerOn(GAME_WIDTH / 2, y + GAME_HEIGHT / 2)
+    return y
+  }
+
   /** Fade through ink (no flash, STYLE_GUIDE §9a) and start another scene. */
   protected goTo(scene: string, data?: object): void {
     this.input.enabled = false
