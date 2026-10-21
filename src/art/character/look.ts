@@ -13,7 +13,7 @@ export const CHAR_HEIGHT = 22
 
 export type SkinTone = 'skin1' | 'skin2' | 'skin3' | 'skin4'
 export type HairColor = 'rotblond' | 'braun' | 'blond' | 'schwarz' | 'rot'
-export type OutfitColor = 'rosa' | 'mint' | 'himmel' | 'flieder'
+export type OutfitColor = 'rosa' | 'mint' | 'himmel' | 'flieder' | 'gelb'
 export type AccessoryColor = 'gold' | 'rosa'
 
 export type CharacterLook = {
@@ -59,6 +59,7 @@ export const outfitShades: Record<OutfitColor, Shades> = {
   mint: { fill: 'mint', shade: 'mintDark' },
   himmel: { fill: 'sky', shade: 'accentBlue' },
   flieder: { fill: 'lilac', shade: 'curtainLight' },
+  gelb: { fill: 'gold', shade: 'goldDark' },
 }
 
 export const accessoryShades: Record<AccessoryColor, Shades> = {

@@ -4,6 +4,7 @@
 import Phaser from 'phaser'
 import { sfx } from '../audio/sfx'
 import { Key } from './Key'
+import { onKeyDown } from './keyboard'
 
 export const PAD = { x: 24, y: 210, keyW: 40, keyH: 30, gap: 4 } as const
 
@@ -46,7 +47,7 @@ export class NumberPad extends Phaser.GameObjects.Container {
     })
     scene.add.existing(this)
 
-    scene.input.keyboard?.on('keydown', (e: KeyboardEvent) => {
+    onKeyDown(scene, (e) => {
       if (/^\d$/.test(e.key)) press(e.key)
       else if (e.key === 'Backspace') press('⌫')
       else if (e.key === 'Enter') press('OK')

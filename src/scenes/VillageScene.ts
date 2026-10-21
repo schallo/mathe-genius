@@ -126,6 +126,8 @@ export class VillageScene extends PixelScene {
     if (y - this.cameras.main.worldView.y < 20) return
     if (this.pet && Math.abs(x - this.pet.x) < 10 && y < this.pet.y + 3 && y > this.pet.y - 16) {
       this.pet.hop()
+      // With the ball from the Laden the pet does a second hop (a little trick)
+      if (getSave().owned.includes('ball')) this.time.delayedCall(450, () => this.pet?.hop())
       this.pet.showName(true)
       this.time.delayedCall(2000, () => this.pet?.showName(false))
       return

@@ -17,6 +17,7 @@ export class Key extends Phaser.GameObjects.Container {
   private text: Phaser.GameObjects.Text
   private fill: PaletteToken
   private selected = false
+  private isLabel: boolean
   readonly keyWidth: number
   readonly keyHeight: number
 
@@ -34,6 +35,7 @@ export class Key extends Phaser.GameObjects.Container {
     this.keyWidth = keyWidth
     this.keyHeight = keyHeight
     this.fill = options.fill ?? 'cream'
+    this.isLabel = !!options.label
     this.bg = scene.add.graphics()
     this.text = addText(
       scene,
@@ -64,7 +66,7 @@ export class Key extends Phaser.GameObjects.Container {
   }
 
   setCaption(caption: string): this {
-    this.text.setText(caption)
+    this.text.setText(this.isLabel ? caption.toUpperCase() : caption)
     return this
   }
 

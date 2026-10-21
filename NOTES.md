@@ -45,13 +45,15 @@
 
 ## Next tasks (as of 2026-10-21)
 
-Done: steps 1–4 and step 5 except the live Firebase connection. Live: https://schallo.github.io/mathe-genius/ (steps 1–4).
+Done: steps 1–4, step 5 except the live Firebase connection, and step 6 (Laden, Mein Haus, Tierheim, wish bar). Live: https://schallo.github.io/mathe-genius/ (up to step 5).
+
+- **Temporary test button:** the shop shows a gold `+100` button only in `npm run dev` or with `?test` in the URL (`src/testMode.ts`). Remove it once shopping is tested.
 
 1. **Firebase setup (you):** follow `docs/SETUP_FIREBASE.md`, paste the config into the chat. Then: fill `src/firebaseConfig.ts`, test login + sync PC ↔ iPhone, push. Finishes step 5.
 2. **Push** the step 5 commit (parent area, export/import) so it is live.
 3. **Playtest the shows with Leni** (number pad, hints, coins): too easy/hard? Which topic should be the focus (currently Einmaleins level 2)?
 4. **Check with school** the open assumptions in "Math engine assumptions" below (subtraction method etc.).
-5. **Step 6 – Laden, Mein Haus, Tierheim, wish goal** with the first ~15 items (2 adoptable pets with naming, 3 haircuts, 3 dresses). ⏸ checkpoint.
+5. ~~Step 6~~ done – ⏸ **checkpoint: please test the shop, Mein Haus and Tierheim** (locally with `npm run dev`, or online with `?test` after the push).
 6. **Step 7 – Battles:** Blumenwiese, first wild creatures (Igel, Eichhörnchen, Fuchs), battle screen, adaptive timer, pet XP, family traits, befriending. ⏸ checkpoint.
 7. **Step 8 – Einmaleins-Dojo:** 200 facts, Leitner boxes, Üben, Blitzrunde, 10 × 10 grid, Turbo-Duell, Reihen-Meister. ⏸ checkpoint.
 8. **Step 9 – Learning huts** (Rechenwerkstatt with the written calculation grid, Zahlenturm, Marktstand); written tasks join the shows.

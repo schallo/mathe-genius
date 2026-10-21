@@ -1,7 +1,7 @@
 // Character creation (GAME_DESIGN §5): skin, hairstyle, hair colour, dress, bow.
 // Her own look is preselected. Tapping the preview turns her around.
 import { Character } from '../art/character/Character'
-import { hairstyles, type HairStyle } from '../art/character/hair'
+import type { HairStyle } from '../art/character/hair'
 import {
   DEFAULT_LOOK,
   accessoryShades,
@@ -12,6 +12,7 @@ import {
 } from '../art/character/look'
 import { ensureCharacterTextures, textureKeys } from '../art/character/textures'
 import { ensureStageTexture } from '../art/stage'
+import { ITEMS } from '../data/items'
 import { texts } from '../data/texts'
 import { GAME_WIDTH } from '../display'
 import type { PaletteToken } from '../palette'
@@ -80,7 +81,8 @@ export class CharacterCreateScene extends PixelScene {
         fill: shades[value].fill,
         apply: (look) => ({ ...look, [key]: value }),
       }))
-    const styles = Object.keys(hairstyles) as HairStyle[]
+    // Only the starter hairstyles; more are in the Laden
+    const styles = ITEMS.filter((i) => i.starter && i.wear?.hair).map((i) => i.wear!.hair!)
     return [
       {
         label: texts.create.skin,

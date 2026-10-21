@@ -9,17 +9,24 @@ import { SPECIES, type SpeciesId } from '../data/creatures'
 import { texts } from '../data/texts'
 import { GAME_WIDTH } from '../display'
 import { backspace, finishName, randomName, typeKey } from '../state/names'
+import { item } from '../data/items'
 import { addPet } from '../state/save'
-import { updateSave } from '../state/store'
+import { adopt } from '../state/shop'
+import { deviceId, getSave, updateSave } from '../state/store'
 import { Caption } from '../ui/Caption'
 import { Key } from '../ui/Key'
+import { onKeyDown } from '../ui/keyboard'
 import { LabelPill } from '../ui/LabelPill'
 import { addText } from '../ui/text'
 import { PixelScene } from './PixelScene'
 
+/**
+ * character: first start (then starter pet) or renaming from the wardrobe (`returnTo`).
+ * pet: starter pet, adopting from the Tierheim (`itemId`, pays on FERTIG) or renaming (`petId`).
+ */
 type Data =
-  | { mode: 'character'; look: CharacterLook }
-  | { mode: 'pet'; species: SpeciesId; look?: CharacterLook }
+  | { mode: 'character'; look: CharacterLook; returnTo?: string }
+  | { mode: 'pet'; species: SpeciesId; itemId?: string; petId?: string; returnTo?: string }
 
 const FLOOR_Y = 200
 const KEY_W = 15
@@ -43,7 +50,14 @@ export class NameEntryScene extends PixelScene {
 
   init(data: Data) {
     this.entry = data
-    this.name = ''
+    // Renaming starts with the current name
+    const save = getSave()
+    this.name =
+      data.mode === 'pet'
+        ? (save.pets.find((p) => p.id === data.petId)?.name ?? '')
+        : data.returnTo
+          ? (save.character?.name ?? '')
+          : ''
   }
 
   create() {
@@ -76,7 +90,7 @@ export class NameEntryScene extends PixelScene {
 
     this.buildKeyboard()
     this.caption = new Caption(this)
-    this.input.keyboard!.on('keydown', (e: KeyboardEvent) => {
+    onKeyDown(this, (e) => {
       if (e.key === 'Backspace') this.setName(backspace(this.name))
       else if (e.key === 'Enter') this.done()
       else if (e.key.length === 1) this.setName(typeKey(this.name, e.key))
@@ -144,15 +158,24 @@ export class NameEntryScene extends PixelScene {
       this.caption.show(texts.names.empty)
       return
     }
-    if (this.entry.mode === 'character') {
-      const look = this.entry.look
-      updateSave((save) => ({ ...save, character: { name, look } }))
-      this.goTo('StarterPet')
-    } else {
-      const species = this.entry.species
-      updateSave((save) => addPet(save, species, name))
-      this.goTo('Village')
+    const entry = this.entry
+    if (entry.mode === 'character') {
+      updateSave((save) => ({ ...save, character: { name, look: entry.look } }))
+      this.goTo(entry.returnTo ?? 'StarterPet')
+      return
     }
+    const adopted = entry.itemId ? item(entry.itemId) : undefined
+    updateSave((save) => {
+      if (entry.petId) {
+        return { ...save, pets: save.pets.map((p) => (p.id === entry.petId ? { ...p, name } : p)) }
+      }
+      if (adopted) {
+        const result = adopt(save, adopted, name, deviceId())
+        return result.ok ? result.save : save
+      }
+      return addPet(save, entry.species, name)
+    })
+    this.goTo(entry.returnTo ?? 'Village')
   }
 
   update(_time: number, delta: number) {

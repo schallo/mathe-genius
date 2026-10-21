@@ -83,9 +83,25 @@ export const HUTS: Hut[] = [
     icon: 'apple',
     scene: null,
   },
-  { id: 'laden', name: 'Laden', x: 20, y: 250, roof: 'goldDark', icon: 'coin', scene: null },
-  { id: 'tierheim', name: 'Tierheim', x: 128, y: 250, roof: 'roseDark', icon: 'paw', scene: null },
-  { id: 'haus', name: 'Mein Haus', x: 20, y: 320, roof: 'heroDark', icon: 'heart', scene: null },
+  { id: 'laden', name: 'Laden', x: 20, y: 250, roof: 'goldDark', icon: 'coin', scene: 'Shop' },
+  {
+    id: 'tierheim',
+    name: 'Tierheim',
+    x: 128,
+    y: 250,
+    roof: 'roseDark',
+    icon: 'paw',
+    scene: 'Shelter',
+  },
+  {
+    id: 'haus',
+    name: 'Mein Haus',
+    x: 20,
+    y: 320,
+    roof: 'heroDark',
+    icon: 'heart',
+    scene: 'Wardrobe',
+  },
 ]
 
 export const POND = { x: 132, y: 326, width: 28, height: 18 }

@@ -158,7 +158,7 @@ test('tap the Theater, walk in, see the stage and come back', async ({ page }) =
 
 test('a hut under construction keeps her in the village', async ({ page }) => {
   await startInVillage(page)
-  await tapWorld(page, 36, 266) // Laden
+  await tapWorld(page, 144, 196) // Marktstand (still a construction site)
   await page.waitForTimeout(3500)
   expect(await activeScene(page)).toBe('Village')
   await shot(page, 'construction')

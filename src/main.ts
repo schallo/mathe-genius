@@ -7,11 +7,14 @@ import { BootScene } from './scenes/BootScene'
 import { CharacterCreateScene } from './scenes/CharacterCreateScene'
 import { NameEntryScene } from './scenes/NameEntryScene'
 import { ParentScene } from './scenes/ParentScene'
+import { ShelterScene } from './scenes/ShelterScene'
+import { ShopScene } from './scenes/ShopScene'
 import { ShowEndScene } from './scenes/ShowEndScene'
 import { ShowScene } from './scenes/ShowScene'
 import { StarterPetScene } from './scenes/StarterPetScene'
 import { TitleScene } from './scenes/TitleScene'
 import { VillageScene } from './scenes/VillageScene'
+import { WardrobeScene } from './scenes/WardrobeScene'
 
 const frame = document.getElementById('frame')!
 const container = document.getElementById('game')!
@@ -61,6 +64,9 @@ const game = new Phaser.Game({
     ShowScene,
     ShowEndScene,
     ParentScene,
+    ShopScene,
+    WardrobeScene,
+    ShelterScene,
   ],
 })
 

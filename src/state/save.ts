@@ -25,6 +25,10 @@ export type SaveData = {
    * one or purchases made on the other (balance = all earned − all spent).
    */
   coins: { earned: Counter; spent: Counter }
+  /** Bought items (ids from data/items.ts); starter items are always owned */
+  owned: string[]
+  /** Item she is saving for (wish bar) */
+  wish: string | null
   settings: { muted: boolean }
 }
 
@@ -36,6 +40,8 @@ export function emptySave(): SaveData {
     pets: [],
     activePetId: null,
     coins: { earned: {}, spent: {} },
+    owned: [],
+    wish: null,
     settings: { muted: false },
   }
 }
@@ -47,6 +53,11 @@ export const coinBalance = (save: SaveData) => total(save.coins.earned) - total(
 export function earnCoins(save: SaveData, amount: number, device: string): SaveData {
   const earned = { ...save.coins.earned, [device]: (save.coins.earned[device] ?? 0) + amount }
   return { ...save, coins: { ...save.coins, earned } }
+}
+
+export function spendCoins(save: SaveData, amount: number, device: string): SaveData {
+  const spent = { ...save.coins.spent, [device]: (save.coins.spent[device] ?? 0) + amount }
+  return { ...save, coins: { ...save.coins, spent } }
 }
 
 const count = (n: unknown) => (Number.isInteger(n) && (n as number) >= 0 ? (n as number) : 0)
@@ -102,6 +113,8 @@ export function parseSave(input: unknown): SaveData | null {
     pets,
     activePetId: pets.some((p) => p.id === data.activePetId) ? (data.activePetId as string) : null,
     coins: { earned: counter(coins?.earned), spent: counter(coins?.spent) },
+    owned: Array.isArray(data.owned) ? data.owned.filter((id) => typeof id === 'string') : [],
+    wish: typeof data.wish === 'string' ? data.wish : null,
     settings: { muted: settings?.muted === true },
   }
 }
@@ -149,7 +162,7 @@ export function activePet(data: SaveData): PetSave | undefined {
 
 /**
  * Merges two saves of the same player (GAME_DESIGN §8): the newer save wins for
- * character, settings and the active pet; pets are combined; each device's coin
+ * character, settings, wish and the active pet; pets and bought items are combined; each device's coin
  * counters are merged by their maximum, so no coins get lost.
  */
 export function mergeSaves(a: SaveData, b: SaveData): SaveData {
@@ -169,6 +182,8 @@ export function mergeSaves(a: SaveData, b: SaveData): SaveData {
       earned: mergeCounters(a.coins.earned, b.coins.earned),
       spent: mergeCounters(a.coins.spent, b.coins.spent),
     },
+    owned: [...new Set([...older.owned, ...newer.owned])],
+    wish: newer.wish,
     settings: newer.settings,
   }
 }

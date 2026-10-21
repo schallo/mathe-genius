@@ -54,6 +54,11 @@ const ICONS: Record<string, Icon> = {
     map: ['..aaa..', '.a...a.', '.a...a.', 'aaaaaaa', 'aaabaaa', 'aaabaaa', 'aaaaaaa'],
     legend: { a: palette.woodDark, b: palette.cream },
   },
+  ball: {
+    map: ['..aaa..', '.aabaa.', 'aabbbaa', 'abbabba', 'aabbbaa', '.aabaa.', '..aaa..'],
+    legend: { a: palette.rose, b: palette.cream },
+    outline: palette.roseDark,
+  },
   star: {
     map: ['...a...', '...a...', 'aaaaaaa', '.aaaaa.', '..aaa..', '.aa.aa.', 'aa...aa'],
     legend: { a: palette.gold },
