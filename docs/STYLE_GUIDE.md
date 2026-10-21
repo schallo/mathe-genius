@@ -223,15 +223,15 @@ Look and feel of a classic **2D handheld monster-RPG** (top-down village, separa
 
 ### Extra colours for the world
 
-| Token         | Hex       | Use                        |
-| ------------- | --------- | -------------------------- |
-| `grass-light` | `#a8d68a` | grass highlights           |
-| `grass-mid`   | `#7fb86a` | main grass                 |
-| `grass-dark`  | `#5a8f4e` | grass shading, platforms   |
-| `path-light`  | `#ecd9a8` | paths, sand                |
-| `path-dark`   | `#c9ac72` | path edges                 |
-| `stone`       | `#b8b2a8` | walls, rocks, Kristallberg |
-| `stone-dark`  | `#8a837a` | stone shading              |
+| Token         | Hex       | Use                      |
+| ------------- | --------- | ------------------------ |
+| `grass-light` | `#a8d68a` | grass highlights         |
+| `grass-mid`   | `#7fb86a` | main grass               |
+| `grass-dark`  | `#5a8f4e` | grass shading, platforms |
+| `path-light`  | `#ecd9a8` | paths, sand              |
+| `path-dark`   | `#c9ac72` | path edges               |
+| `stone`       | `#b8b2a8` | walls, rocks, Wolkenberg |
+| `stone-dark`  | `#8a837a` | stone shading            |
 
 Water uses `sky` with `accent-blue` ripples. Roofs use existing tokens (`rose-dark`, `curtain-mid`, `wood-dark`, `mint-dark`, `lilac`).
 

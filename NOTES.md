@@ -9,6 +9,7 @@
 - **Battles:** her **pets** fight. Topics: Einmaleins + Division, Kopfrechnen Plus/Minus. **Adaptive timer** (≈ 1.5 × median response time, 3–12 s). **Gentle defeat:** pet naps, nothing lost.
 - **Pets:** starter pet (choice of 3) at character creation, adopt more in the Tierheim, befriend a wild species after defeating it 3 times (deterministic, no random chance).
 - **Character height:** about 22 px.
+- **Pets:** she loves cats and dogs (most variety there). Everyday pets (hamster, mouse, turtle, …) are bought; wildlife (lion, …), dinosaurs (T-Rex, Brachiosaurus) and fantasy animals (unicorn) are befriended in later wild areas. Roster in `GAME_DESIGN.md` §4.
 - **Math focus:** all main topics; priority order in `GAME_DESIGN.md` §11. Sachaufgaben: money (€/ct) for now.
 - **Offline PWA**, fonts bundled via `@fontsource`; no runtime network requests.
 - **Hosting:** GitHub Pages (`.github/workflows/deploy.yml`). **Git:** one commit per finished build step.
@@ -23,7 +24,6 @@
 
 ## Open questions
 
-- Wild creature and starter pet designs: any favourite animals or ideas from your daughter? (Otherwise I'll draft 3 starters + 3 Blumenwiese creatures in step 7 and show them.)
 - GitHub repo: needs to be created and pushed by you (the `gh` CLI isn't installed). Then enable _Settings → Pages → Source: GitHub Actions_.
 
 ## Technical notes for step 1

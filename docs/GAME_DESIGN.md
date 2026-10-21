@@ -73,7 +73,7 @@ A small top-down pixel village that fits on **one or two screens** (portrait). H
 
 | Category                                   | Examples                                                                                | Price range (coins) |
 | ------------------------------------------ | --------------------------------------------------------------------------------------- | ------------------- |
-| **Haustiere (pets)**                       | kitten, puppy, bunny, hamster, unicorn foal, little dragon, penguin, fox                | 150–600             |
+| **Haustiere (pets)**                       | kitten, puppy, hamster, mouse, turtle, bunny, guinea pig, budgie (see Pet roster)       | 150–600             |
 | **Kleider (dresses & outfits)**            | summer dress, ballgown, football kit, raincoat, pyjamas, princess dress, astronaut suit | 40–250              |
 | **Frisuren (haircuts)**                    | ponytail, braids, bob, curls, space buns, long wavy hair; plus hair colours             | 30–150              |
 | **Accessoires**                            | bows, hats, crowns, glasses, scarves, backpacks                                         | 20–100              |
@@ -98,6 +98,22 @@ She can mark **one item as her wish**. A progress bar on the stage shows "Noch 8
 - Pets never get sick, hungry or sad. **No neglect mechanics.**
 - **Getting pets:** a **starter pet** of her choice (one of 3) at character creation; more pets are adopted with coins in the **Tierheim**; and a wild creature she has defeated **3 times** wants to join her ("Flocki möchte mit dir kommen!") – deterministic, never a random chance.
 - **Battle pets:** every pet can fight. Pets earn **XP** in battles and level up (more HP, stronger attacks, a new attack animation every few levels). The pet chosen in the Tierheim is her **active pet**: it follows her in the village and fights for her.
+
+### Pet roster
+
+Her favourites are **cats and dogs**; they get the most variety (several fur colours/breeds as separate pets). All animals are cute, round and friendly – also the dinosaurs and lions, never scary (`STYLE_GUIDE.md` §11).
+
+| Group                         | Animals                                                                                                   | How she gets them                                                                           |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| **Haustiere** (everyday pets) | Katze, Hund (several colours each), Hamster, Maus, Schildkröte, Kaninchen, Meerschweinchen, Wellensittich | **Starter** (choice of Kätzchen, Hündchen, Hamster) or **adopt with coins** in the Tierheim |
+| **Wildtiere** (wildlife)      | Igel, Eichhörnchen, Fuchs, Eule, Waschbär · Löwe, Elefant, Giraffe, Zebra                                 | **Befriend** in the wild area (3 wins against the species)                                  |
+| **Urzeittiere** (dinosaurs)   | T-Rex, Brachiosaurus, Triceratops, Flugsaurier                                                            | **Befriend** in a later area                                                                |
+| **Fabeltiere** (fantasy)      | Einhorn, Pegasus, Drache                                                                                  | **Befriend** in the last area                                                               |
+| **Besondere Varianten**       | e.g. Regenbogen-Einhorn, Goldener T-Rex, Sternen-Katze                                                    | **Stars + coins** in the Tierheim (star items)                                              |
+
+- Rule of thumb: everyday pets are bought, wild and fancy pets are **earned in battles** – that's the reason to keep going into the wild area.
+- Wild creatures in battle are these animals in their wild form (e.g. a wild fox); once befriended, the same animal becomes her pet and can be named.
+- New animals only need a data entry in `data/creatures.ts` (and `items.ts` for shop pets) plus a sprite.
 
 ### Sammelalbum (collection book)
 
@@ -194,8 +210,8 @@ Timed mental-math battles in the style of classic 2D monster-RPG battle screens.
 
 ### Wild area
 
-- A path at the village edge leads to **areas** with rising difficulty: **Blumenwiese** → **Flüsterwald** → **Kristallberg**. An area unlocks when her strongest pet reaches a certain level.
-- Wild creatures (original designs, 10–16 px like pets) **wander visibly** – no random encounters. She taps one or walks into it to start a battle.
+- A path at the village edge leads to **areas** with rising difficulty: **Blumenwiese** (Igel, Eichhörnchen) → **Flüsterwald** (Fuchs, Eule, Waschbär) → **Sonnensavanne** (Löwe, Elefant, Giraffe, Zebra) → **Urzeittal** (dinosaurs) → **Wolkenberg** (Einhorn, Pegasus, Drache). An area unlocks when her strongest pet reaches a certain level.
+- Wild creatures (animals from the Pet roster in their wild form, original designs, 10–16 px like pets) **wander visibly** – no random encounters. She taps one or walks into it to start a battle.
 - Each creature species has a **math topic**: Einmaleins + Division or Kopfrechnen Plus/Minus. Stronger areas use higher levels of that topic.
 
 ### Battle flow
@@ -264,12 +280,12 @@ Timed mental-math battles in the style of classic 2D monster-RPG battle screens.
 4. Show flow in the Theater hut with number pad, hints, coin rewards.
 5. Save system (localStorage + JSON export).
 6. Shop + wardrobe + wish goal + Tierheim with first ~15 items (incl. 2 adoptable pets with naming, 3 haircuts, 3 dresses). ⏸ checkpoint
-7. Battles: wild area (Blumenwiese), 3 wild creatures, battle screen, adaptive timer, pet XP/levels, gentle defeat, befriending. ⏸ checkpoint
+7. Battles: wild area (Blumenwiese with Igel + Eichhörnchen, plus a wild Fuchs as first "big" opponent), battle screen, adaptive timer, pet XP/levels, gentle defeat, befriending. ⏸ checkpoint
 8. Einmaleins-Dojo: fact tracking, Üben, Blitzrunde, progress grid; then Turbo-Duell and Reihen-Meister. ⏸ checkpoint
 9. Learning huts (Rechenwerkstatt, Zahlenturm, Marktstand) incl. written calculation grid.
 10. Adaptive difficulty, mistake repetition, stars.
 11. Collection album, daily calendar, parent area.
-12. Flüsterwald + Kristallberg, more creatures; expand items to 60–80.
+12. Further areas one by one (Flüsterwald, Sonnensavanne, Urzeittal, Wolkenberg) with their animals; more everyday pets and cat/dog variants; expand items to 60–80.
 
 ## 12. Out of Scope
 
