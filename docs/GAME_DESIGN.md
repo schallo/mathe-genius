@@ -1,6 +1,8 @@
-# Game Design – "Mathe-Bühne" (working title)
+# Game Design – "Zahlenhausen"
 
 ## 1. Purpose
+
+**Zahlenhausen** – "Rechnen mit Freunden" – is shown on the title screen, which is also where the parent login starts (section 8).
 
 The game exists to **motivate my daughter to practise math** regularly and enjoy it. She earns coins by solving math problems on a cozy pixel stage and spends them on things she cares about: **pets, dresses, haircuts, accessories and stage decorations** for her character. Math is the only way to earn coins.
 

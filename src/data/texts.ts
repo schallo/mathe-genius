@@ -2,7 +2,8 @@
 
 export const texts = {
   title: {
-    name: 'Mathe-Bühne',
+    name: 'Zahlenhausen',
+    subtitle: 'Rechnen mit Freunden',
     play: 'Spielen',
     hello: (name: string) => `Hallo, ${name}!`,
   },

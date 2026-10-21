@@ -3,6 +3,7 @@
 import type { CharacterLook } from '../art/character/look'
 import { SPECIES, type SpeciesId } from '../data/creatures'
 
+// Kept from the working title "Mathe-Bühne" so existing progress stays readable
 export const SAVE_KEY = 'mathe-buehne'
 export const SAVE_VERSION = 1
 

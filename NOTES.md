@@ -2,6 +2,7 @@
 
 ## Decisions (2026-10-21)
 
+- **Name:** Zahlenhausen ("Rechnen mit Freunden"), replacing the working title Mathe-Bühne. The localStorage key stays `mathe-buehne`.
 - **Portrait on all devices**, native resolution **180 × 360**. On the PC the tall frame sits centred.
 - **Look:** 2D pixel, classic handheld monster-RPG (top-down village + battle screen), cozy palette from the style guide. Genre inspiration only, all content original.
 - **Village hub** with huts: Theater (shows), learning huts per math field, Laden, Mein Haus (Garderobe), Tierheim, Bibliothek; path to the wild area. The stage/show concept lives on inside the Theater hut.

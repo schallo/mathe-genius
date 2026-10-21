@@ -23,7 +23,8 @@ export class TitleScene extends PixelScene {
   create() {
     this.setupCamera()
     this.add.image(0, 0, ensureStageTexture(this, { open: false })).setOrigin(0)
-    addText(this, GAME_WIDTH / 2, 64, texts.title.name, 'title', 32, 'cream')
+    addText(this, GAME_WIDTH / 2, 60, texts.title.name, 'title', 30, 'cream')
+    addText(this, GAME_WIDTH / 2, 82, texts.title.subtitle, 'label', 6, 'cream')
 
     const save = getSave()
     this.hero = new Character(this, 90, STAGE_FLOOR_Y, save.character?.look ?? DEFAULT_LOOK)

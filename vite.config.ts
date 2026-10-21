@@ -9,8 +9,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       workbox: { globPatterns: ['**/*.{js,css,html,svg,png,woff2}'] },
       manifest: {
-        name: 'Mathe-Bühne',
-        short_name: 'Mathe-Bühne',
+        name: 'Zahlenhausen',
+        short_name: 'Zahlenhausen',
         lang: 'de',
         display: 'standalone',
         orientation: 'portrait',
