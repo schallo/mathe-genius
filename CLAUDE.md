@@ -115,6 +115,10 @@ Rules:
 - Commands: `npm run dev` (also reachable in the home Wi-Fi for the iPhone), `npm test`, `npm run typecheck`, `npm run lint`, `npm run build`, `npm run e2e` (Playwright, projects `pc` and `iphone`).
 - For visual checks, take Playwright screenshots on both projects and look at them before reporting a step as done (skill `playtest`).
 - Hosting: GitHub Pages via `.github/workflows/deploy.yml` (runs tests + build on every push to `main`). Vite `base` is `./`.
-- Git: **one commit per finished build step** on `main`, only when `npm test`, `npm run build` and `npm run e2e` are green.
+- Git: **one commit per finished build step**, only when `npm test`, `npm run build` and `npm run e2e` are green. Every push to `main` deploys to GitHub Pages.
+  - **Local session** (VS Code on the PC): commit directly on `main`.
+  - **Web session** (claude.ai/code): work on a branch and open **one pull request per build step**; the user reviews and merges. Include screenshots and test results in the PR description.
+- Commit author email is the GitHub noreply address; never commit with a private email (pushes would be rejected).
+- Setup and deployment details for humans: `docs/SETUP_GITHUB.md`.
 - Topic priority for step 3: see `docs/GAME_DESIGN.md` §11. Sachaufgaben: money (€/ct) only for now.
 - Open questions and decisions go in `NOTES.md`.
