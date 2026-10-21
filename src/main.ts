@@ -3,7 +3,11 @@ import './style.css'
 import { GAME_HEIGHT, GAME_WIDTH, computeRenderSize, setRenderScale } from './display'
 import { palette } from './palette'
 import { BootScene } from './scenes/BootScene'
+import { CharacterCreateScene } from './scenes/CharacterCreateScene'
+import { NameEntryScene } from './scenes/NameEntryScene'
 import { ShowScene } from './scenes/ShowScene'
+import { StarterPetScene } from './scenes/StarterPetScene'
+import { TitleScene } from './scenes/TitleScene'
 import { VillageScene } from './scenes/VillageScene'
 
 const frame = document.getElementById('frame')!
@@ -42,7 +46,15 @@ const game = new Phaser.Game({
   pixelArt: true,
   roundPixels: true,
   scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
-  scene: [BootScene, VillageScene, ShowScene],
+  scene: [
+    BootScene,
+    TitleScene,
+    CharacterCreateScene,
+    NameEntryScene,
+    StarterPetScene,
+    VillageScene,
+    ShowScene,
+  ],
 })
 
 // Debug hooks for Playwright tests (the game is a canvas without DOM to query)

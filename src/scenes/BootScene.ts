@@ -11,6 +11,6 @@ export class BootScene extends Phaser.Scene {
       document.fonts.load('16px "VT323"'),
       document.fonts.load('500 8px "IBM Plex Mono"'),
     ])
-    this.scene.start('Village')
+    this.scene.start('Title')
   }
 }

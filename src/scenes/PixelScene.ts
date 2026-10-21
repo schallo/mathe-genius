@@ -11,6 +11,8 @@ export abstract class PixelScene extends Phaser.Scene {
     worldWidth = GAME_WIDTH,
     worldHeight = GAME_HEIGHT,
   ): Phaser.Cameras.Scene2D.Camera {
+    // goTo() disables input while fading out, and Phaser keeps that when a scene restarts
+    this.input.enabled = true
     const cam = this.cameras.main
     // Zoom pivots around the camera centre; the bounds keep the view inside the world
     cam.setZoom(renderScale()).setBounds(0, 0, worldWidth, worldHeight)

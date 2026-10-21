@@ -1,6 +1,7 @@
 // The layered character as one Phaser object. Position = point between her feet.
 import Phaser from 'phaser'
 import { shadow } from '../../palette'
+import { LabelPill } from '../../ui/LabelPill'
 import { CHAR_HEIGHT, type CharacterLook, type Direction } from './look'
 import { ensureCharacterTextures, textureKeys } from './textures'
 
@@ -11,6 +12,7 @@ const WALK_CYCLE = [1, 0, 2, 0]
 
 export class Character extends Phaser.GameObjects.Container {
   private shadowImage: Phaser.GameObjects.Image
+  private namePill?: LabelPill
   private parts: Phaser.GameObjects.Image[] = []
   private look: CharacterLook
   private dir: Direction = 'down'
@@ -38,7 +40,19 @@ export class Character extends Phaser.GameObjects.Container {
       return key ? [this.scene.add.image(0, 0, key, 'down-0').setOrigin(0.5, 1)] : []
     })
     this.add(this.parts)
+    if (this.namePill) this.bringToTop(this.namePill)
     this.render()
+    return this
+  }
+
+  /** Name tag: small label pill floating 3 px above her head (STYLE_GUIDE §9). */
+  setName(name: string | null, size = 5): this {
+    this.namePill?.destroy()
+    this.namePill = undefined
+    if (name) {
+      this.namePill = new LabelPill(this.scene, 0, -CHAR_HEIGHT - 3 - size, name, { size })
+      this.add(this.namePill)
+    }
     return this
   }
 

@@ -2,11 +2,14 @@
 import Phaser from 'phaser'
 import { Character } from '../art/character/Character'
 import { DEFAULT_LOOK } from '../art/character/look'
+import { Pet } from '../art/pets/Pet'
 import { ensureBarrierTexture, ensureHutTexture } from '../art/hut'
 import { addFrames, rasterize } from '../art/pixels'
 import { ensureVillageTexture } from '../art/village'
 import { texts } from '../data/texts'
 import { palette } from '../palette'
+import { activePet } from '../state/save'
+import { getSave } from '../state/store'
 import { Caption } from '../ui/Caption'
 import { LabelPill } from '../ui/LabelPill'
 import { findPath, isBlocked, nearestFree, type Grid } from '../world/path'
@@ -30,11 +33,15 @@ import { PixelScene } from './PixelScene'
 const SPEED = 48 // art px per second
 const DOOR_RADIUS = 5
 const WILD_Y = 12
+/** How far the pet walks behind her, along her trail. */
+const PET_DISTANCE = 14
 
 type Target = { kind: 'hut'; hut: Hut } | { kind: 'wild' } | { kind: 'spot' }
 
 export class VillageScene extends PixelScene {
   private hero!: Character
+  private pet?: Pet
+  private trail: { x: number; y: number }[] = []
   private grid!: Grid
   private caption!: Caption
   private tapMark!: Phaser.GameObjects.Image
@@ -53,6 +60,7 @@ export class VillageScene extends PixelScene {
     this.from = data.from
     this.waypoints = []
     this.target = null
+    this.trail = []
   }
 
   create() {
@@ -78,8 +86,15 @@ export class VillageScene extends PixelScene {
 
     const fromHut = HUTS.find((h) => h.id === this.from)
     this.pos = fromHut ? doorEntry(fromHut) : { ...SPAWN }
-    this.hero = new Character(this, this.pos.x, this.pos.y, DEFAULT_LOOK)
-    this.hero.face('down')
+    const save = getSave()
+    this.hero = new Character(this, this.pos.x, this.pos.y, save.character?.look ?? DEFAULT_LOOK)
+    this.hero.face('down').setName(save.character?.name ?? null)
+    const pet = activePet(save)
+    if (pet) {
+      this.pet = new Pet(this, this.pos.x - PET_DISTANCE, this.pos.y, pet.species, pet.name)
+      this.pet.showName(false)
+    }
+    this.trail = [{ x: this.pos.x - PET_DISTANCE, y: this.pos.y }, { ...this.pos }]
     cam.startFollow(this.hero, true)
 
     if (!this.textures.exists('tap-mark')) {
@@ -103,6 +118,12 @@ export class VillageScene extends PixelScene {
   }
 
   private onTap(x: number, y: number) {
+    if (this.pet && Math.abs(x - this.pet.x) < 10 && y < this.pet.y + 3 && y > this.pet.y - 16) {
+      this.pet.hop()
+      this.pet.showName(true)
+      this.time.delayedCall(2000, () => this.pet?.showName(false))
+      return
+    }
     const hut = hutAt(x, y)
     let goal: { x: number; y: number }
     if (hut) {
@@ -173,6 +194,35 @@ export class VillageScene extends PixelScene {
     this.hero.setDepth(this.hero.y)
     this.hero.setWalking(moving)
     this.hero.tick(delta)
+    this.followWithPet(delta)
+  }
+
+  /** The pet walks PET_DISTANCE px behind her along the path she took. */
+  private followWithPet(delta: number) {
+    if (!this.pet) return
+    const last = this.trail[this.trail.length - 1]
+    if (Math.hypot(this.pos.x - last.x, this.pos.y - last.y) >= 1) {
+      this.trail.push({ ...this.pos })
+      if (this.trail.length > 64) this.trail.shift()
+    }
+    let remaining = PET_DISTANCE
+    let point = this.trail[this.trail.length - 1]
+    for (let i = this.trail.length - 1; i > 0 && remaining > 0; i--) {
+      const a = this.trail[i]
+      const b = this.trail[i - 1]
+      const d = Math.hypot(a.x - b.x, a.y - b.y)
+      if (d >= remaining) {
+        point = { x: a.x + ((b.x - a.x) * remaining) / d, y: a.y + ((b.y - a.y) * remaining) / d }
+        remaining = 0
+      } else {
+        remaining -= d
+        point = b
+      }
+    }
+    const x = Math.round(point.x)
+    if (x !== this.pet.x) this.pet.setFlip(x < this.pet.x)
+    this.pet.setPosition(x, Math.round(point.y)).setDepth(this.pet.y)
+    this.pet.tick(delta)
   }
 
   private tryMove(dx: number, dy: number) {

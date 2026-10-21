@@ -32,8 +32,15 @@
 - Movement uses the real frame time (`game.loop.rawDelta`), not Phaser's smoothed delta, so walking speed stays right on slow frames.
 - **Starting look** is modelled on her (from a photo, not stored in the repo): fair skin (`skin1`), ginger hair (`hair-ginger`, new palette colour) pulled back into a ponytail, mint dress, pink bow.
 
-## Step 1 – left for later steps
+## Left for later steps
 
-- Name pill above her head → step 2 (naming).
 - Mute button ("always visible") → added together with the first sounds.
-- Title screen → step 2 (before character creation); the game currently starts in the village.
+- Save: step 2 already stores character and pets (`src/state/save.ts`, version 1); step 5 adds coins, progress and JSON export/import.
+
+## Playtest feedback (2026-10-21)
+
+- Step 1: she recognises herself, understands tap-to-walk on her own, opened the only open hut first, picks the **puppy** as her starter.
+
+## Deviations from the style guide
+
+- Name keyboard keys are 15 × 22 art px (≈ 30 × 44 screen px on the iPhone), below the 48 × 48 guideline: 11 keys per QWERTZ row don't fit otherwise in 180 px. Word keys (Zufall, Leertaste, Fertig) are wide.
