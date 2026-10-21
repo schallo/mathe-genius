@@ -166,19 +166,20 @@ Two monospace fonts, both from Google Fonts (bundled locally, no runtime downloa
 
 Items (dresses, hair, pets) may use these extra colours in addition to section 3, always with hard shading:
 
-| Token        | Hex                                        | Use                     |
-| ------------ | ------------------------------------------ | ----------------------- |
-| `rose`       | `#f2a0a8`                                  | dresses, blush, bows    |
-| `rose-dark`  | `#c86f7e`                                  | shading                 |
-| `mint`       | `#9fd8c0`                                  | dresses, pets           |
-| `mint-dark`  | `#5fa88e`                                  | shading                 |
-| `sky`        | `#a8cdf0`                                  | dresses, unicorn, water |
-| `lilac`      | `#c9a8e8`                                  | dresses, magical items  |
-| `hair-brown` | `#6b4226`                                  | hair                    |
-| `hair-blond` | `#e8c46a`                                  | hair                    |
-| `hair-black` | `#2b2228`                                  | hair                    |
-| `hair-red`   | `#c4552e`                                  | hair                    |
-| `skin-1…4`   | `#f6d3b8`, `#e8b48f`, `#c68a5e`, `#8d5a3b` | character skin tones    |
+| Token         | Hex                                        | Use                                                  |
+| ------------- | ------------------------------------------ | ---------------------------------------------------- |
+| `rose`        | `#f2a0a8`                                  | dresses, blush, bows                                 |
+| `rose-dark`   | `#c86f7e`                                  | shading                                              |
+| `mint`        | `#9fd8c0`                                  | dresses, pets                                        |
+| `mint-dark`   | `#5fa88e`                                  | shading                                              |
+| `sky`         | `#a8cdf0`                                  | dresses, unicorn, water                              |
+| `lilac`       | `#c9a8e8`                                  | dresses, magical items                               |
+| `hair-brown`  | `#6b4226`                                  | hair                                                 |
+| `hair-blond`  | `#e8c46a`                                  | hair                                                 |
+| `hair-black`  | `#2b2228`                                  | hair                                                 |
+| `hair-ginger` | `#e08a4c`                                  | hair (her own hair colour: strawberry-blonde/ginger) |
+| `hair-red`    | `#c4552e`                                  | hair                                                 |
+| `skin-1…4`    | `#f6d3b8`, `#e8b48f`, `#c68a5e`, `#8d5a3b` | character skin tones                                 |
 
 ## 9a. Village, Wild Area & Battles
 

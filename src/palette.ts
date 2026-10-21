@@ -31,6 +31,7 @@ export const palette = {
   hairBlond: 0xe8c46a,
   hairBlack: 0x2b2228,
   hairRed: 0xc4552e,
+  hairGinger: 0xe08a4c,
   skin1: 0xf6d3b8,
   skin2: 0xe8b48f,
   skin3: 0xc68a5e,

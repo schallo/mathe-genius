@@ -7,7 +7,9 @@ description: Play through the game on PC and iPhone viewports, look at screensho
 2. Run `npm run e2e` (Playwright projects `pc` and `iphone`).
 3. For the screens touched by the change, write a temporary Playwright script in the scratchpad (or extend
    a test in `e2e/`) that drives the game and saves screenshots to `test-results/` for both projects.
-   The game is a canvas: navigate by clicking coordinates or via a debug hook on `window`, not DOM selectors.
+   The game is a canvas: use the debug hook `window.__debug` (`activeScene()`, `toPage(x, y)` converts
+   world coordinates in art pixels to page coordinates for `page.mouse.click`). Wait ~800 ms after a scene
+   becomes active (fade-in + camera follow) before tapping or taking screenshots; see `e2e/smoke.spec.ts`.
 4. Look at every screenshot with the Read tool and check it against `docs/STYLE_GUIDE.md`:
    pixel-sharp integer scaling, palette only, touch targets ≥ 48 × 48 screen px, readable German text,
    no clutter, iPhone safe areas.

@@ -26,6 +26,14 @@
 
 - GitHub repo: needs to be created and pushed by you (the `gh` CLI isn't installed). Then enable _Settings → Pages → Source: GitHub Actions_.
 
-## Technical notes for step 1
+## Technical notes
 
-- Phaser `Scale.FIT` scales by non-integer factors (e.g. ×2.18), which makes pixel text slightly uneven. In step 1: prefer the largest integer zoom that fits and only fall back to FIT when even ×2 doesn't fit; render text at a higher resolution or as bitmap text.
+- **Crisp rendering** (`src/display.ts`): the canvas is rendered at an integer multiple of 180 × 360 so that one canvas pixel = one device pixel (×6 on the iPhone home-screen app, ×2 on a 1080p PC). Scenes extend `PixelScene`, which zooms the camera by that factor, so all game code works in art pixels and text is sharp. After a window resize the frame is refit (slightly less crisp until reload).
+- Movement uses the real frame time (`game.loop.rawDelta`), not Phaser's smoothed delta, so walking speed stays right on slow frames.
+- **Starting look** is modelled on her (from a photo, not stored in the repo): fair skin (`skin1`), ginger hair (`hair-ginger`, new palette colour) pulled back into a ponytail, mint dress, pink bow.
+
+## Step 1 – left for later steps
+
+- Name pill above her head → step 2 (naming).
+- Mute button ("always visible") → added together with the first sounds.
+- Title screen → step 2 (before character creation); the game currently starts in the village.
