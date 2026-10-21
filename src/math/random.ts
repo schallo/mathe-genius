@@ -16,3 +16,8 @@ export function seededRng(seed: number): Rng {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296
   }
 }
+
+/** Random element of a non-empty list. */
+export function pick<T>(rng: Rng, items: readonly T[]): T {
+  return items[Math.floor(rng() * items.length)]
+}

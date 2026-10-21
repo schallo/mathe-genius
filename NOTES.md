@@ -27,6 +27,15 @@
 
 - GitHub repo: needs to be created and pushed by you (the `gh` CLI isn't installed). Then enable _Settings → Pages → Source: GitHub Actions_.
 
+## Math engine assumptions (step 3) – please check with Leni's school
+
+- **Schriftliche Subtraktion:** worked solutions use the _Abziehverfahren mit Entbündeln_ ("hol dir 1 von der nächsten Stelle"). If her class uses the _Ergänzungsverfahren_, only `writtenSub` in `src/math/hints.ts` needs to change.
+- **Schriftliche Multiplikation with a two-digit factor:** partial products per place (254 · 20 + 254 · 3), then added.
+- **Rounding:** half up (…5 rounds up), as in German primary schools.
+- **Halbschriftlich division:** splitting into parts the divisor fits into (846 : 3 → 600 + 240 + 6).
+- **Money:** whole cents/euros only; Kommaschreibweise appears in questions (4,50 €), answers are typed as ct or €.
+- Levels 1–5 per topic and their number ranges are in `src/math/topics.ts`; each level has a short German title for the level picker.
+
 ## Technical notes
 
 - **Crisp rendering** (`src/display.ts`): the canvas is rendered at an integer multiple of 180 × 360 so that one canvas pixel = one device pixel (×6 on the iPhone home-screen app, ×2 on a 1080p PC). Scenes extend `PixelScene`, which zooms the camera by that factor, so all game code works in art pixels and text is sharp. After a window resize the frame is refit (slightly less crisp until reload).
