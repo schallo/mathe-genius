@@ -96,24 +96,41 @@ She can mark **one item as her wish**. A progress bar on the stage shows "Noch 8
 - She gives each pet a **name** (simple on-screen keyboard).
 - Tapping a pet: it does a small trick. Treats/toys unlock extra tricks.
 - Pets never get sick, hungry or sad. **No neglect mechanics.**
-- **Getting pets:** a **starter pet** of her choice (one of 3) at character creation; more pets are adopted with coins in the **Tierheim**; and a wild creature she has defeated **3 times** wants to join her ("Flocki möchte mit dir kommen!") – deterministic, never a random chance.
+- **Getting pets:** a **starter pet** of her choice (Kätzchen, Hündchen or Hamster) at character creation; more pets are adopted with coins in the **Tierheim**; and a wild creature she has defeated **3 times** wants to join her ("Flocki möchte mit dir kommen!") – deterministic, never a random chance.
 - **Battle pets:** every pet can fight. Pets earn **XP** in battles and level up (more HP, stronger attacks, a new attack animation every few levels). The pet chosen in the Tierheim is her **active pet**: it follows her in the village and fights for her.
 
 ### Pet roster
 
 Her favourites are **cats and dogs**; they get the most variety (several fur colours/breeds as separate pets). All animals are cute, round and friendly – also the dinosaurs and lions, never scary (`STYLE_GUIDE.md` §11).
 
-| Group                         | Animals                                                                                                   | How she gets them                                                                           |
-| ----------------------------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| **Haustiere** (everyday pets) | Katze, Hund (several colours each), Hamster, Maus, Schildkröte, Kaninchen, Meerschweinchen, Wellensittich | **Starter** (choice of Kätzchen, Hündchen, Hamster) or **adopt with coins** in the Tierheim |
-| **Wildtiere** (wildlife)      | Igel, Eichhörnchen, Fuchs, Eule, Waschbär · Löwe, Elefant, Giraffe, Zebra                                 | **Befriend** in the wild area (3 wins against the species)                                  |
-| **Urzeittiere** (dinosaurs)   | T-Rex, Brachiosaurus, Triceratops, Flugsaurier                                                            | **Befriend** in a later area                                                                |
-| **Fabeltiere** (fantasy)      | Einhorn, Pegasus, Drache                                                                                  | **Befriend** in the last area                                                               |
-| **Besondere Varianten**       | e.g. Regenbogen-Einhorn, Goldener T-Rex, Sternen-Katze                                                    | **Stars + coins** in the Tierheim (star items)                                              |
+| Family                      | Animals                                                                   | How she gets them                                                                      |
+| --------------------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| **Katzen & Hunde**          | Katze, Hund – many colours and breeds                                     | **Starter** (Kätzchen or Hündchen) or **adopt with coins** in the Tierheim             |
+| **Kleintiere**              | Hamster, Maus, Schildkröte, Kaninchen, Meerschweinchen, Wellensittich     | **Starter** (Hamster) or **adopt with coins** in the Tierheim                          |
+| **Wildtiere** (wildlife)    | Igel, Eichhörnchen, Fuchs, Eule, Waschbär · Löwe, Elefant, Giraffe, Zebra | **Befriend** in the wild area (3 wins against the species)                             |
+| **Urzeittiere** (dinosaurs) | T-Rex, Brachiosaurus, Triceratops, Flugsaurier                            | **Befriend** in a later area                                                           |
+| **Fabeltiere** (fantasy)    | Einhorn, Pegasus, Drache                                                  | **Befriend** in the last area                                                          |
+| **Besondere Varianten**     | e.g. Regenbogen-Einhorn, Goldener T-Rex, Sternen-Katze                    | **Stars + coins** in the Tierheim (star items); same family trait as their base animal |
 
 - Rule of thumb: everyday pets are bought, wild and fancy pets are **earned in battles** – that's the reason to keep going into the wild area.
 - Wild creatures in battle are these animals in their wild form (e.g. a wild fox); once befriended, the same animal becomes her pet and can be named.
 - New animals only need a data entry in `data/creatures.ts` (and `items.ts` for shop pets) plus a sprite.
+
+### Pet traits (by family)
+
+Traits belong to the **family**, not to the single animal: every animal of a family has the same trait. This keeps it simple for her ("Wildtiere geben Tipps") and makes choosing the active pet a small decision before a battle. Traits **support learning, they never solve the task**: tips show the method from `hints.ts`, not the answer.
+
+| Family             | Trait                                                                                                                                                                  |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Katzen & Hunde** | **No trait.** The basic pets; her favourites, with the most colours and breeds to collect.                                                                             |
+| **Kleintiere**     | **Mehr Zeit:** +2 s per task in battles.                                                                                                                               |
+| **Wildtiere**      | **Rechentipp:** once per battle a method tip for the current task – division (`56 : 8` → "Denk an 8 · ? = 56"), splitting (`6 · 47 = 6 · 40 + 6 · 7`), Zehnerübergang. |
+| **Urzeittiere**    | **Urzeitkraft:** Volltreffer do double damage.                                                                                                                         |
+| **Fabeltiere**     | **Zauber-Joker:** once per battle a wrong answer becomes a second try instead of an opponent attack.                                                                   |
+
+- Traits **grow with the pet's level** in small steps (e.g. Kleintiere +2 s at level 1, +3 s at level 5; Rechentipp and Zauber-Joker twice per battle from level 5).
+- Shown on the pet's card in the Tierheim and in the battle info box as a **small icon + 2–3 words** ("+2 Sekunden", "Rechentipp").
+- Traits only modify battles; the adaptive timer, mastery and Einmaleins tracking always measure **her own** performance (time bonuses are not counted into her response-time statistics).
 
 ### Sammelalbum (collection book)
 
@@ -219,7 +236,7 @@ Timed mental-math battles in the style of classic 2D monster-RPG battle screens.
 1. Battle screen: wild creature top right on a grass platform with name, level and HP bar; her active pet bottom left with name, level and HP bar. Task box and number pad below.
 2. A task appears and the **time bar** starts.
 3. **Correct in time** → her pet attacks. The faster the answer, the stronger the hit; very fast answers are a "Volltreffer!".
-4. **Wrong or too slow** → the creature attacks her pet. A wrong answer shows the correct fact for 1 s and queues it for review (section 6). No hint during a battle.
+4. **Wrong or too slow** → the creature attacks her pet. A wrong answer shows the correct fact for 1 s and queues it for review (section 6). No hint during a battle – except a Wildtiere pet's Rechentipp (Pet traits).
 5. The battle ends when one side's HP is empty. A battle takes about **6–10 tasks**.
 
 ### Adaptive timer

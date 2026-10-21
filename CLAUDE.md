@@ -32,10 +32,10 @@ src/
 ├── palette.ts              # colour tokens from STYLE_GUIDE.md (only place with hex values)
 ├── data/
 │   ├── items.ts            # all shop items (id, category, name, price, starCost, sprite ref)
-│   ├── creatures.ts        # wild creature species (id, name, area, topic, HP, sprite ref)
+│   ├── creatures.ts        # animal species: pets + wild forms (id, name, family → trait, area, topic, HP, sprite ref)
 │   └── texts.ts            # all German UI texts and praise/hint phrases
 ├── world/                  # village + wild area maps (tile data), hut/door definitions
-├── battle/                 # pure battle logic: HP, damage from response time, adaptive timer, XP, befriending
+├── battle/                 # pure battle logic: HP, damage from response time, adaptive timer, XP, befriending, pet traits
 ├── math/
 │   ├── topics.ts           # topic + level definitions
 │   ├── generators/         # one task generator per topic (pure functions, seeded RNG)
