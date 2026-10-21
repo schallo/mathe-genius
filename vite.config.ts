@@ -21,6 +21,6 @@ export default defineConfig({
     }),
   ],
   build: { chunkSizeWarningLimit: 1600 }, // Phaser alone is ~1.2 MB
-  server: { host: true },
+  server: { host: true, port: 5173, strictPort: true },
   test: { include: ['src/**/*.test.ts'] },
 })

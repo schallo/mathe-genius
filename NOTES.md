@@ -13,7 +13,7 @@
 - **Pets:** she loves cats and dogs (most variety there). Everyday pets (hamster, mouse, turtle, …) are bought; wildlife (lion, …), dinosaurs (T-Rex, Brachiosaurus) and fantasy animals (unicorn) are befriended in later wild areas. Roster in `GAME_DESIGN.md` §4. Traits by **family**: Katzen & Hunde none, Kleintiere +time, Wildtiere Rechentipp, Urzeittiere stronger hits, Fabeltiere Joker (§4 "Pet traits").
 - **Math focus:** all main topics; priority order in `GAME_DESIGN.md` §11. Sachaufgaben: money (€/ct) for now.
 - **Offline PWA**, fonts bundled via `@fontsource`; no runtime network requests except the optional cloud sync.
-- **Cloud sync** (decided 2026-10-21): Firebase Auth (**email + password** of the parent, once per device – Google login fails in the iPhone home-screen app) + Firestore, built in step 5 together with the save system. Setup guide for the Firebase project follows in step 5.
+- **Cloud sync** (decided 2026-10-21): Firebase Auth (**email + password** of the parent, once per device – Google login fails in the iPhone home-screen app) + Firestore, built in step 5 together with the save system. Project `mathe-genie` (Firestore europe-west3, production rules: `saves/{uid}` only for that uid), no Analytics. One parent user created in the console; the game only signs in, no sign-up. API key restricted to `https://schallo.github.io/*` and `http://localhost:5173/*`, so the dev server is pinned to port 5173 (`strictPort`). **Sync does not work via the LAN address** (`http://192.168.x.x:5173` from the iPhone): the key and the authorized domains don't allow it. Test sync on the iPhone with the GitHub Pages version.
 - **Hosting:** GitHub Pages (`.github/workflows/deploy.yml`). **Git:** one commit per finished build step.
 - The first React prototype was removed. Its tested generators in `src/math/aufgaben.ts` are ported into `src/math/generators/` in step 3, then the old file is deleted.
 
@@ -45,12 +45,12 @@
 
 ## Next tasks (as of 2026-10-21)
 
-Done: steps 1–4, step 5 except the live Firebase connection, and step 6 (Laden, Mein Haus, Tierheim, wish bar). Live: https://schallo.github.io/mathe-genius/ (up to step 5).
+Done: steps 1–6 incl. the live Firebase connection (config in `src/firebaseConfig.ts`). Live: https://schallo.github.io/mathe-genius/.
 
 - **Temporary test button:** the shop shows a gold `+100` button only in `npm run dev` or with `?test` in the URL (`src/testMode.ts`). Remove it once shopping is tested.
 
-1. **Firebase setup (you):** follow `docs/SETUP_FIREBASE.md`, paste the config into the chat. Then: fill `src/firebaseConfig.ts`, test login + sync PC ↔ iPhone, push. Finishes step 5.
-2. **Push** the step 5 commit (parent area, export/import) so it is live.
+1. ~~Firebase setup~~ done. **Test sync (you):** sign in in the parent area on the PC and on the iPhone (GitHub Pages version), earn coins on one, check they arrive on the other.
+2. ~~Push step 5~~ done.
 3. **Playtest the shows with Leni** (number pad, hints, coins): too easy/hard? Which topic should be the focus (currently Einmaleins level 2)?
 4. **Check with school** the open assumptions in "Math engine assumptions" below (subtraction method etc.).
 5. ~~Step 6~~ done – ⏸ **checkpoint: please test the shop, Mein Haus and Tierheim** (locally with `npm run dev`, or online with `?test` after the push).

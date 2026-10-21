@@ -58,7 +58,7 @@ test('parent area: grown-up question, export and import', async ({ page }, testI
 
   // Migrated v1 save: 40 coins
   await expect(page.getByText('Leni · 40 Münzen · 1 Tier(e)')).toBeVisible()
-  await expect(page.getByText('Noch nicht eingerichtet.')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Anmelden' })).toBeVisible()
   await page.screenshot({ path: `test-results/parent-${testInfo.project.name}.png` })
 
   // Export downloads a readable save
