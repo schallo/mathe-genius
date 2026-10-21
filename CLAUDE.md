@@ -87,7 +87,7 @@ Rules:
 - Tap/click controls everywhere; keyboard number input as an extra on laptop.
 - Touch targets ≥ 48 × 48 screen pixels; number pad buttons bigger.
 - Wrong answers: soft sound + hint, never a harsh buzzer, never losing coins or items.
-- No real-money purchases, no ads, no external links, no tracking, no network requests at runtime (fonts are bundled).
+- No real-money purchases, no ads, no external links, no tracking, no network requests at runtime (fonts are bundled) – except the parent-enabled cloud sync to Firebase (`docs/GAME_DESIGN.md` §8). The game must work fully offline without it.
 - No flashing or strobing effects. Mute button always visible.
 - All UI text in German (see `docs/GAME_DESIGN.md` section 10).
 

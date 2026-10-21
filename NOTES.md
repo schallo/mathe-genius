@@ -11,7 +11,8 @@
 - **Character height:** about 22 px.
 - **Pets:** she loves cats and dogs (most variety there). Everyday pets (hamster, mouse, turtle, …) are bought; wildlife (lion, …), dinosaurs (T-Rex, Brachiosaurus) and fantasy animals (unicorn) are befriended in later wild areas. Roster in `GAME_DESIGN.md` §4. Traits by **family**: Katzen & Hunde none, Kleintiere +time, Wildtiere Rechentipp, Urzeittiere stronger hits, Fabeltiere Joker (§4 "Pet traits").
 - **Math focus:** all main topics; priority order in `GAME_DESIGN.md` §11. Sachaufgaben: money (€/ct) for now.
-- **Offline PWA**, fonts bundled via `@fontsource`; no runtime network requests.
+- **Offline PWA**, fonts bundled via `@fontsource`; no runtime network requests except the optional cloud sync.
+- **Cloud sync** (decided 2026-10-21): Firebase Auth (Google login by the parent, once per device) + Firestore, built in step 5 together with the save system. Setup guide for the Firebase project follows in step 5.
 - **Hosting:** GitHub Pages (`.github/workflows/deploy.yml`). **Git:** one commit per finished build step.
 - The first React prototype was removed. Its tested generators in `src/math/aufgaben.ts` are ported into `src/math/generators/` in step 3, then the old file is deleted.
 

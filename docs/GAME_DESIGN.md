@@ -265,6 +265,7 @@ Timed mental-math battles in the style of classic 2D monster-RPG battle screens.
 - Progress overview: tasks solved per topic, accuracy, mastery level, frequent mistakes, Einmaleins grid with the slowest/most-missed facts.
 - Option to give bonus coins (e.g. for homework done outside the game).
 - Reset / export / import progress (JSON file) so progress can move between devices.
+- **Cloud sync (parent login):** the parent signs in once per device with a Google account (Firebase Auth); the save syncs automatically via Firestore. The game always works offline from the local save and syncs when online. Only the parent's account can read or write the data. If both devices changed the save, the newer save wins per field, and counters (coins, stars, XP, solved tasks) never go down.
 
 ## 9. Screens
 
@@ -295,7 +296,7 @@ Timed mental-math battles in the style of classic 2D monster-RPG battle screens.
 2. Character creation incl. naming screen with on-screen keyboard and starter pet choice.
 3. Math engine: task generators per topic + answer checking + unit tests (priority: Einmaleins + Division → Kopfrechnen Plus/Minus → Halbschriftlich → Zahlenraum → Schriftlich → Geld).
 4. Show flow in the Theater hut with number pad, hints, coin rewards.
-5. Save system (localStorage + JSON export).
+5. Save system (localStorage + JSON export/import) and cloud sync with parent login (Firebase).
 6. Shop + wardrobe + wish goal + Tierheim with first ~15 items (incl. 2 adoptable pets with naming, 3 haircuts, 3 dresses). ⏸ checkpoint
 7. Battles: wild area (Blumenwiese with Igel + Eichhörnchen, plus a wild Fuchs as first "big" opponent), battle screen, adaptive timer, pet XP/levels, gentle defeat, befriending. ⏸ checkpoint
 8. Einmaleins-Dojo: fact tracking, Üben, Blitzrunde, progress grid; then Turbo-Duell and Reihen-Meister. ⏸ checkpoint
@@ -306,7 +307,7 @@ Timed mental-math battles in the style of classic 2D monster-RPG battle screens.
 
 ## 12. Out of Scope
 
-- Accounts, online sync, multiplayer, chat
+- Accounts for the child, multiplayer, chat (online sync is parent-only, see section 8)
 - Real-money purchases or ads
 - Geometry tasks (maybe later)
 - Pokémon names, creatures, sprites, sounds or UI copies (genre inspiration only)
