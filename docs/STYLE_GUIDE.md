@@ -6,7 +6,7 @@ This document defines the visual style for the game. Follow it for every scene, 
 
 A cozy, side-view **2D pixel-art puppet theatre**. The game world is a small stage: purple curtains at the back, a warm wooden floor in front, tiny cute characters and a few chunky props. Calm, friendly, never flashy. Target audience: a young child – everything must be instantly readable.
 
-The stage lives inside a small **pixel village** (top-down, classic 2D monster-RPG look); timed battles use a separate **battle screen**. Both follow this guide (see section 9a).
+The stage lives inside a small **island village** (top-down, classic 2D monster-RPG look); timed battles use a separate **battle screen**. Both follow this guide (see section 9a).
 
 **Keywords:** cozy · chunky pixels · limited palette · stage/theatre · playful terminal typography · gentle
 
@@ -186,6 +186,9 @@ Items (dresses, hair, pets) may use these extra colours in addition to section 3
 Look and feel of a classic **2D handheld monster-RPG** (top-down village, separate battle screen) – but with this guide's cozy palette and calm animations. Genre inspiration only: no copied sprites, UI frames, fonts or sounds.
 
 ### Village & wild area
+
+- The village lies on an **island**: sea (`sky` with `accent-blue` wave pixels) and a sandy beach (`path-light` / `path-dark`, `cream` surf line) at the bottom, a wooden jetty (`wood-mid` planks, `wood-dark` posts) at the top, **palm trees** (fronds in grass greens, trunk `wood-mid`, coconuts `wood-dark`) instead of round trees.
+- The title screen is a beach: `sky` above, a band of sea, sand below where her character stands.
 
 - **Top-down 3/4 view** on a **16 × 16 px tile grid** (180 px = 11¼ tiles wide; the map may scroll vertically).
 - Huts: chunky, 2–3 tiles wide, with a clearly visible door, a roof colour per hut and a **hanging sign with an icon** (coin = Laden, paw = Tierheim, 1×1 = Dojo, mask = Theater, book = Bibliothek). Kids recognise the icon before the word.

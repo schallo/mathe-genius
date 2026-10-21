@@ -1,4 +1,4 @@
-# Firebase Setup – Cloud Sync for Zahlenhausen
+# Firebase Setup – Cloud Sync for Mathe-Genie
 
 Cloud sync keeps Leni's progress the same on the PC and her iPhone. You do this setup once (about 10 minutes); afterwards you sign in once per device in the game's parent area.
 
@@ -7,7 +7,7 @@ What gets stored: her character (name, look), pets, coins and math progress. Not
 ## 1. Create the Firebase project
 
 1. Open **https://console.firebase.google.com** and sign in with your Google account.
-2. **Create a project** → name: `zahlenhausen`.
+2. **Create a project** → name: `mathe-genie`.
 3. Google Analytics: **turn off** (not needed, no tracking in a children's game).
 4. Wait until the project is ready → **Continue**.
 
@@ -41,15 +41,15 @@ service cloud.firestore {
 ## 4. Register the web app and copy the config
 
 1. Project overview (house icon top left) → **Add app** → web icon `</>`.
-2. App nickname: `zahlenhausen-web`. **Don't** tick _Firebase Hosting_ (we use GitHub Pages) → **Register app**.
+2. App nickname: `mathe-genie-web`. **Don't** tick _Firebase Hosting_ (we use GitHub Pages) → **Register app**.
 3. Firebase shows a block like this:
 
 ```js
 const firebaseConfig = {
   apiKey: 'AIza…',
-  authDomain: 'zahlenhausen-xxxx.firebaseapp.com',
-  projectId: 'zahlenhausen-xxxx',
-  storageBucket: 'zahlenhausen-xxxx.firebasestorage.app',
+  authDomain: 'mathe-genie-xxxx.firebaseapp.com',
+  projectId: 'mathe-genie-xxxx',
+  storageBucket: 'mathe-genie-xxxx.firebasestorage.app',
   messagingSenderId: '…',
   appId: '1:…:web:…',
 }
@@ -59,13 +59,13 @@ const firebaseConfig = {
 
 ## 5. Optional but recommended: limit the API key
 
-1. Open **https://console.cloud.google.com/apis/credentials** and select the project `zahlenhausen-xxxx`.
+1. Open **https://console.cloud.google.com/apis/credentials** and select the project `mathe-genie-xxxx`.
 2. Click the key named _Browser key (auto created by Firebase)_.
 3. **Application restrictions → Websites** → add `https://schallo.github.io/*` and `http://localhost:5173/*` → **Save**.
 
 ## Checklist
 
-- [ ] Project `zahlenhausen` created, Analytics off
+- [ ] Project `mathe-genie` created, Analytics off
 - [ ] Email/Password sign-in enabled, `schallo.github.io` authorized
 - [ ] Parent user added
 - [ ] Firestore in `europe-west3`, rules published

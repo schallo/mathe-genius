@@ -2,7 +2,7 @@
 
 export const texts = {
   title: {
-    name: 'Zahlenhausen',
+    name: 'Mathe-Genie',
     subtitle: 'Rechnen mit Freunden',
     play: 'Spielen',
     hello: (name: string) => `Hallo, ${name}!`,
@@ -30,8 +30,8 @@ export const texts = {
     next: 'Weiter',
   },
   village: {
-    wildSign: 'Wildnis',
-    wildSoon: 'Die Wildnis wird noch gebaut!',
+    wildSign: 'Steg',
+    wildSoon: 'Das Boot zu den wilden Inseln kommt bald!',
     underConstruction: (hut: string) => `${hut}: Hier wird gebaut!`,
   },
   show: {

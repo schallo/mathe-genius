@@ -93,7 +93,11 @@ export const POND = { x: 132, y: 326, width: 28, height: 18 }
 export const TREE_WIDTH = 12
 export const TREE_HEIGHT = 16
 /** Decorative trees along the left and right edge, between the hut rows. */
-export const TREES = [4, 164].flatMap((x) => [8, 84, 154, 224, 294, 370].map((y) => ({ x, y })))
+export const TREES = [4, 164].flatMap((x) => [16, 84, 154, 224, 294, 366].map((y) => ({ x, y })))
+
+/** The village is an island: sea above `top` and below `bottom`, beach above the lower sea. */
+export const SEA = { top: 12, bottom: 414 }
+export const BEACH_Y = 396
 
 /** Where she starts and where she reappears after leaving the village scene. */
 export const SPAWN = { x: 90, y: 400 }
@@ -120,7 +124,7 @@ export function hutAt(x: number, y: number): Hut | undefined {
   return HUTS.find((h) => x >= h.x && x < h.x + HUT_WIDTH && y >= h.y && y < h.y + HUT_HEIGHT)
 }
 
-/** Walk grid: huts, pond and the outer border are blocked. Feet may touch the door row. */
+/** Walk grid: huts, pond, palms, the sea and the side borders are blocked. Feet may touch the door row. */
 export function buildWalkGrid(): Grid {
   const cols = VILLAGE_WIDTH / CELL
   const rows = VILLAGE_HEIGHT / CELL
@@ -136,12 +140,15 @@ export function buildWalkGrid(): Grid {
   block(POND.x - 2, POND.y - 2, POND.width + 4, POND.height + 4)
   for (const t of TREES) block(t.x, t.y + 6, TREE_WIDTH, TREE_HEIGHT - 6)
   // Keep a 4 px margin at the map edges, except where the main path leaves the village
-  block(0, 0, VILLAGE_WIDTH, 4)
-  block(0, VILLAGE_HEIGHT - 8, VILLAGE_WIDTH, 8)
+  block(0, 0, VILLAGE_WIDTH, SEA.top)
+  block(0, SEA.bottom - 2, VILLAGE_WIDTH, VILLAGE_HEIGHT - SEA.bottom + 2)
   block(0, 0, 4, VILLAGE_HEIGHT)
   block(VILLAGE_WIDTH - 4, 0, 4, VILLAGE_HEIGHT)
-  for (let cx = MAIN_PATH.x / CELL; cx < (MAIN_PATH.x + MAIN_PATH.width) / CELL; cx++) {
-    blocked[cx] = false
+  // The jetty crosses the upper sea along the main path
+  for (let cy = 0; cy < SEA.top / CELL; cy++) {
+    for (let cx = MAIN_PATH.x / CELL; cx < (MAIN_PATH.x + MAIN_PATH.width) / CELL; cx++) {
+      blocked[cy * cols + cx] = false
+    }
   }
   return { cols, rows, blocked }
 }

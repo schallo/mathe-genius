@@ -1,6 +1,6 @@
 # Project Instructions for the Coding Agent
 
-You are building a small **browser game that motivates my daughter (4th grade, Bavaria) to practise math**. She walks through a cozy pixel village in classic 2D monster-RPG style, practises math in huts and a theatre, lets her pets battle wild creatures in timed mental-math fights, earns coins and spends them on pets, dresses, haircuts and accessories for her character.
+You are building a small **browser game that motivates my daughter (4th grade, Bavaria) to practise math**. The game is called **Mathe-Genie**. She walks through a cozy pixel village on an island in classic 2D monster-RPG style, practises math in huts and a theatre, lets her pets battle wild creatures in timed mental-math fights, earns coins and spends them on pets, dresses, haircuts and accessories for her character.
 
 Read these files before writing code:
 

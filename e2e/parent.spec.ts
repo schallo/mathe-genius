@@ -66,7 +66,7 @@ test('parent area: grown-up question, export and import', async ({ page }, testI
     const download = page.waitForEvent('download')
     await page.getByRole('button', { name: 'Exportieren' }).click()
     const file = await download
-    expect(file.suggestedFilename()).toMatch(/^zahlenhausen-\d{4}-\d{2}-\d{2}\.json$/)
+    expect(file.suggestedFilename()).toMatch(/^mathe-genie-\d{4}-\d{2}-\d{2}\.json$/)
   }
 
   // Import merges coins earned on another device
@@ -91,7 +91,7 @@ test('parent area: grown-up question, export and import', async ({ page }, testI
     mimeType: 'application/json',
     buffer: Buffer.from('{"hallo":1}'),
   })
-  await expect(page.getByText('Diese Datei ist kein Zahlenhausen-Spielstand.')).toBeVisible()
+  await expect(page.getByText('Diese Datei ist kein Mathe-Genie-Spielstand.')).toBeVisible()
 
   await page.getByRole('button', { name: 'Zurück zum Spiel' }).click()
   await waitForScene(page, 'Title')

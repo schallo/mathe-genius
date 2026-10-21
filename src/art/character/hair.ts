@@ -5,7 +5,7 @@ import type { PixelMap } from '../pixels'
 
 export const HAIR_ROLES = 'ab'
 
-export type HairStyle = 'pferdeschwanz' | 'bob' | 'zoepfe'
+export type HairStyle = 'pferdeschwanz' | 'bob' | 'zoepfe' | 'dutts' | 'locken'
 
 const top = [
   '................',
@@ -109,7 +109,86 @@ const pferdeschwanz: Record<'down' | 'up' | 'side', PixelMap> = {
   ],
 }
 
+// Space buns: two round buns on top of the head
+const buns = '.aaa........aaa.'
+const dutts: Record<'down' | 'up' | 'side', PixelMap> = {
+  down: [
+    '................',
+    buns,
+    '.aaaaaaaaaaaaaa.',
+    '..aaaaaaaaaaaa..',
+    '..aaaaaaaaaaaa..',
+    '..aaaaaaaaaaaa..',
+    '..aab......baa..',
+    '..ab........ba..',
+    '..b..........b..',
+    ...empty(11),
+  ],
+  up: [
+    '................',
+    buns,
+    '.aaaaaaaaaaaaaa.',
+    ...backHead.slice(3),
+    '..bbbbbbbbbbbb..',
+    ...empty(8),
+  ],
+  side: [
+    '................',
+    '..aaa...........',
+    ...sideHead.slice(2),
+    '..bbb...........',
+    ...empty(8),
+  ],
+}
+
+// Big curls framing the face
+const curlsBack = Array.from({ length: 9 }, () => '.aaaaaaaaaaaaaa.')
+const locken: Record<'down' | 'up' | 'side', PixelMap> = {
+  down: [
+    '................',
+    '....aaaaaaaa....',
+    '..aaaaaaaaaaaa..',
+    '.aaaaaaaaaaaaaa.',
+    '.aaaaaaaaaaaaaa.',
+    '.aaaaaaaaaaaaaa.',
+    '.aaab......baaa.',
+    '.aab........baa.',
+    '.aab........baa.',
+    '.aab........baa.',
+    '.aaa........aaa.',
+    '.aba........aba.',
+    '..b..........b..',
+    ...empty(7),
+  ],
+  up: [
+    '................',
+    '....aaaaaaaa....',
+    '..aaaaaaaaaaaa..',
+    ...curlsBack,
+    '.bbbbbbbbbbbbbb.',
+    ...empty(7),
+  ],
+  side: [
+    '................',
+    '....aaaaaaaa....',
+    '..aaaaaaaaaaaa..',
+    '.aaaaaaaaaaaaaa.',
+    '.aaaaaaaaaaaaaa.',
+    '.aaaaaaaaaaaab..',
+    '.aaaaaaaa.......',
+    '.aaaaaaa........',
+    '.aaaaaa.........',
+    '.aaaaaa.........',
+    '.aaaaaa.........',
+    '.abab...........',
+    '..b.............',
+    ...empty(7),
+  ],
+}
+
 export const hairstyles: Record<HairStyle, Record<'down' | 'up' | 'side', PixelMap>> = {
+  dutts,
+  locken,
   pferdeschwanz,
   bob,
   zoepfe,

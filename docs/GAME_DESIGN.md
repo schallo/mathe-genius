@@ -1,14 +1,14 @@
-# Game Design – "Zahlenhausen"
+# Game Design – "Mathe-Genie"
 
 ## 1. Purpose
 
-**Zahlenhausen** – "Rechnen mit Freunden" – is shown on the title screen, which is also where the parent login starts (section 8).
+**Mathe-Genie** – "Rechnen mit Freunden" – is shown on the title screen (a beach with the sea behind her), which is also where the parent login starts (section 8).
 
 The game exists to **motivate my daughter to practise math** regularly and enjoy it. She earns coins by solving math problems on a cozy pixel stage and spends them on things she cares about: **pets, dresses, haircuts, accessories and stage decorations** for her character. Math is the only way to earn coins.
 
 The learning content must be real practice at her school level. The cute rewards make her want to come back to it.
 
-The game world is a small **pixel village** in the style of classic 2D monster-RPGs: she walks between **huts with different purposes** (learning, theatre shows, shop, wardrobe, pet shelter) and into a **wild area** where her pets take on wild creatures in **timed math battles**. The genre conventions (village, battle screen with HP bars) are the inspiration; every name, creature, sprite and sound is original – no Pokémon content.
+The game world is a small **island with a pixel village** in the style of classic 2D monster-RPGs: she walks between **huts with different purposes** (learning, theatre shows, shop, wardrobe, pet shelter) and over the **jetty** to neighbouring **wild islands** where her pets take on wild creatures in **timed math battles**. The genre conventions (village, battle screen with HP bars) are the inspiration; every name, creature, sprite and sound is original – no Pokémon content.
 
 ## 2. Player
 
@@ -40,7 +40,7 @@ Calm practice (huts, theatre) teaches; battles test speed. Both earn coins. Pets
 
 ## 3a. The Village (hub)
 
-A small top-down pixel village that fits on **one or two screens** (portrait). Her character walks around with **tap to walk** (tap a spot or a hut; arrow keys/WASD on the PC). Her active pet follows her. Entering a hut door opens that hut's scene.
+A small top-down pixel village on an **island** that fits on **one or two screens** (portrait): sea and a sandy beach at the bottom (where she arrives), a wooden **jetty (Steg)** at the top, palm trees along the sides. Her character walks around with **tap to walk** (tap a spot or a hut; arrow keys/WASD on the PC). Her active pet follows her. Entering a hut door opens that hut's scene.
 
 | Hut                                           | Purpose                                                                                                                            |
 | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
@@ -54,7 +54,7 @@ A small top-down pixel village that fits on **one or two screens** (portrait). H
 | **Mein Haus**                                 | Garderobe: wardrobe, hairstyles, renaming.                                                                                         |
 | **Tierheim** (pet shelter)                    | Adopt pets, name them, play with them, see their level, choose the active battle pet. Tired pets nap here.                         |
 | **Bibliothek**                                | Sammelalbum and daily calendar.                                                                                                    |
-| **Wild area** (path at the village edge)      | Leads to the battle areas (section 6b).                                                                                            |
+| **Steg** (jetty at the top of the island)     | Boat to the wild islands with the battle areas (section 6b).                                                                       |
 
 - Huts that aren't built yet are shown as a cute construction site ("Hier wird gebaut!"), so the village feels alive from the start.
 - The parent area is opened from a small locked mailbox, not a hut.
@@ -227,9 +227,9 @@ A separate mode next to the regular shows, reachable from the title screen via i
 
 Timed mental-math battles in the style of classic 2D monster-RPG battle screens. They challenge her to answer **fast**, otherwise her pet loses the battle.
 
-### Wild area
+### Wild islands
 
-- A path at the village edge leads to **areas** with rising difficulty: **Blumenwiese** (Igel, Eichhörnchen) → **Flüsterwald** (Fuchs, Eule, Waschbär) → **Sonnensavanne** (Löwe, Elefant, Giraffe, Zebra) → **Urzeittal** (dinosaurs) → **Wolkenberg** (Einhorn, Pegasus, Drache). An area unlocks when her strongest pet reaches a certain level.
+- The jetty at the top of the island leads by boat to **wild islands** with rising difficulty: **Blumenwiese** (Igel, Eichhörnchen) → **Flüsterwald** (Fuchs, Eule, Waschbär) → **Sonnensavanne** (Löwe, Elefant, Giraffe, Zebra) → **Urzeittal** (dinosaurs) → **Wolkenberg** (Einhorn, Pegasus, Drache). An area unlocks when her strongest pet reaches a certain level.
 - Wild creatures (animals from the Pet roster in their wild form, original designs, 10–16 px like pets) **wander visibly** – no random encounters. She taps one or walks into it to start a battle.
 - Each creature species has a **math topic**: Einmaleins + Division or Kopfrechnen Plus/Minus. Stronger areas use higher levels of that topic.
 
@@ -272,7 +272,7 @@ Timed mental-math battles in the style of classic 2D monster-RPG battle screens.
 ## 9. Screens
 
 0. **Dorf (village)** – the hub with huts and the path to the wild area (section 3a). Shown after the title screen.
-   0a. **Wildnis** – wild area with wandering creatures. 0b. **Kampf** – battle screen (section 6b).
+   0a. **Wilde Inseln** – reached by boat from the jetty, with wandering creatures. 0b. **Kampf** – battle screen (section 6b).
    0c. **Tierheim** – pet shelter. 0d. **Lernhütte** – topic/level picker and calm practice (same flow as a show).
 1. **Titel** – stage with closed curtains, her character peeking out, button "SPIELEN".
 2. **Bühne (Show)** – main math gameplay, inside the Theater hut.

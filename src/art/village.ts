@@ -1,5 +1,5 @@
-// Village ground (STYLE_GUIDE §9a): grass in 3 green steps with flowers, paths with a
-// darker edge, pond, trees. Baked into one texture; huts are separate sprites.
+// Island village ground (STYLE_GUIDE §9a): grass in 3 green steps with flowers, paths
+// with a darker edge, pond, palms, beach and sea, wooden jetty. Baked into one texture; huts are separate sprites.
 import type Phaser from 'phaser'
 import { seededRng, zufall } from '../math/random'
 import { palette } from '../palette'
@@ -7,6 +7,8 @@ import {
   HUTS,
   MAIN_PATH,
   POND,
+  BEACH_Y,
+  SEA,
   SPAWN,
   TREES,
   VILLAGE_HEIGHT,
@@ -14,26 +16,7 @@ import {
   WILD_EXIT,
   branchPath,
 } from '../world/village'
-import { rasterize } from './pixels'
-
-const TREE = [
-  '............',
-  '....aaaa....',
-  '..aaccaaaa..',
-  '.aacccaaaaa.',
-  '.acccaaaaaa.',
-  '.aacaaaaaaa.',
-  '.aaaaaaaabb.',
-  '.aaaaaabbbb.',
-  '..abbbbbbb..',
-  '...bbbbbb...',
-  '.....tt.....',
-  '.....tt.....',
-  '.....tt.....',
-  '....tttt....',
-  '............',
-  '............',
-]
+import { palmPixels } from './palm'
 
 type Rect = { x: number; y: number; width: number; height: number }
 
@@ -117,12 +100,41 @@ export function ensureVillageTexture(scene: Phaser.Scene): string {
     for (let i = 0; i < 4; i++) set(Math.round(x + i), Math.round(y), palette.accentBlue)
   }
 
-  // Trees with a soft oval ground shadow
-  const tree = rasterize(
-    TREE,
-    { a: palette.grassMid, b: palette.grassDark, c: palette.grassLight, t: palette.woodDark },
-    palette.woodEdge,
-  )
+  // Beach along the lower sea, with a few darker sand grains
+  for (let y = BEACH_Y; y < SEA.bottom; y++) {
+    for (let x = 0; x < W; x++) set(x, y, palette.pathLight)
+  }
+  for (let i = 0; i < 40; i++)
+    set(zufall(rng, 0, W - 1), zufall(rng, BEACH_Y, SEA.bottom - 1), palette.pathDark)
+
+  // Sea at the bottom and the top, with wave pixels and a cream surf line
+  const sea = (y0: number, y1: number) => {
+    for (let y = y0; y < y1; y++) {
+      for (let x = 0; x < W; x++) {
+        const wave = (x + y * 3) % 11 === 0 && y % 4 === 1
+        set(x, y, wave ? palette.accentBlue : palette.sky)
+      }
+    }
+  }
+  sea(SEA.bottom, H)
+  sea(0, SEA.top)
+  for (let x = 0; x < W; x++) {
+    set(x, SEA.bottom + (Math.floor(x / 6) % 2), palette.cream)
+    set(x, SEA.top - 1 - (Math.floor(x / 6) % 2), palette.cream)
+  }
+
+  // Wooden jetty over the upper sea: planks with dark gaps, two posts
+  for (let y = 0; y < SEA.top + 4; y++) {
+    for (let x = MAIN_PATH.x + 2; x < MAIN_PATH.x + MAIN_PATH.width - 2; x++) {
+      set(x, y, y % 3 === 2 ? palette.woodDark : palette.woodMid)
+    }
+  }
+  for (const x of [MAIN_PATH.x + 1, MAIN_PATH.x + MAIN_PATH.width - 2]) {
+    for (let y = 0; y < SEA.top; y++) set(x, y, palette.woodEdge)
+  }
+
+  // Palm trees with a soft oval ground shadow
+  const tree = palmPixels()
   for (const t of TREES) {
     for (let x = 2; x < 10; x++) shadeMask[(t.y + 14) * W + t.x + x] = 1
     for (let x = 3; x < 9; x++) shadeMask[(t.y + 15) * W + t.x + x] = 1

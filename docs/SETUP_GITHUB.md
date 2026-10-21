@@ -1,6 +1,6 @@
 # GitHub & Claude Code on the Web – Setup
 
-How to put Zahlenhausen on GitHub, publish it with GitHub Pages and work on it with Claude Code in the browser (claude.ai/code).
+How to put Mathe-Genie on GitHub, publish it with GitHub Pages and work on it with Claude Code in the browser (claude.ai/code).
 
 > Button names on GitHub and claude.ai may differ slightly from this description. The steps stay the same.
 

@@ -52,7 +52,7 @@ const ICONS: Record<string, Icon> = {
   },
   lock: {
     map: ['..aaa..', '.a...a.', '.a...a.', 'aaaaaaa', 'aaabaaa', 'aaabaaa', 'aaaaaaa'],
-    legend: { a: palette.cream, b: palette.ink },
+    legend: { a: palette.woodDark, b: palette.cream },
   },
   star: {
     map: ['...a...', '...a...', 'aaaaaaa', '.aaaaa.', '..aaa..', '.aa.aa.', 'aa...aa'],

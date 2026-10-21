@@ -129,7 +129,7 @@ export class ParentScene extends PixelScene {
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = `zahlenhausen-${new Date().toISOString().slice(0, 10)}.json`
+    link.download = `mathe-genie-${new Date().toISOString().slice(0, 10)}.json`
     link.click()
     setTimeout(() => URL.revokeObjectURL(url), 1000)
   }
@@ -143,7 +143,7 @@ export class ParentScene extends PixelScene {
       replaceSave(mergeSaves(getSave(), imported))
       this.message = 'Spielstand importiert.'
     } catch {
-      this.message = 'Diese Datei ist kein Zahlenhausen-Spielstand.'
+      this.message = 'Diese Datei ist kein Mathe-Genie-Spielstand.'
     }
     this.showMenu()
   }
