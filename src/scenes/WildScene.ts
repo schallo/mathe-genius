@@ -31,6 +31,7 @@ import {
   WILD_WIDTH,
   buildWildGrid,
   hideCreatures,
+  rehide,
   isWalkable,
   route,
   type Area,
@@ -42,8 +43,6 @@ const SPEED = 48 // art px per second, like in the village
 const CREATURE_SPEED = 10
 const TOUCH = 9
 const PET_DISTANCE = 12
-/** A beaten creature runs off and hides again after this time. */
-const REST_MS = 60_000
 const RUSTLE_EVERY_MS = 2600
 
 type Creature = {
@@ -57,8 +56,6 @@ type Creature = {
   pill: LabelPill
   /** Within touching distance last frame: only walking *into* a creature starts a battle */
   near: boolean
-  /** Date.now() until which a beaten creature is away */
-  awayUntil: number
 }
 
 type Target =
@@ -77,8 +74,6 @@ type Visit = {
   returnPos: { x: number; y: number } | null
 }
 let visit: Visit | null = null
-/** Beaten creatures and when they come back. */
-const awayUntil = new Map<SpeciesId, number>()
 
 export class WildScene extends PixelScene {
   private area!: Area
@@ -106,9 +101,11 @@ export class WildScene extends PixelScene {
 
   init(data: { from?: string; beaten?: SpeciesId }) {
     this.fromBattle = data.from === 'battle' && visit !== null
-    if (data.beaten) {
-      awayUntil.set(data.beaten, Date.now() + REST_MS)
-      visit?.found.delete(data.beaten)
+    // A beaten creature runs off and hides again at once, somewhere else
+    if (data.beaten && visit) {
+      const from = visit.returnPos ?? ARRIVAL
+      visit.spots = rehide(AREAS[0], visit.spots, data.beaten, from, Math.random)
+      visit.found.delete(data.beaten)
     }
     this.waypoints = []
     this.target = null
@@ -170,7 +167,6 @@ export class WildScene extends PixelScene {
         sprite,
         pill,
         near: Math.hypot(pos.x - this.pos.x, pos.y - this.pos.y) < TOUCH,
-        awayUntil: awayUntil.get(species) ?? 0,
       })
     }
 
@@ -314,7 +310,7 @@ export class WildScene extends PixelScene {
     else if (target?.kind === 'hiding') {
       // Nobody here: the bush only rustles
       const hidden = this.creatures.some(
-        (c) => c.spot === target.spot && !c.found && this.isHere(c),
+        (c) => c.spot === target.spot && !c.found,
       )
       if (!hidden) {
         this.rustle(target.spot)
@@ -325,12 +321,8 @@ export class WildScene extends PixelScene {
 
   // ---------- Hide and seek ----------
 
-  private isHere(c: Creature) {
-    return Date.now() >= c.awayUntil
-  }
-
   private isVisible(c: Creature) {
-    return c.found && this.isHere(c)
+    return c.found
   }
 
   private touches(c: Creature) {
@@ -358,7 +350,7 @@ export class WildScene extends PixelScene {
   /** Coming close to a hiding creature makes it hop out. */
   private searchAround() {
     for (const c of this.creatures) {
-      if (c.found || !this.isHere(c)) continue
+      if (c.found) continue
       const d = Math.hypot(c.spot.x - this.pos.x, c.spot.y - 4 - this.pos.y)
       if (d >= FIND_RADIUS) continue
       c.found = true
@@ -381,7 +373,7 @@ export class WildScene extends PixelScene {
 
   /** Every few seconds one hiding place with a creature inside rustles gently. */
   private rustleOne() {
-    const hiding = this.creatures.filter((c) => !c.found && this.isHere(c))
+    const hiding = this.creatures.filter((c) => !c.found)
     if (hiding.length === 0) return
     this.rustle(hiding[Math.floor(Math.random() * hiding.length)].spot)
   }
@@ -451,7 +443,6 @@ export class WildScene extends PixelScene {
   /** Found creatures stroll slowly around their hiding place and pause now and then. */
   private wander(time: number, delta: number) {
     for (const c of this.creatures) {
-      if (!this.isHere(c) && c.found) c.found = false // ran off: hides again when back
       const visible = this.isVisible(c)
       c.sprite.setVisible(visible)
       c.pill.setVisible(visible)
@@ -497,7 +488,6 @@ export class WildScene extends PixelScene {
     return {
       hero: { ...this.pos },
       creatures: this.creatures
-        .filter((c) => this.isHere(c))
         .map((c) => ({
           species: c.species,
           found: c.found,

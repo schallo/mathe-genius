@@ -117,6 +117,7 @@ test('win against the Igel: coins, XP, the third win befriends it', async ({ pag
   await shot(page, 'wild')
   await find(page, 'igel')
   await shot(page, 'wild-found')
+  const oldSpot = (await creature(page, 'igel')).spot
   await fight(page, 'igel')
 
   await expect.poll(async () => (await battle(page))?.phase).toBe('task')
@@ -143,9 +144,13 @@ test('win against the Igel: coins, XP, the third win befriends it', async ({ pag
   await waitForScene(page, 'Wild')
   expect((await save(page)).pets[1]).toMatchObject({ species: 'igel', name: 'Igel' })
 
-  // Back on the island: the beaten Igel has run off, walking around starts no new battle
+  // Back on the island: the beaten Igel ran off and hid again somewhere else, far from her;
+  // walking around starts no new battle
   const wild = await page.evaluate(() => (window as any).__debug.wild())
-  expect(wild.creatures.map((c: { species: string }) => c.species)).not.toContain('igel')
+  const igel = wild.creatures.find((c: { species: string }) => c.species === 'igel')
+  expect(igel.found).toBe(false)
+  expect(igel.spot).not.toEqual(oldSpot)
+  expect(Math.hypot(igel.spot.x - wild.hero.x, igel.spot.y - wild.hero.y)).toBeGreaterThan(60)
   await tapWorld(page, Math.round(wild.hero.x) + 20, Math.round(wild.hero.y))
   await page.waitForTimeout(2000)
   expect(await page.evaluate(() => (window as any).__debug.activeScene())).toBe('Wild')

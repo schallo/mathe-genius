@@ -68,6 +68,7 @@ test('shop, Tierheim and wardrobe: buy, wish, adopt, take along, change hair', a
   for (let i = 0; i < 6; i++) await tapWorld(page, 109, 10) // temporary +100
   expect((await save(page)).balance).toBe(600)
   await tapWorld(page, ...card(1)) // Fußballtrikot
+  await page.waitForTimeout(300) // the buttons appear after selecting
   await tapWorld(page, 51, 298) // Kaufen
   await expect.poll(async () => (await save(page)).owned).toContain('fussball')
   let s = await save(page)
@@ -85,6 +86,7 @@ test('shop, Tierheim and wardrobe: buy, wish, adopt, take along, change hair', a
   await tapWorld(page, 144, 266)
   await waitForScene(page, 'Shelter')
   await tapWorld(page, ...card(1, 222)) // Hamster
+  await page.waitForTimeout(300) // the buttons appear after selecting
   await tapWorld(page, 51, 304) // Adoptieren
   await waitForScene(page, 'NameEntry')
   await tapWorld(page, 29, 324) // Zufall
@@ -94,6 +96,7 @@ test('shop, Tierheim and wardrobe: buy, wish, adopt, take along, change hair', a
   expect(s.balance).toBe(120)
   expect(s.pets.map((p: { species: string }) => p.species)).toEqual(['hund', 'hamster'])
   await tapWorld(page, ...card(1, 142)) // her hamster
+  await page.waitForTimeout(300) // the buttons appear after selecting
   await tapWorld(page, 51, 304) // Mitnehmen
   await expect.poll(async () => (await save(page)).activePetId).toBe(s.pets[1].id)
   await page.waitForTimeout(500)

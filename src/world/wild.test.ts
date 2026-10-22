@@ -10,7 +10,9 @@ import {
   OBSTACLE_SIZE,
   SPOT_SIZE,
   buildWildGrid,
+  RESPAWN_DISTANCE,
   hideCreatures,
+  rehide,
   isWalkable,
   route,
   toWildCell,
@@ -69,6 +71,21 @@ for (const a of AREAS) {
       }
       const c = toWildCell(ARRIVAL.x, ARRIVAL.y)
       expect(isBlocked(grid, c.cx, c.cy)).toBe(false)
+    })
+
+    it('a beaten creature hides again at once in another free spot, away from her', () => {
+      const rng = seededRng(4)
+      for (let i = 0; i < 200; i++) {
+        const hidden = hideCreatures(a, rng)
+        const species = a.species[i % a.species.length]
+        const old = hidden.get(species)!
+        const her = { x: old.x, y: old.y + 8 }
+        const next = rehide(a, hidden, species, her, rng)
+        const spot = next.get(species)!
+        expect(spot).not.toBe(old)
+        expect(new Set(next.values()).size).toBe(a.species.length)
+        expect(Math.hypot(spot.x - her.x, spot.y - her.y)).toBeGreaterThanOrEqual(RESPAWN_DISTANCE)
+      }
     })
 
     it('hides every creature in a different spot', () => {

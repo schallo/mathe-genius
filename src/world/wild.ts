@@ -179,6 +179,31 @@ export function route(
   return [...cells.slice(0, -1).map(wildCellCenter), goal]
 }
 
+/** A respawned creature hides at least this far away from her. */
+export const RESPAWN_DISTANCE = 80
+
+/**
+ * After a win the beaten creature runs off and hides again right away – in another free
+ * hiding place, away from her – so there is always something to find.
+ */
+export function rehide(
+  a: Area,
+  hidden: Map<SpeciesId, HidingSpot>,
+  species: SpeciesId,
+  from: { x: number; y: number },
+  rng: () => number,
+): Map<SpeciesId, HidingSpot> {
+  const old = hidden.get(species)
+  const taken = new Set([...hidden.values()])
+  const free = a.spots.filter((s) => !taken.has(s) && s !== old)
+  const far = free.filter((s) => Math.hypot(s.x - from.x, s.y - from.y) >= RESPAWN_DISTANCE)
+  const choices = far.length > 0 ? far : free
+  if (choices.length === 0) return hidden
+  const next = new Map(hidden)
+  next.set(species, choices[Math.floor(rng() * choices.length)])
+  return next
+}
+
 /** Each creature hides in a different spot, picked at random on every visit. */
 export function hideCreatures(a: Area, rng: () => number): Map<SpeciesId, HidingSpot> {
   const free = [...a.spots]
