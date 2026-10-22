@@ -62,9 +62,14 @@ export class Hud extends Phaser.GameObjects.Container {
     return this.setY(viewY)
   }
 
+  /** For worlds that also scroll sideways: keeps the bar at the view's top-left corner. */
+  setView(viewX: number, viewY: number): this {
+    return this.setPosition(viewX, viewY)
+  }
+
   /** Where flying coins should land. */
   get coinTarget() {
-    return { x: GAME_WIDTH - 42, y: this.y + 10 }
+    return { x: this.x + GAME_WIDTH - 42, y: this.y + 10 }
   }
 
   addCoins(amount: number): void {

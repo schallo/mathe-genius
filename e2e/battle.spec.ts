@@ -72,10 +72,30 @@ async function toWild(page: Page, seed: object) {
   await waitForScene(page, 'Wild', 30_000)
 }
 
-async function fight(page: Page, species: string) {
+const wildTap = (page: Page, x: number, y: number) =>
+  page.evaluate(([x, y]) => (window as any).__debug.wildTap(x, y), [x, y])
+
+const creature = async (page: Page, species: string) => {
   const wild = await page.evaluate(() => (window as any).__debug.wild())
-  const c = wild.creatures.find((x: { species: string }) => x.species === species)
-  await tapWorld(page, Math.round(c.x), Math.round(c.y) - 6)
+  return wild.creatures.find((c: { species: string }) => c.species === species)
+}
+
+/** Searches the creature's hiding place until it hops out, then taps it. */
+async function find(page: Page, species: string) {
+  // Finding another animal on the way stops her, so tap the hiding place again
+  for (let i = 0; i < 12 && !(await creature(page, species)).found; i++) {
+    const c = await creature(page, species)
+    await wildTap(page, c.spot.x, c.spot.y - 4)
+    await page.waitForTimeout(3000)
+  }
+  expect((await creature(page, species)).found).toBe(true)
+  await page.waitForTimeout(300)
+}
+
+async function fight(page: Page, species: string) {
+  await find(page, species)
+  const c = await creature(page, species)
+  await wildTap(page, Math.round(c.x), Math.round(c.y) - 6)
   await waitForScene(page, 'Battle', 30_000)
 }
 
@@ -95,6 +115,8 @@ test('win against the Igel: coins, XP, the third win befriends it', async ({ pag
   test.setTimeout(180_000)
   await toWild(page, start({ igel: 2 }))
   await shot(page, 'wild')
+  await find(page, 'igel')
+  await shot(page, 'wild-found')
   await fight(page, 'igel')
 
   await expect.poll(async () => (await battle(page))?.phase).toBe('task')
@@ -156,9 +178,9 @@ test('gentle defeat: the pet naps, nothing is lost', async ({ page }) => {
   await tapWorld(page, 90, 317) // WEITER
   await waitForScene(page, 'Wild')
   // Her only pet sleeps: tapping a creature starts no battle
-  const wild = await page.evaluate(() => (window as any).__debug.wild())
-  const igel = wild.creatures.find((x: { species: string }) => x.species === 'igel')
-  await tapWorld(page, Math.round(igel.x), Math.round(igel.y) - 6)
+  await find(page, 'igel')
+  const igel = await creature(page, 'igel')
+  await wildTap(page, Math.round(igel.x), Math.round(igel.y) - 6)
   await page.waitForTimeout(6000)
   expect(await page.evaluate(() => (window as any).__debug.activeScene())).toBe('Wild')
 })

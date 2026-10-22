@@ -33,6 +33,22 @@ export abstract class PixelScene extends Phaser.Scene {
     return y
   }
 
+  /**
+   * Like scrollViewTo, for worlds wider than the view: the view's top-left corner goes to
+   * (left, top), clamped to the world. Returns that corner in whole pixels.
+   */
+  protected scrollViewToXY(
+    left: number,
+    top: number,
+    worldWidth: number,
+    worldHeight: number,
+  ): { x: number; y: number } {
+    const x = Math.round(Phaser.Math.Clamp(left, 0, worldWidth - GAME_WIDTH))
+    const y = Math.round(Phaser.Math.Clamp(top, 0, worldHeight - GAME_HEIGHT))
+    this.cameras.main.centerOn(x + GAME_WIDTH / 2, y + GAME_HEIGHT / 2)
+    return { x, y }
+  }
+
   /** Fade through ink (no flash, STYLE_GUIDE §9a) and start another scene. */
   protected goTo(scene: string, data?: object): void {
     this.input.enabled = false

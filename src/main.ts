@@ -86,6 +86,8 @@ declare global {
       show(): ReturnType<ShowScene['debugState']> | undefined
       battle(): ReturnType<BattleScene['debugState']> | undefined
       wild(): ReturnType<WildScene['debugState']> | undefined
+      /** Taps a world point on the wild island, even outside the view */
+      wildTap(x: number, y: number): void
     }
   }
 }
@@ -102,6 +104,7 @@ window.__debug = {
       : undefined,
   wild: () =>
     game.scene.isActive('Wild') ? (game.scene.getScene('Wild') as WildScene).debugState() : undefined,
+  wildTap: (x, y) => (game.scene.getScene('Wild') as WildScene).debugTap(x, y),
   toPage(x, y) {
     const scene = game.scene.getScenes(true)[0]
     const cam = scene.cameras.main

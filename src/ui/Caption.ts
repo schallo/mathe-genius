@@ -23,6 +23,10 @@ export class Caption extends Phaser.GameObjects.Container {
     return this.setY(viewY + GAME_HEIGHT - 24)
   }
 
+  setView(viewX: number, viewY: number): this {
+    return this.setPosition(viewX + GAME_WIDTH / 2, viewY + GAME_HEIGHT - 24)
+  }
+
   show(text: string, ms = 2200): void {
     this.label.setText(text).setWordWrapWidth(GAME_WIDTH - 32)
     const w = Math.min(GAME_WIDTH - 16, Math.ceil(this.label.width) + 16)

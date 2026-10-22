@@ -64,6 +64,9 @@ export const texts = {
     level: (level: number) => `Lv${level}`,
     allAsleep: 'Alle Tiere schlafen. Spiel eine Show oder komm gleich wieder!',
     noPet: 'Hol dir zuerst ein Tier im Tierheim!',
+    search: 'Die Tiere haben sich versteckt. Such sie!',
+    found: (name: string) => `${name} gefunden!`,
+    nobody: 'Hier versteckt sich niemand.',
     nowAlong: (name: string) => `${name} kommt jetzt mit!`,
   },
   battle: {

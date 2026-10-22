@@ -69,6 +69,7 @@ Smaller follow-ups:
 
 ## Battle decisions (step 7, 2026-10-22)
 
+- **Wild island = hide and seek** (her wish, 2026-10-22): the Blumenwiese is 300 × 600 px and scrolls both ways. Trees, palms, rocks and a pond block the way (A* on a 6 px grid). The three animals hide in 3 of 12 bushes/tall-grass patches, picked at random on every boat trip; a hiding place with an animal in it rustles every ~2.6 s, and coming within 22 px makes the animal hop out. Who was found is kept while she battles; a new boat trip hides everybody again. A beaten animal runs off for a minute and then hides again. Layout in `src/world/wild.ts` (tests check that every hiding place is reachable and nothing overlaps).
 - **Blumenwiese:** Igel (Einmaleins L2, Lv2, 10 coins), Eichhörnchen (Kopfrechnen L1, Lv3, 15 coins), Fuchs (Einmaleins L3 = division, Lv5, 25 coins, 10 % less time). Stats in `src/data/creatures.ts`.
 - **Numbers:** pet HP 20 + 3/level, attack 4 + level. A hit does 0.7–1.0 × attack depending on speed; answers in the first 40 % of the time are a Volltreffer (1.6 ×). A new pet needs about 6–8 tasks against the Igel and survives 4–5 mistakes. XP: 3 per right answer (4 for a Volltreffer) + 10 + 2 × creature level for a win; level 2 at 20 XP, 3 at 60, 4 at 120 (`xpForLevel`).
 - **Adaptive timer:** last 10 times per topic and level; until there are 3 times it is 10 s. A timeout counts as a time of the full limit, so the timer gets longer again when she is too slow. Times taken after a Rechentipp are not counted; trait bonuses are never counted.
