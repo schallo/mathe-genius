@@ -120,6 +120,13 @@ test('win against the Igel: coins, XP, the third win befriends it', async ({ pag
   await tapWorld(page, 151, 324) // FERTIG keeps the suggested name
   await waitForScene(page, 'Wild')
   expect((await save(page)).pets[1]).toMatchObject({ species: 'igel', name: 'Igel' })
+
+  // Back on the island: the beaten Igel has run off, walking around starts no new battle
+  const wild = await page.evaluate(() => (window as any).__debug.wild())
+  expect(wild.creatures.map((c: { species: string }) => c.species)).not.toContain('igel')
+  await tapWorld(page, Math.round(wild.hero.x) + 20, Math.round(wild.hero.y))
+  await page.waitForTimeout(2000)
+  expect(await page.evaluate(() => (window as any).__debug.activeScene())).toBe('Wild')
 })
 
 test('gentle defeat: the pet naps, nothing is lost', async ({ page }) => {

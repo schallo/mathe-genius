@@ -32,6 +32,8 @@ const SPEED = 48 // art px per second, like in the village
 const CREATURE_SPEED = 10
 const TOUCH = 9
 const PET_DISTANCE = 12
+/** A beaten creature runs off and comes back home after this time. */
+const REST_MS = 60_000
 
 type Creature = {
   species: SpeciesId
@@ -41,12 +43,18 @@ type Creature = {
   waitUntil: number
   sprite: Pet
   pill: LabelPill
+  /** Within touching distance last frame: only walking *into* a creature starts a battle */
+  near: boolean
+  /** Date.now() until which a beaten creature is away */
+  awayUntil: number
 }
 
 type Target = { kind: 'creature'; creature: Creature } | { kind: 'boat' } | { kind: 'spot' }
 
 /** Where she was when a battle started, so she comes back to the same spot. */
 let returnPos: { x: number; y: number } | null = null
+/** Beaten creatures and when they come back (kept while she switches scenes). */
+const awayUntil = new Map<SpeciesId, number>()
 
 export class WildScene extends PixelScene {
   private area!: Area
@@ -67,8 +75,9 @@ export class WildScene extends PixelScene {
     super('Wild')
   }
 
-  init(data: { from?: string }) {
+  init(data: { from?: string; beaten?: SpeciesId }) {
     this.fromBattle = data.from === 'battle'
+    if (data.beaten) awayUntil.set(data.beaten, Date.now() + REST_MS)
     this.pos = this.fromBattle && returnPos ? { ...returnPos } : { ...ARRIVAL }
     this.waypoints = []
     this.target = null
@@ -113,6 +122,8 @@ export class WildScene extends PixelScene {
         waitUntil: this.time.now + zufall(Math.random, 0, 2000),
         sprite,
         pill,
+        near: Math.hypot(c.home.x - this.pos.x, c.home.y - this.pos.y) < TOUCH,
+        awayUntil: awayUntil.get(c.species) ?? 0,
       })
     }
 
@@ -136,7 +147,7 @@ export class WildScene extends PixelScene {
   private onTap(x: number, y: number) {
     if (y < 20 || this.leaving) return
     const creature = this.creatures.find(
-      (c) => Math.abs(x - c.pos.x) < 10 && y < c.pos.y + 4 && y > c.pos.y - 18,
+      (c) => this.isHere(c) && Math.abs(x - c.pos.x) < 10 && y < c.pos.y + 4 && y > c.pos.y - 18,
     )
     if (creature) {
       this.target = { kind: 'creature', creature }
@@ -200,6 +211,7 @@ export class WildScene extends PixelScene {
     this.followWithPet(delta)
     this.wander(time, delta)
     if (moving) this.checkTouch(time)
+    else for (const c of this.creatures) c.near ||= this.touches(c)
   }
 
   private tryMove(dx: number, dy: number) {
@@ -221,12 +233,23 @@ export class WildScene extends PixelScene {
     else if (target?.kind === 'creature') this.startBattle(target.creature)
   }
 
+  private touches(c: Creature) {
+    return this.isHere(c) && Math.hypot(c.pos.x - this.pos.x, c.pos.y - this.pos.y) < TOUCH
+  }
+
+  private isHere(c: Creature) {
+    return Date.now() >= c.awayUntil
+  }
+
+  /** A battle starts when she walks into a creature – never when she walks away from one. */
   private checkTouch(time: number) {
-    if (time < this.calmUntil) return
-    const touched = this.creatures.find(
-      (c) => Math.hypot(c.pos.x - this.pos.x, c.pos.y - this.pos.y) < TOUCH,
-    )
-    if (touched) this.startBattle(touched)
+    let touched: Creature | undefined
+    for (const c of this.creatures) {
+      const near = this.touches(c)
+      if (near && !c.near) touched ??= c
+      c.near = near
+    }
+    if (touched && time >= this.calmUntil) this.startBattle(touched)
   }
 
   private startBattle(creature: Creature) {
@@ -275,6 +298,15 @@ export class WildScene extends PixelScene {
   /** Creatures stroll slowly around their home and pause now and then. */
   private wander(time: number, delta: number) {
     for (const c of this.creatures) {
+      const here = this.isHere(c)
+      c.sprite.setVisible(here)
+      c.pill.setVisible(here)
+      if (!here) {
+        // Back home when the rest is over
+        c.pos = { ...c.home }
+        c.goal = { ...c.home }
+        continue
+      }
       if (time >= c.waitUntil) {
         const dx = c.goal.x - c.pos.x
         const dy = c.goal.y - c.pos.y
@@ -307,7 +339,9 @@ export class WildScene extends PixelScene {
   debugState() {
     return {
       hero: { ...this.pos },
-      creatures: this.creatures.map((c) => ({ species: c.species, x: c.pos.x, y: c.pos.y })),
+      creatures: this.creatures
+        .filter((c) => this.isHere(c))
+        .map((c) => ({ species: c.species, x: c.pos.x, y: c.pos.y })),
     }
   }
 }
