@@ -7,8 +7,9 @@ import { ensureBarrierTexture, ensureHutTexture } from '../art/hut'
 import { addFrames, rasterize } from '../art/pixels'
 import { ensureVillageTexture } from '../art/village'
 import { texts } from '../data/texts'
-import { GAME_HEIGHT } from '../display'
+import { GAME_HEIGHT, GAME_WIDTH } from '../display'
 import { palette } from '../palette'
+import { isNapping } from '../battle/progress'
 import { activePet } from '../state/save'
 import { getSave } from '../state/store'
 import { Caption } from '../ui/Caption'
@@ -53,7 +54,7 @@ export class VillageScene extends PixelScene {
   private target: Target | null = null
   private keys!: Record<'up' | 'down' | 'left' | 'right', Phaser.Input.Keyboard.Key[]>
   private from?: string
-  private wildNoticeAt = -Infinity
+  private leaving = false
 
   constructor() {
     super('Village')
@@ -64,6 +65,7 @@ export class VillageScene extends PixelScene {
     this.waypoints = []
     this.target = null
     this.trail = []
+    this.leaving = false
   }
 
   create() {
@@ -88,12 +90,17 @@ export class VillageScene extends PixelScene {
     }).setDepth(10)
 
     const fromHut = HUTS.find((h) => h.id === this.from)
-    this.pos = fromHut ? doorEntry(fromHut) : { ...SPAWN }
+    this.pos = fromHut
+      ? doorEntry(fromHut)
+      : this.from === 'steg'
+        ? { x: MAIN_PATH.x + MAIN_PATH.width / 2, y: WILD_Y + 10 }
+        : { ...SPAWN }
     const save = getSave()
     this.hero = new Character(this, this.pos.x, this.pos.y, save.character?.look ?? DEFAULT_LOOK)
     this.hero.face('down').setName(save.character?.name ?? null)
     const pet = activePet(save)
-    if (pet) {
+    // A tired pet naps in the Tierheim after a lost battle
+    if (pet && !isNapping(save, pet.id, Date.now())) {
       this.pet = new Pet(this, this.pos.x - PET_DISTANCE, this.pos.y, pet.species, pet.name)
       this.pet.showName(false)
     }
@@ -122,8 +129,9 @@ export class VillageScene extends PixelScene {
   }
 
   private onTap(x: number, y: number) {
-    // Taps on the top bar (mute, coins) are not walking targets
-    if (y - this.cameras.main.worldView.y < 20) return
+    // Taps on the top bar buttons (mute, home, coins) are not walking targets
+    const onBar = y - this.cameras.main.worldView.y < 20
+    if (onBar && (x < 44 || x > GAME_WIDTH - 54)) return
     if (this.pet && Math.abs(x - this.pet.x) < 10 && y < this.pet.y + 3 && y > this.pet.y - 16) {
       this.pet.hop()
       // With the ball from the Laden the pet does a second hop (a little trick)
@@ -137,7 +145,7 @@ export class VillageScene extends PixelScene {
     if (hut) {
       this.target = { kind: 'hut', hut }
       goal = doorEntry(hut)
-    } else if (y < WILD_Y + 8 && Math.abs(x - (MAIN_PATH.x + MAIN_PATH.width / 2)) < 30) {
+    } else if (y < WILD_Y + 16 && x > MAIN_PATH.x - 10 && x < MAIN_PATH.x + MAIN_PATH.width + 46) {
       this.target = { kind: 'wild' }
       goal = { x: MAIN_PATH.x + MAIN_PATH.width / 2, y: CELL / 2 }
     } else {
@@ -160,6 +168,7 @@ export class VillageScene extends PixelScene {
   }
 
   update() {
+    if (this.leaving) return
     // Real elapsed time (Phaser's smoothed delta lags behind on slow frames), capped after tab switches
     const delta = Math.min(this.game.loop.rawDelta, 100)
     const step = (SPEED * delta) / 1000
@@ -196,7 +205,7 @@ export class VillageScene extends PixelScene {
       if (this.waypoints.length === 0) this.arrive()
     }
 
-    if (this.pos.y < WILD_Y) this.showWildNotice()
+    if (this.pos.y < WILD_Y) this.toWild()
 
     this.hero.setPosition(Math.round(this.pos.x), Math.round(this.pos.y))
     this.hero.setDepth(this.hero.y)
@@ -282,9 +291,11 @@ export class VillageScene extends PixelScene {
     }
   }
 
-  private showWildNotice() {
-    if (this.time.now - this.wildNoticeAt < 3000) return
-    this.wildNoticeAt = this.time.now
-    this.caption.show(texts.village.wildSoon)
+  /** The boat at the jetty goes to the wild island (GAME_DESIGN §6b). */
+  private toWild() {
+    if (this.leaving) return
+    this.leaving = true
+    this.waypoints = []
+    this.goTo('Wild')
   }
 }

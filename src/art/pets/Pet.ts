@@ -5,7 +5,7 @@ import type { SpeciesId } from '../../data/creatures'
 import { palette, shadow } from '../../palette'
 import { LabelPill } from '../../ui/LabelPill'
 import { addFrames, rasterize } from '../pixels'
-import { HEART, PET_HEIGHT, petArt } from './maps'
+import { HEART, PET_HEIGHT, petArt, sleepingMap } from './maps'
 
 const BOB_MS = 400
 
@@ -22,6 +22,7 @@ export function ensurePetTexture(scene: Phaser.Scene, species: SpeciesId): strin
   }
   addFrames(scene, key, [
     { name: 'idle', pixels: rasterize(art.map, legend, palette[art.outline]) },
+    { name: 'sleep', pixels: rasterize(sleepingMap(art.map), legend, palette[art.outline]) },
   ])
   if (!scene.textures.exists('pet-heart')) {
     addFrames(scene, 'pet-heart', [
@@ -40,6 +41,7 @@ export class Pet extends Phaser.GameObjects.Container {
   private namePill?: LabelPill
   private clock = Math.random() * BOB_MS * 2
   private hopping = false
+  private sleeping = false
 
   constructor(scene: Phaser.Scene, x: number, y: number, species: SpeciesId, name?: string) {
     super(scene, x, y)
@@ -69,6 +71,13 @@ export class Pet extends Phaser.GameObjects.Container {
     return this
   }
 
+  /** Closed eyes, no bobbing (a tired pet after a lost battle). */
+  setSleeping(sleeping: boolean): this {
+    this.sleeping = sleeping
+    this.sprite.setFrame(sleeping ? 'sleep' : 'idle').setY(0)
+    return this
+  }
+
   /** Happy hop with a heart above the head (STYLE_GUIDE §9 "Pets"). */
   hop(): void {
     if (this.hopping) return
@@ -86,7 +95,7 @@ export class Pet extends Phaser.GameObjects.Container {
   }
 
   tick(delta: number): void {
-    if (this.hopping) return
+    if (this.hopping || this.sleeping) return
     this.clock += delta
     this.sprite.setY(Math.floor(this.clock / BOB_MS) % 2 ? -1 : 0)
   }

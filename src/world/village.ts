@@ -118,7 +118,7 @@ export const BEACH_Y = 396
 /** Where she starts and where she reappears after leaving the village scene. */
 export const SPAWN = { x: 90, y: 400 }
 
-/** Top end of the main path: exit to the wild area (not built yet). */
+/** Top end of the main path: the jetty with the boat to the wild islands. */
 export const WILD_EXIT = { x: MAIN_PATH.x, y: 0, width: MAIN_PATH.width, height: 10 }
 
 /** Point just below the door where the character stands to enter. */

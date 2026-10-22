@@ -43,9 +43,9 @@
 - Movement uses the real frame time (`game.loop.rawDelta`), not Phaser's smoothed delta, so walking speed stays right on slow frames.
 - **Starting look** is modelled on her (from a photo, not stored in the repo): fair skin (`skin1`), ginger hair (`hair-ginger`, new palette colour) pulled back into a ponytail, mint dress, pink bow.
 
-## Next tasks (as of 2026-10-21)
+## Next tasks (as of 2026-10-22)
 
-Done: steps 1–6 incl. the live Firebase connection (config in `src/firebaseConfig.ts`). Live: https://schallo.github.io/mathe-genius/.
+Done: steps 1–7 incl. the live Firebase connection (config in `src/firebaseConfig.ts`). Live: https://schallo.github.io/mathe-genius/ (up to step 6 until the step 7 push).
 
 - **Temporary test button:** the shop shows a gold `+100` button only in `npm run dev` or with `?test` in the URL (`src/testMode.ts`). Remove it once shopping is tested.
 
@@ -54,7 +54,7 @@ Done: steps 1–6 incl. the live Firebase connection (config in `src/firebaseCon
 3. **Playtest the shows with Leni** (number pad, hints, coins): too easy/hard? Which topic should be the focus (currently Einmaleins level 2)?
 4. **Check with school** the open assumptions in "Math engine assumptions" below (subtraction method etc.).
 5. ~~Step 6~~ done – ⏸ **checkpoint: please test the shop, Mein Haus and Tierheim** (locally with `npm run dev`, or online with `?test` after the push).
-6. **Step 7 – Battles:** Blumenwiese, first wild creatures (Igel, Eichhörnchen, Fuchs), battle screen, adaptive timer, pet XP, family traits, befriending. ⏸ checkpoint.
+6. ~~Step 7 – Battles~~ done – ⏸ **checkpoint: please test the jetty → Blumenwiese, battles against Igel, Eichhörnchen and Fuchs, a defeat (nap) and befriending (3 wins against one species).**
 7. **Step 8 – Einmaleins-Dojo:** 200 facts, Leitner boxes, Üben, Blitzrunde, 10 × 10 grid, Turbo-Duell, Reihen-Meister. ⏸ checkpoint.
 8. **Step 9 – Learning huts** (Rechenwerkstatt with the written calculation grid, Zahlenturm, Marktstand); written tasks join the shows.
 9. **Step 10 – Adaptive difficulty**, mistakes coming back, stars per level.
@@ -66,6 +66,17 @@ Smaller follow-ups:
 - Village: parent mailbox (currently only the lock on the title screen).
 - iPhone: real-device test of the home-screen app (sizes, sounds, safe areas).
 - Sound: check the "−" glyph and sounds on the real iPhone.
+
+## Battle decisions (step 7, 2026-10-22)
+
+- **Blumenwiese:** Igel (Einmaleins L2, Lv2, 10 coins), Eichhörnchen (Kopfrechnen L1, Lv3, 15 coins), Fuchs (Einmaleins L3 = division, Lv5, 25 coins, 10 % less time). Stats in `src/data/creatures.ts`.
+- **Numbers:** pet HP 20 + 3/level, attack 4 + level. A hit does 0.7–1.0 × attack depending on speed; answers in the first 40 % of the time are a Volltreffer (1.6 ×). A new pet needs about 6–8 tasks against the Igel and survives 4–5 mistakes. XP: 3 per right answer (4 for a Volltreffer) + 10 + 2 × creature level for a win; level 2 at 20 XP, 3 at 60, 4 at 120 (`xpForLevel`).
+- **Adaptive timer:** last 10 times per topic and level; until there are 3 times it is 10 s. A timeout counts as a time of the full limit, so the timer gets longer again when she is too slow. Times taken after a Rechentipp are not counted; trait bonuses are never counted.
+- **Befriending:** once per species. On the third win the animal joins at once (named after its species) and she names it right after – so a reload during naming loses nothing.
+- **Defeat:** the pet naps for 2 minutes or until a show ends; on the wild island another awake pet comes along automatically ("Bello kommt jetzt mit!"). With all pets asleep, creatures can't be challenged (friendly message). Leaving a battle with the house button is free and keeps the XP of right answers.
+- **Wrong answers in battles** are not yet queued for review – the review queue comes with step 10.
+- **Area unlock** by pet level (`Area.unlockLevel`) is in the data; with only the Blumenwiese there is nothing to unlock yet (step 12).
+- Pet XP, wins and befriended animals merge by maximum/union between devices; naps and answer times take the newer save.
 
 ## Playtest feedback (2026-10-21)
 

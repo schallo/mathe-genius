@@ -3,6 +3,7 @@ import './style.css'
 import { GAME_HEIGHT, GAME_WIDTH, computeRenderSize, setRenderScale } from './display'
 import { palette } from './palette'
 import { startSync } from './state/sync'
+import { BattleScene } from './scenes/BattleScene'
 import { BootScene } from './scenes/BootScene'
 import { CharacterCreateScene } from './scenes/CharacterCreateScene'
 import { NameEntryScene } from './scenes/NameEntryScene'
@@ -15,6 +16,7 @@ import { StarterPetScene } from './scenes/StarterPetScene'
 import { TitleScene } from './scenes/TitleScene'
 import { VillageScene } from './scenes/VillageScene'
 import { WardrobeScene } from './scenes/WardrobeScene'
+import { WildScene } from './scenes/WildScene'
 
 const frame = document.getElementById('frame')!
 const container = document.getElementById('game')!
@@ -67,6 +69,8 @@ const game = new Phaser.Game({
     ShopScene,
     WardrobeScene,
     ShelterScene,
+    WildScene,
+    BattleScene,
   ],
 })
 
@@ -80,6 +84,8 @@ declare global {
       toPage(x: number, y: number): { x: number; y: number }
       /** State of the running show (answer, format, attempt) */
       show(): ReturnType<ShowScene['debugState']> | undefined
+      battle(): ReturnType<BattleScene['debugState']> | undefined
+      wild(): ReturnType<WildScene['debugState']> | undefined
     }
   }
 }
@@ -90,6 +96,12 @@ window.__debug = {
     const scene = game.scene.getScene('Show') as ShowScene
     return game.scene.isActive('Show') ? scene.debugState() : undefined
   },
+  battle: () =>
+    game.scene.isActive('Battle')
+      ? (game.scene.getScene('Battle') as BattleScene).debugState()
+      : undefined,
+  wild: () =>
+    game.scene.isActive('Wild') ? (game.scene.getScene('Wild') as WildScene).debugState() : undefined,
   toPage(x, y) {
     const scene = game.scene.getScenes(true)[0]
     const cam = scene.cameras.main

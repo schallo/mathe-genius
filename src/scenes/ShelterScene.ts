@@ -2,7 +2,9 @@
 // looking for a home (adopt with coins, then name them).
 import { Pet } from '../art/pets/Pet'
 import { sfx } from '../audio/sfx'
-import { SPECIES } from '../data/creatures'
+import { traitLabel } from '../battle/battle'
+import { isNapping, petLevel } from '../battle/progress'
+import { SPECIES, traitOf } from '../data/creatures'
 import type { Item } from '../data/items'
 import { texts } from '../data/texts'
 import { adoptablePets, canAfford, missingCoins, setWish } from '../state/shop'
@@ -62,10 +64,13 @@ export class ShelterScene extends RoomScene {
       const card = new Key(this, x, OWN_ROW_Y, CARD_W, CARD_H, '', () =>
         this.select({ kind: 'own', pet }),
       )
-      card.add(new Pet(this, CARD_W / 2, 32, pet.species).setScale(2))
-      card.add(addText(this, CARD_W / 2, 41, pet.name, 'label', 4.5))
+      const napping = isNapping(save, pet.id, Date.now())
+      card.add(new Pet(this, CARD_W / 2, 36, pet.species).setScale(2).setSleeping(napping))
+      card.add(addText(this, 5, 6, texts.wild.level(petLevel(pet)), 'title', 9).setOrigin(0, 0.5))
+      if (napping) card.add(addText(this, CARD_W - 6, 7, 'z', 'title', 10).setOrigin(1, 0.5))
+      card.add(addText(this, CARD_W / 2, 44, pet.name, 'label', 4.5))
       if (pet.id === save.activePetId)
-        card.add(addText(this, CARD_W / 2, 51, `★ ${texts.shelter.along}`, 'label', 4.5))
+        card.add(addText(this, CARD_W / 2, 53, `★ ${texts.shelter.along}`, 'label', 4.5))
       card.setSelected(sel?.kind === 'own' && sel.pet.id === pet.id)
       return card
     })
@@ -98,7 +103,15 @@ export class ShelterScene extends RoomScene {
 
   private select(selection: Selection) {
     this.selection = selection
-    if (selection?.kind === 'own') sfx.tick()
+    if (selection?.kind === 'own') {
+      sfx.tick()
+      // Level, family trait and nap on the pet's card (GAME_DESIGN §4 "Pet traits")
+      const { pet } = selection
+      const level = petLevel(pet)
+      const trait = traitLabel(traitOf(pet.species), level) ?? texts.shelter.noTrait
+      const nap = isNapping(getSave(), pet.id, Date.now()) ? ` · ${texts.shelter.napping}` : ''
+      this.caption.show(`${pet.name} · ${texts.wild.level(level)} · ${trait}${nap}`, 2500)
+    }
     this.refresh()
   }
 

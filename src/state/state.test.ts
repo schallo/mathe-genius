@@ -12,6 +12,7 @@ import {
 } from './names'
 import {
   SAVE_KEY,
+  SAVE_VERSION,
   activePet,
   addPet,
   coinBalance,
@@ -131,7 +132,7 @@ describe('save', () => {
       settings: { muted: true },
     }
     const save = parseSave(v1)!
-    expect(save.version).toBe(2)
+    expect(save.version).toBe(SAVE_VERSION)
     expect(coinBalance(save)).toBe(53)
     expect(save.pets).toHaveLength(1)
     expect(save.settings.muted).toBe(true)

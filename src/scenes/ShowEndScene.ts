@@ -8,7 +8,8 @@ import { texts } from '../data/texts'
 import { GAME_WIDTH } from '../display'
 import { REWARD, summarizeShow, type TaskResult } from '../state/economy'
 import { activePet, coinBalance } from '../state/save'
-import { addCoins, getSave } from '../state/store'
+import { wakeAll } from '../battle/progress'
+import { addCoins, getSave, updateSave } from '../state/store'
 import { Hud } from '../ui/Hud'
 import { Key } from '../ui/Key'
 import { SpeechCard } from '../ui/SpeechCard'
@@ -37,6 +38,8 @@ export class ShowEndScene extends PixelScene {
 
     // Per-task coins were paid during the show; the show bonus is paid now
     addCoins(REWARD.showBonus)
+    // A finished show wakes up pets that were napping after a battle
+    updateSave(wakeAll)
     const hud = new Hud(this)
     const summary = summarizeShow(this.results)
 

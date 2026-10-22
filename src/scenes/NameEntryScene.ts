@@ -26,7 +26,15 @@ import { PixelScene } from './PixelScene'
  */
 type Data =
   | { mode: 'character'; look: CharacterLook; returnTo?: string }
-  | { mode: 'pet'; species: SpeciesId; itemId?: string; petId?: string; returnTo?: string }
+  | {
+      mode: 'pet'
+      species: SpeciesId
+      itemId?: string
+      petId?: string
+      returnTo?: string
+      /** Scene data for `returnTo`, e.g. back to the same spot on the wild island */
+      returnData?: object
+    }
 
 const FLOOR_Y = 200
 const KEY_W = 15
@@ -175,7 +183,7 @@ export class NameEntryScene extends PixelScene {
       }
       return addPet(save, entry.species, name)
     })
-    this.goTo(entry.returnTo ?? 'Village')
+    this.goTo(entry.returnTo ?? 'Village', entry.returnData)
   }
 
   update(_time: number, delta: number) {
