@@ -3,7 +3,7 @@ import Phaser from 'phaser'
 import { Character } from '../art/character/Character'
 import { DEFAULT_LOOK } from '../art/character/look'
 import { Pet } from '../art/pets/Pet'
-import { ensureBarrierTexture, ensureHutTexture } from '../art/hut'
+import { addHutSign, ensureBarrierTexture, ensureHutTexture } from '../art/hut'
 import { addFrames, rasterize } from '../art/pixels'
 import { ensureVillageTexture } from '../art/village'
 import { texts } from '../data/texts'
@@ -74,6 +74,7 @@ export class VillageScene extends PixelScene {
     this.add.image(0, 0, ensureVillageTexture(this)).setOrigin(0)
 
     for (const hut of HUTS) {
+      addHutSign(this, hut, hut.y + HUT_HEIGHT + 2)
       this.add
         .image(hut.x, hut.y, ensureHutTexture(this, hut.roof, hut.icon))
         .setOrigin(0)

@@ -15,8 +15,10 @@ export type HutIcon =
 
 export type Hut = {
   id: string
-  /** German name on the sign / caption */
+  /** German name in captions */
   name: string
+  /** Short name on the big name board on the roof (max. 10 letters) */
+  sign: string
   x: number
   y: number
   roof: PaletteToken
@@ -32,6 +34,7 @@ export const HUTS: Hut[] = [
   {
     id: 'bibliothek',
     name: 'Bibliothek',
+    sign: 'Bibliothek',
     x: 20,
     y: 40,
     roof: 'curtainLight',
@@ -41,6 +44,7 @@ export const HUTS: Hut[] = [
   {
     id: 'zahlenturm',
     name: 'Zahlenturm',
+    sign: 'Zahlenturm',
     x: 128,
     y: 40,
     roof: 'stoneDark',
@@ -50,6 +54,7 @@ export const HUTS: Hut[] = [
   {
     id: 'dojo',
     name: 'Einmaleins-Dojo',
+    sign: 'Einmaleins',
     x: 20,
     y: 110,
     roof: 'heroDark',
@@ -59,6 +64,7 @@ export const HUTS: Hut[] = [
   {
     id: 'werkstatt',
     name: 'Rechenwerkstatt',
+    sign: 'Werkstatt',
     x: 128,
     y: 110,
     roof: 'woodDark',
@@ -68,6 +74,7 @@ export const HUTS: Hut[] = [
   {
     id: 'theater',
     name: 'Theater',
+    sign: 'Theater',
     x: 20,
     y: 180,
     roof: 'curtainMid',
@@ -77,16 +84,27 @@ export const HUTS: Hut[] = [
   {
     id: 'marktstand',
     name: 'Marktstand',
+    sign: 'Marktstand',
     x: 128,
     y: 180,
     roof: 'mintDark',
     icon: 'apple',
     scene: null,
   },
-  { id: 'laden', name: 'Laden', x: 20, y: 250, roof: 'goldDark', icon: 'coin', scene: 'Shop' },
+  {
+    id: 'laden',
+    name: 'Laden',
+    sign: 'Laden',
+    x: 20,
+    y: 250,
+    roof: 'goldDark',
+    icon: 'coin',
+    scene: 'Shop',
+  },
   {
     id: 'tierheim',
     name: 'Tierheim',
+    sign: 'Tierheim',
     x: 128,
     y: 250,
     roof: 'roseDark',
@@ -96,6 +114,7 @@ export const HUTS: Hut[] = [
   {
     id: 'haus',
     name: 'Mein Haus',
+    sign: 'Mein Haus',
     x: 20,
     y: 320,
     roof: 'heroDark',
@@ -136,8 +155,13 @@ export function branchPath(hut: Hut) {
   return { x, y, width: right - x, height: 10 }
 }
 
+/** Height of the name board above the roof (tapping it also enters the hut). */
+export const SIGN_HEIGHT = 10
+
 export function hutAt(x: number, y: number): Hut | undefined {
-  return HUTS.find((h) => x >= h.x && x < h.x + HUT_WIDTH && y >= h.y && y < h.y + HUT_HEIGHT)
+  return HUTS.find(
+    (h) => x >= h.x && x < h.x + HUT_WIDTH && y >= h.y - SIGN_HEIGHT && y < h.y + HUT_HEIGHT,
+  )
 }
 
 /** Walk grid: huts, pond, palms, the sea and the side borders are blocked. Feet may touch the door row. */

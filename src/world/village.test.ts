@@ -15,6 +15,7 @@ import {
   VILLAGE_WIDTH,
   buildWalkGrid,
   doorEntry,
+  SIGN_HEIGHT,
   hutAt,
   toCell,
 } from './village'
@@ -60,7 +61,13 @@ describe('village layout', () => {
   it('has unique hut ids and finds huts by position', () => {
     expect(new Set(HUTS.map((h) => h.id)).size).toBe(HUTS.length)
     for (const hut of HUTS) expect(hutAt(hut.x + 5, hut.y + 5)).toBe(hut)
+    // The name board on the roof counts as the hut too
+    for (const hut of HUTS) expect(hutAt(hut.x + 16, hut.y - SIGN_HEIGHT + 2)).toBe(hut)
     expect(hutAt(SPAWN.x, SPAWN.y)).toBeUndefined()
+  })
+
+  it('has short names for the boards on the roofs', () => {
+    for (const hut of HUTS) expect(hut.sign.length).toBeLessThanOrEqual(10)
   })
 
   it('can reach every hut door from the spawn point', () => {

@@ -14,6 +14,7 @@
 - **Math focus:** all main topics; priority order in `GAME_DESIGN.md` §11. Sachaufgaben: money (€/ct) for now.
 - **Offline PWA**, fonts bundled via `@fontsource`; no runtime network requests except the optional cloud sync.
 - **Cloud sync** (decided 2026-10-21): Firebase Auth (**email + password** of the parent, once per device – Google login fails in the iPhone home-screen app) + Firestore, built in step 5 together with the save system. Project `mathe-genie` (Firestore europe-west3, production rules: `saves/{uid}` only for that uid), no Analytics. One parent user created in the console; the game only signs in, no sign-up. API key restricted to `https://schallo.github.io/*` and `http://localhost:5173/*`, so the dev server is pinned to port 5173 (`strictPort`). **Sync does not work via the LAN address** (`http://192.168.x.x:5173` from the iPhone): the key and the authorized domains don't allow it. Test sync on the iPhone with the GitHub Pages version.
+- **Hut signs** (2026-10-22): the 5 px icons were too small to remember. Four prototypes were compared (name board, big icon badge, badge + name, themed huts); the user chose a **big name board on the roof** (`addHutSign` in `src/art/hut.ts`, names in `Hut.sign`, max. 10 letters). Tapping the board enters the hut.
 - **Hosting:** GitHub Pages (`.github/workflows/deploy.yml`). **Git:** one commit per finished build step.
 - The first React prototype was removed. Its tested generators in `src/math/aufgaben.ts` are ported into `src/math/generators/` in step 3, then the old file is deleted.
 

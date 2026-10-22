@@ -1,8 +1,10 @@
 // Hut sprites (STYLE_GUIDE §9a): chunky 32 × 34 px, roof colour per hut, visible door,
-// hanging sign with an icon. Unbuilt huts get a construction barrier in front of the door.
+// small icon sign above the door and a big name board on the roof (chosen 2026-10-22:
+// names are easier to remember than icons). Unbuilt huts get a construction barrier.
 import type Phaser from 'phaser'
 import { palette, type PaletteToken } from '../palette'
-import { HUT_HEIGHT, HUT_WIDTH, type HutIcon } from '../world/village'
+import { addText } from '../ui/text'
+import { HUT_HEIGHT, HUT_WIDTH, SIGN_HEIGHT, type Hut, type HutIcon } from '../world/village'
 import { addFrames, rasterize, type PixelMap } from './pixels'
 
 /** 5 × 5 icons. Roles: a = main colour, b = second colour. */
@@ -71,6 +73,19 @@ export function ensureHutTexture(scene: Phaser.Scene, roof: PaletteToken, icon: 
 
   addFrames(scene, key, [{ name: 'hut', pixels: px }])
   return key
+}
+
+/** Big name board on the roof: cream board with a dark wooden frame on two posts, VT323. */
+export function addHutSign(scene: Phaser.Scene, hut: Hut, depth: number): void {
+  const cx = hut.x + HUT_WIDTH / 2
+  const top = hut.y - SIGN_HEIGHT + 1
+  const text = addText(scene, cx, top + 6, hut.sign, 'title', 11).setDepth(depth + 1)
+  const w = Math.ceil(text.width) + 8
+  const x = Math.round(cx - w / 2)
+  const g = scene.add.graphics().setDepth(depth)
+  g.fillStyle(palette.woodDark).fillRect(x + 4, top + 12, 2, 4).fillRect(x + w - 6, top + 12, 2, 4)
+  g.fillStyle(palette.woodEdge).fillRect(x, top, w, 13)
+  g.fillStyle(palette.cream).fillRect(x + 1, top + 1, w - 2, 11)
 }
 
 /** Striped construction barrier (gold / wood) to place in front of an unbuilt hut's door. */
