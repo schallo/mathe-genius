@@ -3,7 +3,7 @@ import type { PaletteToken } from '../palette'
 import type { Grid } from './path'
 
 export const VILLAGE_WIDTH = 180
-export const VILLAGE_HEIGHT = 432
+export const VILLAGE_HEIGHT = 502
 /** Walk grid resolution in pixels. */
 export const CELL = 4
 
@@ -11,7 +11,7 @@ export const HUT_WIDTH = 32
 export const HUT_HEIGHT = 34
 
 export type HutIcon =
-  'mask' | 'coin' | 'paw' | 'times' | 'book' | 'heart' | 'hammer' | 'plus' | 'apple'
+  'mask' | 'coin' | 'paw' | 'times' | 'divide' | 'book' | 'heart' | 'hammer' | 'plus' | 'apple'
 
 export type Hut = {
   id: string
@@ -25,6 +25,8 @@ export type Hut = {
   icon: HutIcon
   /** Scene key to open, or null while the hut is still a construction site */
   scene: string | null
+  /** Passed to the scene, e.g. which dojo it is */
+  data?: Record<string, unknown>
 }
 
 /** Main path: a vertical strip through the middle of the village. */
@@ -51,25 +53,28 @@ export const HUTS: Hut[] = [
     icon: 'plus',
     scene: null,
   },
+  // Einmaleins-Dojos (GAME_DESIGN §6a), one for · and one for : (decided 2026-10-23)
   {
-    id: 'dojo',
-    name: 'Einmaleins-Dojo',
-    sign: 'Einmaleins',
+    id: 'maldojo',
+    name: 'Mal-Dojo',
+    sign: 'Mal-Dojo',
     x: 20,
     y: 110,
     roof: 'heroDark',
     icon: 'times',
-    scene: null,
+    scene: 'EinmaleinsMenu',
+    data: { op: 'mul' },
   },
   {
-    id: 'werkstatt',
-    name: 'Rechenwerkstatt',
-    sign: 'Werkstatt',
+    id: 'teildojo',
+    name: 'Teil-Dojo',
+    sign: 'Teil-Dojo',
     x: 128,
     y: 110,
-    roof: 'woodDark',
-    icon: 'hammer',
-    scene: null,
+    roof: 'lilac',
+    icon: 'divide',
+    scene: 'EinmaleinsMenu',
+    data: { op: 'div' },
   },
   {
     id: 'theater',
@@ -121,6 +126,16 @@ export const HUTS: Hut[] = [
     icon: 'heart',
     scene: 'Wardrobe',
   },
+  {
+    id: 'werkstatt',
+    name: 'Rechenwerkstatt',
+    sign: 'Werkstatt',
+    x: 20,
+    y: 390,
+    roof: 'woodDark',
+    icon: 'hammer',
+    scene: null,
+  },
 ]
 
 export const POND = { x: 132, y: 326, width: 28, height: 18 }
@@ -128,14 +143,16 @@ export const POND = { x: 132, y: 326, width: 28, height: 18 }
 export const TREE_WIDTH = 12
 export const TREE_HEIGHT = 16
 /** Decorative trees along the left and right edge, between the hut rows. */
-export const TREES = [4, 164].flatMap((x) => [16, 84, 154, 224, 294, 366].map((y) => ({ x, y })))
+export const TREES = [4, 164].flatMap((x) =>
+  [16, 84, 154, 224, 294, 366, 436].map((y) => ({ x, y })),
+)
 
 /** The village is an island: sea above `top` and below `bottom`, beach above the lower sea. */
-export const SEA = { top: 12, bottom: 414 }
-export const BEACH_Y = 396
+export const SEA = { top: 12, bottom: 484 }
+export const BEACH_Y = 466
 
 /** Where she starts and where she reappears after leaving the village scene. */
-export const SPAWN = { x: 90, y: 400 }
+export const SPAWN = { x: 90, y: 470 }
 
 /** Top end of the main path: the jetty with the boat to the wild islands. */
 export const WILD_EXIT = { x: MAIN_PATH.x, y: 0, width: MAIN_PATH.width, height: 10 }

@@ -6,7 +6,25 @@ import { addFrames, rasterize, type PixelMap } from './pixels'
 
 type Icon = { map: PixelMap; legend: Record<string, number>; outline?: number }
 
+/** Round medal, 11 × 11 (row badges, STYLE_GUIDE §9 "Einmaleins-Training") */
+const MEDAL = [
+  '...aaaaa...',
+  '..abbbbba..',
+  '.abbbbbbba.',
+  'abbbbbbbbba',
+  'abbbbbbbbba',
+  'abbbbbbbbba',
+  'abbbbbbbbba',
+  'abbbbbbbbba',
+  '.abbbbbbba.',
+  '..abbbbba..',
+  '...aaaaa...',
+]
+
 const ICONS: Record<string, Icon> = {
+  medal: { map: MEDAL, legend: { a: palette.goldDark, b: palette.gold } },
+  /** Empty place on the trophy shelf */
+  medalSlot: { map: MEDAL, legend: { a: palette.woodEdge, b: palette.woodDark } },
   heart: { map: HEART, legend: { a: palette.rose }, outline: palette.roseDark },
   // Gold coin with horizontal stripes (STYLE_GUIDE §6)
   coin: {
@@ -58,6 +76,11 @@ const ICONS: Record<string, Icon> = {
     map: ['..aaa..', '.aabaa.', 'aabbbaa', 'abbabba', 'aabbbaa', '.aabaa.', '..aaa..'],
     legend: { a: palette.rose, b: palette.cream },
     outline: palette.roseDark,
+  },
+  /** Correct answers counter in the Einmaleins drills */
+  check: {
+    map: ['......a', '.....aa', 'a...aa.', 'aa.aa..', '.aaa...', '..a....'],
+    legend: { a: palette.mintDark },
   },
   star: {
     map: ['...a...', '...a...', 'aaaaaaa', '.aaaaa.', '..aaa..', '.aa.aa.', 'aa...aa'],

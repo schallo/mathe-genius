@@ -189,7 +189,7 @@ describe('mergeSaves', () => {
     const newer = {
       ...addPet(base, 'hamster', 'Krümel'),
       character: { name: 'Leni', look: { ...DEFAULT_LOOK, outfitColor: 'flieder' as const } },
-      settings: { muted: true },
+      settings: { muted: true, knownMs: 3000 },
       updatedAt: 300,
     }
     const merged = mergeSaves(older, newer)

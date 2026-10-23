@@ -46,7 +46,7 @@ A small top-down pixel village on an **island** that fits on **one or two screen
 | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
 | **Theater**                                   | The shows from section 3: 10 mixed tasks, no timer, hints, coins.                                                                  |
 | **Lernhütten** (learning huts, one per field) | Focus training of one math field, she picks the topic and level. Calm, no timer, hints and worked solutions, same coins as a show. |
-| – **Einmaleins-Dojo**                         | The Einmaleins-Training from section 6a incl. progress grid and row badges.                                                        |
+| – **Mal-Dojo** / **Teil-Dojo**                | The Einmaleins-Training from section 6a, one hut for multiplication, one for division, each with its own grid and row badges.      |
 | – **Rechenwerkstatt**                         | Halbschriftlich and schriftlich ·, :, +, − (written calculation grid).                                                             |
 | – **Zahlenturm**                              | Zahlenraum bis 1 Million, Kopfrechnen Plus/Minus, rounding.                                                                        |
 | – **Marktstand**                              | Größen and Sachaufgaben (money first).                                                                                             |

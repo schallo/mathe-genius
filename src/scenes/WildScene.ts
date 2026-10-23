@@ -309,9 +309,7 @@ export class WildScene extends PixelScene {
     else if (target?.kind === 'creature') this.startBattle(target.creature)
     else if (target?.kind === 'hiding') {
       // Nobody here: the bush only rustles
-      const hidden = this.creatures.some(
-        (c) => c.spot === target.spot && !c.found,
-      )
+      const hidden = this.creatures.some((c) => c.spot === target.spot && !c.found)
       if (!hidden) {
         this.rustle(target.spot)
         this.caption.show(texts.wild.nobody, 1500)
@@ -487,14 +485,13 @@ export class WildScene extends PixelScene {
   debugState() {
     return {
       hero: { ...this.pos },
-      creatures: this.creatures
-        .map((c) => ({
-          species: c.species,
-          found: c.found,
-          x: c.pos.x,
-          y: c.pos.y,
-          spot: { x: c.spot.x, y: c.spot.y },
-        })),
+      creatures: this.creatures.map((c) => ({
+        species: c.species,
+        found: c.found,
+        x: c.pos.x,
+        y: c.pos.y,
+        spot: { x: c.spot.x, y: c.spot.y },
+      })),
     }
   }
 

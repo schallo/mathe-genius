@@ -131,7 +131,8 @@ export class VillageScene extends PixelScene {
 
   private onTap(x: number, y: number) {
     // Taps on the top bar buttons (mute, home, coins) are not walking targets
-    const onBar = y - this.cameras.main.worldView.y < 20
+    const viewY = y - this.cameras.main.worldView.y
+    const onBar = viewY >= 0 && viewY < 20
     if (onBar && (x < 44 || x > GAME_WIDTH - 54)) return
     if (this.pet && Math.abs(x - this.pet.x) < 10 && y < this.pet.y + 3 && y > this.pet.y - 16) {
       this.pet.hop()
@@ -283,13 +284,18 @@ export class VillageScene extends PixelScene {
   private enter(hut: Hut) {
     if (hut.scene) {
       this.hero.face('up')
-      this.goTo(hut.scene, { from: hut.id })
+      this.goTo(hut.scene, { ...hut.data, from: hut.id })
     } else {
       this.hero.face('down')
       this.caption.show(texts.village.underConstruction(hut.name))
       // Step back from the door so the keyboard doesn't re-trigger it
       this.pos.y += DOOR_RADIUS
     }
+  }
+
+  /** For end-to-end tests: a tap on a world point, even outside the view. */
+  debugTap(x: number, y: number) {
+    this.onTap(x, y)
   }
 
   /** The boat at the jetty goes to the wild island (GAME_DESIGN §6b). */

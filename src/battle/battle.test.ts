@@ -4,7 +4,7 @@ import { generateTask } from '../math/topics'
 import { seededRng } from '../math/random'
 import { DEFAULT_LOOK } from '../art/character/look'
 import { addPet, emptySave, mergeSaves, parseSave, type SaveData } from '../state/save'
-import { coinBalance } from '../state/save'
+import { SAVE_VERSION, coinBalance } from '../state/save'
 import {
   TIMER,
   answerCorrect,
@@ -270,7 +270,7 @@ describe('save v3', () => {
       settings: { muted: false },
     }
     const save = parseSave(v2)!
-    expect(save.version).toBe(3)
+    expect(save.version).toBe(SAVE_VERSION)
     expect(save.pets[0].xp).toBe(0)
     expect(save.battle).toEqual({ wins: {}, befriended: [], naps: {}, times: {} })
   })

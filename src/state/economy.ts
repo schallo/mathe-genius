@@ -45,3 +45,23 @@ export function summarizeShow(results: TaskResult[]): ShowSummary {
     coins: coins + REWARD.showBonus,
   }
 }
+
+/** Einmaleins-Dojos (GAME_DESIGN §6a). Speed modes never take anything away. */
+export const DOJO_REWARD = {
+  /** Üben: correct the first time the fact comes up in the round */
+  practice: 2,
+  /** Üben: correct when a missed fact comes back later */
+  practiceAgain: 1,
+  /** Blitzrunde, Turbo-Duell and Reihen-Meister: per correct answer */
+  speed: 1,
+  /** New personal best in the Blitzrunde, or a new Turbo-Duell record */
+  record: 10,
+  /** Turbo-Duell: beating the ghost also gives a star */
+  duelStar: 1,
+  /** First medal for a row in Reihen-Meister */
+  badge: 15,
+} as const
+
+export function practiceCoins(firstTime: boolean): number {
+  return firstTime ? DOJO_REWARD.practice : DOJO_REWARD.practiceAgain
+}

@@ -6,7 +6,8 @@ import type { PixelMap } from '../pixels'
 
 export const ACCESSORY_ROLES = 'abc'
 
-export type AccessoryStyle = 'schleife' | 'hut' | 'brille' | 'krone' | 'blumenkranz'
+export type AccessoryStyle =
+  'schleife' | 'hut' | 'brille' | 'krone' | 'blumenkranz' | 'malkrone' | 'diadem'
 
 type Maps = Record<'down' | 'up' | 'side', PixelMap>
 
@@ -59,6 +60,22 @@ export const accessories: Record<AccessoryStyle, Maps> = {
     '.....abaaba.....',
     ...empty(16),
   ]),
+  // Einmaleins-Krone: wider crown with three points and mint gems
+  malkrone: same([
+    '................',
+    '....a..aa..a....',
+    '....aaaaaaaa....',
+    '....abaaaaba....',
+    ...empty(16),
+  ]),
+  // Geteilt-Diadem: thin lilac band with a gold point and two dots (like ":")
+  diadem: same([
+    '................',
+    '.......a........',
+    '......aba.......',
+    '....cccaccc.....',
+    ...empty(16),
+  ]),
   // Wreath of leaves with pink and cream flowers
   blumenkranz: same([
     '................',
@@ -82,4 +99,6 @@ export const ACCESSORY_COLORS: Partial<Record<AccessoryStyle, AccessoryColors>> 
   brille: { a: 'ink', b: 'ink' },
   krone: { a: 'gold', b: 'rose', outline: 'goldDark' },
   blumenkranz: { a: 'mintDark', b: 'rose', c: 'cream' },
+  malkrone: { a: 'gold', b: 'mint', outline: 'goldDark' },
+  diadem: { a: 'gold', b: 'sky', c: 'lilac', outline: 'goldDark' },
 }

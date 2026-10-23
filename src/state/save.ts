@@ -2,10 +2,19 @@
 // The same format is used for JSON export/import and the cloud copy (GAME_DESIGN §8).
 import type { CharacterLook } from '../art/character/look'
 import { SPECIES, type SpeciesId } from '../data/creatures'
+import {
+  DEFAULT_KNOWN_MS,
+  DOJO_OPS,
+  mergeFacts,
+  parseFactId,
+  type DojoOp,
+  type FactMap,
+  type FactStats,
+} from '../math/einmaleins'
 
 // Kept from the working title "Mathe-Bühne" so existing progress stays readable
 export const SAVE_KEY = 'mathe-buehne'
-export const SAVE_VERSION = 3
+export const SAVE_VERSION = 4
 
 export type PetSave = { id: string; species: SpeciesId; name: string; xp: number }
 
@@ -19,6 +28,22 @@ export type BattleSave = {
   naps: Record<string, number>
   /** Her own answer times in ms per "topic-level" (adaptive timer) */
   times: Record<string, number[]>
+}
+
+/** Einmaleins-Dojos (GAME_DESIGN §6a): one for multiplication, one for division */
+export type DojoRecords = {
+  /** Best Blitzrunde score */
+  blitz: number
+  /** Best Turbo-Duell time in ms (the ghost runs at this pace) */
+  duelMs: number | null
+  /** Rows (1–10) cleared in Reihen-Meister */
+  badges: number[]
+}
+
+export type DojoSave = {
+  /** Fact id (see math/einmaleins.ts) → stats */
+  facts: FactMap
+  records: Record<DojoOp, DojoRecords>
 }
 
 /** Device id → count */
@@ -42,10 +67,24 @@ export type SaveData = {
   /** Item she is saving for (wish bar) */
   wish: string | null
   battle: BattleSave
-  settings: { muted: boolean }
+  dojo: DojoSave
+  /** Stars earned, counted per device like coins (GAME_DESIGN §4) */
+  stars: Counter
+  settings: {
+    muted: boolean
+    /** An Einmaleins fact is "auswendig" after 3 correct answers faster than this */
+    knownMs: number
+  }
 }
 
 export const emptyBattle = (): BattleSave => ({ wins: {}, befriended: [], naps: {}, times: {} })
+
+const emptyRecords = (): DojoRecords => ({ blitz: 0, duelMs: null, badges: [] })
+
+export const emptyDojo = (): DojoSave => ({
+  facts: {},
+  records: { mul: emptyRecords(), div: emptyRecords() },
+})
 
 export function emptySave(): SaveData {
   return {
@@ -58,7 +97,9 @@ export function emptySave(): SaveData {
     owned: [],
     wish: null,
     battle: emptyBattle(),
-    settings: { muted: false },
+    dojo: emptyDojo(),
+    stars: {},
+    settings: { muted: false, knownMs: DEFAULT_KNOWN_MS },
   }
 }
 
@@ -74,6 +115,12 @@ export function earnCoins(save: SaveData, amount: number, device: string): SaveD
 export function spendCoins(save: SaveData, amount: number, device: string): SaveData {
   const spent = { ...save.coins.spent, [device]: (save.coins.spent[device] ?? 0) + amount }
   return { ...save, coins: { ...save.coins, spent } }
+}
+
+export const starBalance = (save: SaveData) => total(save.stars)
+
+export function earnStars(save: SaveData, amount: number, device: string): SaveData {
+  return { ...save, stars: { ...save.stars, [device]: (save.stars[device] ?? 0) + amount } }
 }
 
 const count = (n: unknown) => (Number.isInteger(n) && (n as number) >= 0 ? (n as number) : 0)
@@ -107,6 +154,8 @@ const MIGRATIONS: Record<number, (data: Raw) => Raw> = {
     pets: (Array.isArray(data.pets) ? data.pets : []).map((p) => ({ ...p, xp: 0 })),
     battle: emptyBattle(),
   }),
+  // v4 adds the Einmaleins-Dojos, stars and the "auswendig" threshold
+  3: (data) => ({ ...data, version: 4, dojo: emptyDojo(), stars: {} }),
 }
 
 /** Validates and migrates any stored or imported save. Returns null if it isn't one. */
@@ -141,7 +190,69 @@ export function parseSave(input: unknown): SaveData | null {
     owned: Array.isArray(data.owned) ? data.owned.filter((id) => typeof id === 'string') : [],
     wish: typeof data.wish === 'string' ? data.wish : null,
     battle: parseBattle(data.battle),
-    settings: { muted: settings?.muted === true },
+    dojo: parseDojo(data.dojo),
+    stars: counter(data.stars),
+    settings: {
+      muted: settings?.muted === true,
+      knownMs:
+        typeof settings?.knownMs === 'number' &&
+        settings.knownMs >= 1000 &&
+        settings.knownMs <= 10_000
+          ? settings.knownMs
+          : DEFAULT_KNOWN_MS,
+    },
+  }
+}
+
+function parseFact(v: unknown): FactStats | null {
+  if (!v || typeof v !== 'object') return null
+  const raw = v as Record<string, unknown>
+  const recent = Array.isArray(raw.recent)
+    ? raw.recent
+        .filter((a) => a && typeof a.ok === 'boolean' && typeof a.ms === 'number' && a.ms >= 0)
+        .map((a) => ({ ok: a.ok as boolean, ms: a.ms as number }))
+    : []
+  return {
+    box: Math.min(5, Math.max(1, count(raw.box) || 1)),
+    seen: count(raw.seen),
+    correct: count(raw.correct),
+    fastStreak: count(raw.fastStreak),
+    known: raw.known === true,
+    recent,
+  }
+}
+
+function parseDojo(input: unknown): DojoSave {
+  const dojo = emptyDojo()
+  if (!input || typeof input !== 'object') return dojo
+  const raw = input as Record<string, unknown>
+  if (raw.facts && typeof raw.facts === 'object') {
+    for (const [id, v] of Object.entries(raw.facts)) {
+      const stats = parseFact(v)
+      if (parseFactId(id) && stats) dojo.facts[id] = stats
+    }
+  }
+  const records = (raw.records ?? {}) as Record<string, Record<string, unknown> | undefined>
+  for (const op of DOJO_OPS) {
+    const r = records[op]
+    if (!r) continue
+    dojo.records[op] = {
+      blitz: count(r.blitz),
+      duelMs: typeof r.duelMs === 'number' && r.duelMs > 0 ? r.duelMs : null,
+      badges: Array.isArray(r.badges)
+        ? [...new Set(r.badges.filter((n) => Number.isInteger(n) && n >= 1 && n <= 10))]
+        : [],
+    }
+  }
+  return dojo
+}
+
+function mergeRecords(a: DojoRecords, b: DojoRecords): DojoRecords {
+  const times = [a.duelMs, b.duelMs].filter((t): t is number => t !== null)
+  return {
+    blitz: Math.max(a.blitz, b.blitz),
+    duelMs: times.length ? Math.min(...times) : null,
+    badges: [...new Set([...a.badges, ...b.badges])].sort((x, y) => x - y),
   }
 }
 
@@ -152,7 +263,11 @@ function parseBattle(input: unknown): BattleSave {
   const raw = input as Record<string, unknown>
   const record = (v: unknown) => (v && typeof v === 'object' ? Object.entries(v) : [])
   return {
-    wins: Object.fromEntries(record(raw.wins).filter(([k]) => isSpecies(k)).map(([k, v]) => [k, count(v)])),
+    wins: Object.fromEntries(
+      record(raw.wins)
+        .filter(([k]) => isSpecies(k))
+        .map(([k, v]) => [k, count(v)]),
+    ),
     befriended: Array.isArray(raw.befriended) ? raw.befriended.filter(isSpecies) : [],
     naps: Object.fromEntries(record(raw.naps).map(([k, v]) => [k, count(v)])),
     times: Object.fromEntries(
@@ -208,8 +323,9 @@ export function activePet(data: SaveData): PetSave | undefined {
 /**
  * Merges two saves of the same player (GAME_DESIGN §8): the newer save wins for
  * character, settings, wish, the active pet, naps and answer times; pets, bought items and
- * befriended animals are combined; coin counters, pet XP and wins are merged by their
- * maximum, so nothing earned gets lost.
+ * befriended animals are combined; coin and star counters, pet XP and wins are merged by
+ * their maximum, so nothing earned gets lost. Einmaleins facts keep the copy with more
+ * answers; records keep the best, badges are combined.
  */
 export function mergeSaves(a: SaveData, b: SaveData): SaveData {
   const [older, newer] = a.updatedAt <= b.updatedAt ? [a, b] : [b, a]
@@ -239,6 +355,14 @@ export function mergeSaves(a: SaveData, b: SaveData): SaveData {
       naps: newer.battle.naps,
       times: { ...older.battle.times, ...newer.battle.times },
     },
+    dojo: {
+      facts: mergeFacts(older.dojo.facts, newer.dojo.facts),
+      records: {
+        mul: mergeRecords(a.dojo.records.mul, b.dojo.records.mul),
+        div: mergeRecords(a.dojo.records.div, b.dojo.records.div),
+      },
+    },
+    stars: mergeCounters(a.stars, b.stars),
     settings: newer.settings,
   }
 }

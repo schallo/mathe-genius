@@ -317,7 +317,10 @@ export class BattleScene extends PixelScene {
 
   private leave(newPet?: PetSave) {
     // A beaten creature runs off for a while, so she isn't pulled into the same battle
-    const back = { from: 'battle', ...(this.state?.outcome === 'win' ? { beaten: this.foeId } : {}) }
+    const back = {
+      from: 'battle',
+      ...(this.state?.outcome === 'win' ? { beaten: this.foeId } : {}),
+    }
     if (newPet) {
       this.goTo('NameEntry', {
         mode: 'pet',

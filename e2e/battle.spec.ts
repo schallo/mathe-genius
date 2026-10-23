@@ -62,13 +62,8 @@ async function toWild(page: Page, seed: object) {
   await waitForScene(page, 'Title')
   await tapWorld(page, 90, 277) // SPIELEN
   await waitForScene(page, 'Village')
-  // The village scrolls: walk up the main path, then tap the jetty once it is in view
-  await tapWorld(page, 90, 90)
-  const scene = () => page.evaluate(() => (window as any).__debug.activeScene())
-  for (let i = 0; i < 15 && (await scene()) === 'Village'; i++) {
-    await page.waitForTimeout(1500)
-    if ((await scene()) === 'Village') await tapWorld(page, 90, 6)
-  }
+  // The village scrolls: walk up the main path to the jetty (a tap outside the view)
+  await page.evaluate(() => (window as any).__debug.villageTap(90, 6))
   await waitForScene(page, 'Wild', 30_000)
 }
 

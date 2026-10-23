@@ -1,6 +1,7 @@
 // All shop items (GAME_DESIGN §4). Adding a dress, haircut or pet = one entry here
 // (plus its sprite). Starter items are owned by everyone from the start.
 import type { CharacterLook } from '../art/character/look'
+import type { DojoOp } from '../math/einmaleins'
 import type { SpeciesId } from './creatures'
 
 export type ItemCategory = 'kleider' | 'frisuren' | 'accessoires' | 'spielzeug' | 'haustiere'
@@ -18,6 +19,8 @@ export type Item = {
   wear?: Partial<CharacterLook>
   /** Pets: adopted in the Tierheim and named */
   species?: SpeciesId
+  /** Not sold: earned when every cell of that dojo's grid is gold (GAME_DESIGN §6a) */
+  reward?: DojoOp
 }
 
 export const ITEMS: Item[] = [
@@ -93,6 +96,24 @@ export const ITEMS: Item[] = [
     wear: { accessory: 'blumenkranz' },
   },
   { id: 'krone', category: 'accessoires', name: 'Krone', price: 100, wear: { accessory: 'krone' } },
+
+  // Rewards for a fully gold Einmaleins grid
+  {
+    id: 'einmaleins-krone',
+    category: 'accessoires',
+    name: 'Einmaleins-Krone',
+    price: 0,
+    reward: 'mul',
+    wear: { accessory: 'malkrone' },
+  },
+  {
+    id: 'geteilt-diadem',
+    category: 'accessoires',
+    name: 'Geteilt-Diadem',
+    price: 0,
+    reward: 'div',
+    wear: { accessory: 'diadem' },
+  },
 
   // Futter & Spielzeug: pets do a trick
   { id: 'ball', category: 'spielzeug', name: 'Ball', price: 15 },

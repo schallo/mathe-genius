@@ -6,6 +6,8 @@ import { startSync } from './state/sync'
 import { BattleScene } from './scenes/BattleScene'
 import { BootScene } from './scenes/BootScene'
 import { CharacterCreateScene } from './scenes/CharacterCreateScene'
+import { EinmaleinsDrillScene } from './scenes/EinmaleinsDrillScene'
+import { EinmaleinsMenuScene } from './scenes/EinmaleinsMenuScene'
 import { NameEntryScene } from './scenes/NameEntryScene'
 import { ParentScene } from './scenes/ParentScene'
 import { ShelterScene } from './scenes/ShelterScene'
@@ -71,6 +73,8 @@ const game = new Phaser.Game({
     ShelterScene,
     WildScene,
     BattleScene,
+    EinmaleinsMenuScene,
+    EinmaleinsDrillScene,
   ],
 })
 
@@ -85,9 +89,12 @@ declare global {
       /** State of the running show (answer, format, attempt) */
       show(): ReturnType<ShowScene['debugState']> | undefined
       battle(): ReturnType<BattleScene['debugState']> | undefined
+      drill(): ReturnType<EinmaleinsDrillScene['debugState']> | undefined
       wild(): ReturnType<WildScene['debugState']> | undefined
       /** Taps a world point on the wild island, even outside the view */
       wildTap(x: number, y: number): void
+      /** Taps a world point in the village, even outside the view */
+      villageTap(x: number, y: number): void
     }
   }
 }
@@ -102,9 +109,16 @@ window.__debug = {
     game.scene.isActive('Battle')
       ? (game.scene.getScene('Battle') as BattleScene).debugState()
       : undefined,
+  drill: () =>
+    game.scene.isActive('EinmaleinsDrill')
+      ? (game.scene.getScene('EinmaleinsDrill') as EinmaleinsDrillScene).debugState()
+      : undefined,
   wild: () =>
-    game.scene.isActive('Wild') ? (game.scene.getScene('Wild') as WildScene).debugState() : undefined,
+    game.scene.isActive('Wild')
+      ? (game.scene.getScene('Wild') as WildScene).debugState()
+      : undefined,
   wildTap: (x, y) => (game.scene.getScene('Wild') as WildScene).debugTap(x, y),
+  villageTap: (x, y) => (game.scene.getScene('Village') as VillageScene).debugTap(x, y),
   toPage(x, y) {
     const scene = game.scene.getScenes(true)[0]
     const cam = scene.cameras.main

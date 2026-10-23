@@ -44,7 +44,7 @@
 - Movement uses the real frame time (`game.loop.rawDelta`), not Phaser's smoothed delta, so walking speed stays right on slow frames.
 - **Starting look** is modelled on her (from a photo, not stored in the repo): fair skin (`skin1`), ginger hair (`hair-ginger`, new palette colour) pulled back into a ponytail, mint dress, pink bow.
 
-## Next tasks (as of 2026-10-22)
+## Next tasks (as of 2026-10-23)
 
 Done: steps 1–7 incl. the live Firebase connection (config in `src/firebaseConfig.ts`). Live: https://schallo.github.io/mathe-genius/ (up to step 6 until the step 7 push).
 
@@ -56,7 +56,7 @@ Done: steps 1–7 incl. the live Firebase connection (config in `src/firebaseCon
 4. **Check with school** the open assumptions in "Math engine assumptions" below (subtraction method etc.).
 5. ~~Step 6~~ done – ⏸ **checkpoint: please test the shop, Mein Haus and Tierheim** (locally with `npm run dev`, or online with `?test` after the push).
 6. ~~Step 7 – Battles~~ done – ⏸ **checkpoint: please test the jetty → Blumenwiese, battles against Igel, Eichhörnchen and Fuchs, a defeat (nap) and befriending (3 wins against one species).**
-7. **Step 8 – Einmaleins-Dojo:** 200 facts, Leitner boxes, Üben, Blitzrunde, 10 × 10 grid, Turbo-Duell, Reihen-Meister. ⏸ checkpoint.
+7. ~~Step 8 – Einmaleins-Dojos~~ done – ⏸ **checkpoint: please test the Mal-Dojo and the Teil-Dojo (Üben with a row or Mix, Blitzrunde, Turbo-Duell twice to see the ghost, Reihen-Meister medal) and watch the grid fill in.**
 8. **Step 9 – Learning huts** (Rechenwerkstatt with the written calculation grid, Zahlenturm, Marktstand); written tasks join the shows.
 9. **Step 10 – Adaptive difficulty**, mistakes coming back, stars per level.
 10. **Step 11 – Album, daily calendar, full parent area** (settings, progress overview, bonus coins, shows per day).
@@ -67,6 +67,22 @@ Smaller follow-ups:
 - Village: parent mailbox (currently only the lock on the title screen).
 - iPhone: real-device test of the home-screen app (sizes, sounds, safe areas).
 - Sound: check the "−" glyph and sounds on the real iPhone.
+
+## Einmaleins-Dojo decisions (step 8, 2026-10-23)
+
+- **Two huts instead of one** (your wish): the **Mal-Dojo** (·) and the **Teil-Dojo** (:) stand where the Einmaleins-Dojo was. Both have the same four sub-modes, each with only its own operation, and each has its own 10 × 10 grid, Blitz record, Turbo ghost and medal shelf. So the Blitzrunde is not "· and : mixed" as in GAME_DESIGN §6a, and the "second grid or toggle" became the second hut. The Rechenwerkstatt construction site moved to a new hut row at the bottom; the island is 70 px taller (beach, spawn and sea moved down with it).
+- **Facts:** a cell is row r (Reihe = second factor or divisor) × k: `k · r` and `k·r : r`. 7 · 8 and 8 · 7 are separate facts (100 multiplications as in the design). Row 7 = 1 · 7 … 10 · 7 and 7 : 7 … 70 : 7.
+- **Auswendig** = 3 correct answers in a row, each faster than the threshold (3 s, `settings.knownMs`; the slider in the parent area comes with step 11). A slow or wrong answer resets the streak. **Gold stays gold** once reached, so the grid never loses cells; a later mistake only puts the fact back into Leitner box 1, so it comes up more often. Practised (sky) = answered at least once.
+- **Leitner:** fast and correct → one box up; correct but slow → stays; wrong → box 1. Facts are drawn with weights 16/8/4/2/1 for boxes 1–5 (never seen: 12), never the last 3 again.
+- **Üben:** row = its 10 facts shuffled; Mix = 10 weak facts. OK confirms (no timer, no auto-confirm). A wrong answer shows the fact with a helper (e.g. 7 · 8 = 7 · 10 − 7 · 2), she types the result once (not counted), and the fact comes back 3 facts later. 2 coins for right the first time, 1 coin when a missed fact comes back.
+- **Blitzrunde:** 60 s, 1 coin per right answer, +10 for a new personal best (the first round counts as one). Missed facts come back 3 facts later.
+- **Turbo-Duell:** 20 facts must be solved; a missed one is shown for 1 s and added at the end, so mistakes only cost time. The first finished duel sets the ghost (+10 coins); beating the ghost gives +10 coins and **1 star**. Stars are now counted in the save (per device, like coins); spending them comes with step 10.
+- **Reihen-Meister:** the 10 facts of one row of that hut (not 20, because the · and : of a row live in different huts), no mistake, in under **30 s** (same pace as 20 in 60 s). She always finishes the row; a medal gives +15 coins the first time. 1 coin per right answer.
+- **Grid reward:** a fully gold grid gives the **Einmaleins-Krone** (Mal-Dojo) or the **Geteilt-Diadem** (Teil-Dojo), new accessories that are never sold in the shop.
+- Finishing a dojo round wakes napping pets, like a show. Leaving a round with the house button keeps all coins earned so far.
+- Response times are measured with `performance.now()` from the moment the fact appears; in speed modes the answer is confirmed as soon as enough digits are typed.
+- Sync merge: per fact the copy with more answers wins (gold stays gold), best records and all medals are kept, stars never go down.
+- Not done yet: the title-screen "EINMALEINS" button from §6a (the dojos are in the village instead), the slowest/most-missed facts in the parent area (step 11).
 
 ## Battle decisions (step 7, 2026-10-22)
 

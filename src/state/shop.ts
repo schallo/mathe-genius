@@ -70,9 +70,9 @@ export function wishProgress(save: SaveData): WishProgress | null {
   return { item: wished, missing, ratio: wished.price ? 1 - missing / wished.price : 1 }
 }
 
-/** Items she can still buy in the shop (pets are in the Tierheim). */
+/** Items she can still buy in the shop (pets are in the Tierheim, rewards are earned). */
 export function shopItems(category: Item['category']): Item[] {
-  return ITEMS.filter((i) => i.category === category && !i.starter && !i.species)
+  return ITEMS.filter((i) => i.category === category && !i.starter && !i.species && !i.reward)
 }
 
 export function ownedItems(save: SaveData, category: Item['category']): Item[] {

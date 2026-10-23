@@ -13,6 +13,7 @@ const icons: Record<HutIcon, { map: PixelMap; a: PaletteToken; b: PaletteToken }
   coin: { map: ['.aaa.', 'aabaa', 'aabaa', 'aabaa', '.aaa.'], a: 'gold', b: 'goldDark' },
   paw: { map: ['.a.a.', 'a...a', '.aaa.', 'aaaaa', '.aaa.'], a: 'hairBrown', b: 'hairBrown' },
   times: { map: ['a...a', '.a.a.', '..a..', '.a.a.', 'a...a'], a: 'ink', b: 'ink' },
+  divide: { map: ['..a..', '.....', 'aaaaa', '.....', '..a..'], a: 'ink', b: 'ink' },
   book: { map: ['aa.aa', 'ab.ba', 'ab.ba', 'aa.aa', '.aaa.'], a: 'curtainMid', b: 'cream' },
   heart: { map: ['.a.a.', 'aaaaa', 'aaaaa', '.aaa.', '..a..'], a: 'rose', b: 'rose' },
   hammer: { map: ['aaaa.', 'aaaa.', '.b...', '.b...', '.b...'], a: 'stoneDark', b: 'woodDark' },
@@ -83,7 +84,9 @@ export function addHutSign(scene: Phaser.Scene, hut: Hut, depth: number): void {
   const w = Math.ceil(text.width) + 8
   const x = Math.round(cx - w / 2)
   const g = scene.add.graphics().setDepth(depth)
-  g.fillStyle(palette.woodDark).fillRect(x + 4, top + 12, 2, 4).fillRect(x + w - 6, top + 12, 2, 4)
+  g.fillStyle(palette.woodDark)
+    .fillRect(x + 4, top + 12, 2, 4)
+    .fillRect(x + w - 6, top + 12, 2, 4)
   g.fillStyle(palette.woodEdge).fillRect(x, top, w, 13)
   g.fillStyle(palette.cream).fillRect(x + 1, top + 1, w - 2, 11)
 }
