@@ -19,6 +19,7 @@ import { TitleScene } from './scenes/TitleScene'
 import { VillageScene } from './scenes/VillageScene'
 import { WardrobeScene } from './scenes/WardrobeScene'
 import { WildScene } from './scenes/WildScene'
+import { VERSION_LABEL } from './version'
 
 const frame = document.getElementById('frame')!
 const container = document.getElementById('game')!
@@ -48,6 +49,12 @@ window.addEventListener('resize', () => {
 })
 
 startSync()
+
+// Same place on every screen, outside the scenes (see style.css #version)
+const versionLabel = document.createElement('div')
+versionLabel.id = 'version'
+versionLabel.textContent = VERSION_LABEL
+container.appendChild(versionLabel)
 
 const game = new Phaser.Game({
   type: Phaser.AUTO,

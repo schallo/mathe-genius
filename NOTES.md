@@ -68,6 +68,10 @@ Smaller follow-ups:
 - iPhone: real-device test of the home-screen app (sizes, sounds, safe areas).
 - Sound: check the "−" glyph and sounds on the real iPhone.
 
+## Version label (2026-10-25)
+
+- Every screen shows `v0.8.0 · <commit>` in a small pill in the bottom-right corner (HTML over the canvas, `src/version.ts`, values from `vite.config.ts`). The commit hash shows whether the iPhone app already has the newest deploy. Minor version = build step, patch = fixes in between.
+
 ## Einmaleins-Dojo decisions (step 8, 2026-10-23)
 
 - **Two huts instead of one** (your wish): the **Mal-Dojo** (·) and the **Teil-Dojo** (:) stand where the Einmaleins-Dojo was. Both have the same four sub-modes, each with only its own operation, and each has its own 10 × 10 grid, Blitz record, Turbo ghost and medal shelf. So the Blitzrunde is not "· and : mixed" as in GAME_DESIGN §6a, and the "second grid or toggle" became the second hut. The Rechenwerkstatt construction site moved to a new hut row at the bottom; the island is 70 px taller (beach, spawn and sea moved down with it).

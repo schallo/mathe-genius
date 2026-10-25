@@ -1,9 +1,24 @@
+import { execSync } from 'node:child_process'
+import { readFileSync } from 'node:fs'
 import { VitePWA } from 'vite-plugin-pwa'
 import { defineConfig } from 'vitest/config'
+
+// Version label in the bottom-right corner of every screen: package.json version + commit
+const version = JSON.parse(readFileSync('package.json', 'utf-8')).version as string
+let commit = 'dev'
+try {
+  commit = execSync('git rev-parse --short HEAD').toString().trim()
+} catch {
+  // No git (e.g. a downloaded zip): keep "dev"
+}
 
 export default defineConfig({
   // Relative paths so the build works on GitHub Pages under any repo name
   base: './',
+  define: {
+    __APP_VERSION__: JSON.stringify(version),
+    __APP_COMMIT__: JSON.stringify(commit),
+  },
   plugins: [
     VitePWA({
       registerType: 'autoUpdate',

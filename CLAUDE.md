@@ -118,6 +118,7 @@ Rules:
 - Git: **one commit per finished build step**, only when `npm test`, `npm run build` and `npm run e2e` are green. Every push to `main` deploys to GitHub Pages.
   - **Local session** (VS Code on the PC): commit directly on `main`.
   - **Web session** (claude.ai/code): work on a branch and open **one pull request per build step**; the user reviews and merges. Include screenshots and test results in the PR description.
+- Version (`package.json`, shown bottom right on every screen with the commit hash): minor = build step (step 8 → `0.8.0`), patch for fixes in between. Bump it in the step's commit.
 - Commit author email is the GitHub noreply address; never commit with a private email (pushes would be rejected).
 - Setup and deployment details for humans: `docs/SETUP_GITHUB.md`.
 - Topic priority for step 3: see `docs/GAME_DESIGN.md` §11. Sachaufgaben: money (€/ct) only for now.
