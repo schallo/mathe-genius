@@ -44,27 +44,36 @@
 - Movement uses the real frame time (`game.loop.rawDelta`), not Phaser's smoothed delta, so walking speed stays right on slow frames.
 - **Starting look** is modelled on her (from a photo, not stored in the repo): fair skin (`skin1`), ginger hair (`hair-ginger`, new palette colour) pulled back into a ponytail, mint dress, pink bow.
 
-## Next tasks (as of 2026-10-23)
+## Next tasks (as of 2026-10-26)
 
-Done: steps 1–7 incl. the live Firebase connection (config in `src/firebaseConfig.ts`). Live: https://schallo.github.io/mathe-genius/ (up to step 6 until the step 7 push).
+Done: steps 1–8, v0.8.1 (no +100 button, no door plates, faster e2e tests). Live: https://schallo.github.io/mathe-genius/. Firebase sync, the iPhone home-screen app and the step 6–8 checkpoints are tested.
 
-1. ~~Firebase setup~~ done. ~~Test sync~~ done 2026-10-25: login and sync work.
-2. ~~Push step 5~~ done.
-3. **Playtest the shows with Leni** (number pad, hints, coins): too easy/hard? Which topic should be the focus (currently Einmaleins level 2)?
-4. **Check with school** the open assumptions in "Math engine assumptions" below (subtraction method etc.).
-5. ~~Step 6~~ done – ⏸ **checkpoint: please test the shop, Mein Haus and Tierheim** (locally with `npm run dev`, or online with `?test` after the push).
-6. ~~Step 7 – Battles~~ done – ⏸ **checkpoint: please test the jetty → Blumenwiese, battles against Igel, Eichhörnchen and Fuchs, a defeat (nap) and befriending (3 wins against one species).**
-7. ~~Step 8 – Einmaleins-Dojos~~ done, checkpoint passed 2026-10-25.
-8. **Step 9 – Learning huts** (Rechenwerkstatt with the written calculation grid, Zahlenturm, Marktstand); written tasks join the shows.
-9. **Step 10 – Adaptive difficulty**, mistakes coming back, stars per level.
-10. **Step 11 – Album, daily calendar, full parent area** (settings, progress overview, bonus coins, shows per day).
-11. **Step 12 – More areas and animals**, 60–80 items.
+1. ~~Step 9 – Learning huts~~ done (v0.9.0).
+2. **Theater with a weekly hut** (agreed 2026-10-25, after step 9): each calendar week the shows take all 10 tasks from another hut (Mal-Dojo → Teil-Dojo → Zahlenturm → Werkstatt → Marktstand), one level above her level, **double coins for every task** incl. streak and show bonus; sign in the Theater "Diese Woche: …". Replaces the 60/30/10 mix for the Theater (update GAME_DESIGN §6).
+3. **Step 10 – Adaptive difficulty**, mistakes coming back, stars per level (spending stars).
+4. **Step 11 – Album, daily calendar, full parent area** (settings incl. "auswendig" time, progress overview, bonus coins, shows per day).
+5. **Step 12 – More areas and animals**, 60–80 items.
+6. **Coin icon** (wish 2026-10-26): the coin looks like a rectangle – make it clearly round (HUD, flying coins, prices).
+7. **Village plants** (wish 2026-10-26): several kinds of trees, palms and bushes, placed randomly (but fixed per map, off paths and huts) to make the layout livelier.
+8. **Check with school** the open assumptions in "Math engine assumptions" below (subtraction method etc.).
 
 Smaller follow-ups:
 
 - Village: parent mailbox (currently only the lock on the title screen).
 - ~~iPhone: real-device test of the home-screen app~~ done 2026-10-25: screens work on PC and iPhone.
 - Sound: check the "−" glyph and sounds on the real iPhone.
+
+## Learning huts and written calculation (step 9, 2026-10-26)
+
+- **Rechenwerkstatt** (Halbschriftlich, Schriftlich plus/minus/mal/geteilt), **Zahlenturm** (Kopfrechnen, Zahlenraum) and **Marktstand** (Geld) are open. Each hut: pick a topic and a level 1–5 (the level's title is shown), then 10 calm tasks in the same flow as a show (no timer, hints, worked solution, 5/3/1 coins, streak bonus, +10 for the round). The last pick per hut is remembered (`save.learn`). After the round: "Nochmal" or "Zurück" to the picker. A finished round wakes napping pets, like a show.
+- **Written grid** (`src/math/written.ts` → `src/ui/WrittenCalcGrid.ts`): squared paper, squares 11–16 px depending on the task, every digit checked at once.
+  - Plus: result from the right; a carry square (small digit above the line) comes right after the digit that makes it; the last carry is written as the front digit.
+  - Minus (Abziehverfahren mit Entbündeln, still to confirm with the school): only the result digits; the hint names the Entbündeln ("Einer: 14 − 8 (entbündelt)").
+  - Mal with a one-digit factor: result under the task, carries like plus. With a two-digit factor: tens row first (under the tens digit), then the ones row, carries in her head, then the sum with carry squares.
+  - Geteilt: she types the quotient digits from the left; after each one the grid writes the product and the rest with the next digit brought down (and its rule), so the method stays visible without typing every line. With remainder levels she types the last rest herself.
+  - First wrong digit in a square: a hint for that square (never the digit). Second wrong digit: the digit appears in accent-blue and she types it. Coins: no mistake 5, hints only 3, a shown digit 1.
+- **Written tasks join the Theater shows** (revision slots, level 1 for now; adaptive levels come with step 10).
+- Only the Bibliothek is still a construction site.
 
 ## Faster end-to-end tests (2026-10-26)
 

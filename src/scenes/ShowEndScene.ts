@@ -16,9 +16,11 @@ import { SpeechCard } from '../ui/SpeechCard'
 import { addText } from '../ui/text'
 import { PixelScene } from './PixelScene'
 import { SHOW_FLOOR_Y } from './ShowScene'
+import { roundHut, type Round } from '../math/show'
 
 export class ShowEndScene extends PixelScene {
   private results: TaskResult[] = []
+  private round: Round = { kind: 'theater' }
   private hero!: Character
   private pet?: Pet
 
@@ -26,8 +28,9 @@ export class ShowEndScene extends PixelScene {
     super('ShowEnd')
   }
 
-  init(data: { results: TaskResult[] }) {
+  init(data: { results: TaskResult[]; round?: Round }) {
     this.results = data.results ?? []
+    this.round = data.round ?? { kind: 'theater' }
   }
 
   create() {
@@ -72,7 +75,8 @@ export class ShowEndScene extends PixelScene {
     })
     hud.setCoins(coinBalance(getSave()))
 
-    new Key(this, 20, 260, 66, 30, texts.show.again, () => this.goTo('Show'), {
+    const round = this.round
+    new Key(this, 20, 260, 66, 30, texts.show.again, () => this.goTo('Show', { round }), {
       label: true,
       fontSize: 8,
     })
@@ -82,8 +86,12 @@ export class ShowEndScene extends PixelScene {
       260,
       66,
       30,
-      texts.show.toVillage,
-      () => this.goTo('Village', { from: 'theater' }),
+      // A learning-hut round goes back to the topic picker, a show into the village
+      round.kind === 'hut' ? texts.learn.back : texts.show.toVillage,
+      () =>
+        round.kind === 'hut'
+          ? this.goTo('LearnHut', { hut: round.hut })
+          : this.goTo('Village', { from: roundHut(round) }),
       {
         fill: 'gold',
         label: true,

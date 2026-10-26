@@ -17,13 +17,35 @@ export type ShowSettings = {
 
 export const DEFAULT_SHOW_SETTINGS: ShowSettings = {
   focus: 'einmaleins',
-  levels: { einmaleins: 2, kopfrechnen: 1, halbschriftlich: 1, zahlenraum: 1, geld: 1 },
+  levels: {
+    einmaleins: 2,
+    kopfrechnen: 1,
+    halbschriftlich: 1,
+    zahlenraum: 1,
+    schriftlichAddition: 1,
+    schriftlichSubtraktion: 1,
+    schriftlichMultiplikation: 1,
+    schriftlichDivision: 1,
+    geld: 1,
+  },
 }
 
-/** Written tasks need the calculation grid (build step 9) and stay out of shows until then. */
-export const SHOW_TOPICS: TopicId[] = TOPICS.filter((t) => !t.id.startsWith('schriftlich')).map(
-  (t) => t.id,
-)
+export const SHOW_TOPICS: TopicId[] = TOPICS.map((t) => t.id)
+
+/** A round of 10 tasks: a show in the Theater, or calm practice of one topic in a learning hut. */
+export type Round = { kind: 'theater' } | { kind: 'hut'; hut: string; topic: TopicId; level: Level }
+
+/** Hut id of the door she comes back out of. */
+export const roundHut = (round: Round) => (round.kind === 'hut' ? round.hut : 'theater')
+
+export function planRound(round: Round, rng: Rng): ShowSlot[] {
+  if (round.kind === 'theater') return planShow(rng)
+  return Array.from({ length: SHOW_LENGTH }, () => ({
+    topic: round.topic,
+    level: round.level,
+    challenge: false,
+  }))
+}
 
 const levelOf = (settings: ShowSettings, topic: TopicId): Level => settings.levels[topic] ?? 1
 

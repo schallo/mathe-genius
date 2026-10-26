@@ -158,8 +158,9 @@ test('tap the Theater, walk in, see the stage and come back', async ({ page }) =
 
 test('a hut under construction keeps her in the village', async ({ page }) => {
   await startInVillage(page)
-  await tapWorld(page, 144, 196) // Marktstand (still a construction site)
-  await page.waitForTimeout(3500)
+  // Bibliothek (still a construction site), at the top of the island: walk there via the debug tap
+  await page.evaluate(() => (window as any).__debug.villageTap(36, 50))
+  await page.waitForTimeout(11_000)
   expect(await activeScene(page)).toBe('Village')
   await shot(page, 'construction')
 })

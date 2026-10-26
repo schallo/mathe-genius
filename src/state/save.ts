@@ -11,6 +11,8 @@ import {
   type FactMap,
   type FactStats,
 } from '../math/einmaleins'
+import { TOPICS } from '../math/topics'
+import { LEVELS, type Level, type TopicId } from '../math/types'
 
 // Kept from the working title "Mathe-Bühne" so existing progress stays readable
 export const SAVE_KEY = 'mathe-buehne'
@@ -46,6 +48,9 @@ export type DojoSave = {
   records: Record<DojoOp, DojoRecords>
 }
 
+/** Last topic and level picked in each learning hut (hut id → pick) */
+export type LearnPicks = Record<string, { topic: TopicId; level: Level }>
+
 /** Device id → count */
 export type Counter = Record<string, number>
 
@@ -68,6 +73,7 @@ export type SaveData = {
   wish: string | null
   battle: BattleSave
   dojo: DojoSave
+  learn: LearnPicks
   /** Stars earned, counted per device like coins (GAME_DESIGN §4) */
   stars: Counter
   settings: {
@@ -98,6 +104,7 @@ export function emptySave(): SaveData {
     wish: null,
     battle: emptyBattle(),
     dojo: emptyDojo(),
+    learn: {},
     stars: {},
     settings: { muted: false, knownMs: DEFAULT_KNOWN_MS },
   }
@@ -191,6 +198,7 @@ export function parseSave(input: unknown): SaveData | null {
     wish: typeof data.wish === 'string' ? data.wish : null,
     battle: parseBattle(data.battle),
     dojo: parseDojo(data.dojo),
+    learn: parseLearn(data.learn),
     stars: counter(data.stars),
     settings: {
       muted: settings?.muted === true,
@@ -202,6 +210,19 @@ export function parseSave(input: unknown): SaveData | null {
           : DEFAULT_KNOWN_MS,
     },
   }
+}
+
+// Added in v4 without a version bump: older saves simply have no picks yet
+function parseLearn(input: unknown): LearnPicks {
+  if (!input || typeof input !== 'object') return {}
+  const out: LearnPicks = {}
+  for (const [hut, v] of Object.entries(input)) {
+    const pick = v as { topic?: unknown; level?: unknown } | null
+    const topic = TOPICS.find((t) => t.id === pick?.topic)
+    const level = LEVELS.find((l) => l === pick?.level)
+    if (topic && level) out[hut] = { topic: topic.id, level }
+  }
+  return out
 }
 
 function parseFact(v: unknown): FactStats | null {
@@ -362,6 +383,7 @@ export function mergeSaves(a: SaveData, b: SaveData): SaveData {
         div: mergeRecords(a.dojo.records.div, b.dojo.records.div),
       },
     },
+    learn: { ...older.learn, ...newer.learn },
     stars: mergeCounters(a.stars, b.stars),
     settings: newer.settings,
   }

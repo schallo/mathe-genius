@@ -137,3 +137,25 @@ describe('dojo save data', () => {
     expect(starBalance(merged)).toBe(1)
   })
 })
+
+describe('learning hut picks', () => {
+  it('keeps valid picks per hut, drops broken ones, the newer device wins', () => {
+    const raw = {
+      ...JSON.parse(JSON.stringify(emptySave())),
+      learn: {
+        werkstatt: { topic: 'schriftlichDivision', level: 3 },
+        zahlenturm: { topic: 'nope', level: 2 },
+        marktstand: { topic: 'geld', level: 9 },
+      },
+    }
+    const s = parseSave(raw)!
+    expect(s.learn).toEqual({ werkstatt: { topic: 'schriftlichDivision', level: 3 } })
+    const older = { ...s, updatedAt: 1 }
+    const newer = {
+      ...s,
+      updatedAt: 2,
+      learn: { werkstatt: { topic: 'halbschriftlich' as const, level: 1 as const } },
+    }
+    expect(mergeSaves(older, newer).learn.werkstatt.topic).toBe('halbschriftlich')
+  })
+})

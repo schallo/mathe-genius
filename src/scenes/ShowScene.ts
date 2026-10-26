@@ -1,6 +1,8 @@
 // The show in the Theater hut (GAME_DESIGN §3, §6; STYLE_GUIDE §9 "Math tasks on stage"):
 // 10 tasks on the speech card, number pad or choice keys on the floor, hint → worked
-// solution → retype, coins for every solved task. No timer.
+// solution → retype, coins for every solved task. No timer. A learning-hut round uses the
+// same flow with 10 tasks of the topic and level she picked. Written tasks are filled in
+// digit by digit on the squared-paper grid instead of the speech card.
 import Phaser from 'phaser'
 import { Character } from '../art/character/Character'
 import { DEFAULT_LOOK } from '../art/character/look'
@@ -10,9 +12,10 @@ import { ensureStageTexture } from '../art/stage'
 import { sfx } from '../audio/sfx'
 import { texts } from '../data/texts'
 import { GAME_WIDTH } from '../display'
-import { SHOW_LENGTH, planShow, type ShowSlot } from '../math/show'
+import { SHOW_LENGTH, planRound, roundHut, type Round, type ShowSlot } from '../math/show'
 import { checkAnswer, generateTask } from '../math/topics'
 import type { Answer, Task } from '../math/types'
+import { layoutWritten } from '../math/written'
 import { palette } from '../palette'
 import { answerReward, streakBonus, type TaskResult } from '../state/economy'
 import { activePet } from '../state/save'
@@ -22,17 +25,21 @@ import { Hud } from '../ui/Hud'
 import { Key } from '../ui/Key'
 import { NumberPad } from '../ui/NumberPad'
 import { SpeechCard } from '../ui/SpeechCard'
+import { WrittenCalcGrid } from '../ui/WrittenCalcGrid'
 import { addText } from '../ui/text'
 import { PixelScene } from './PixelScene'
 
 export const SHOW_FLOOR_Y = 196
 const CARD = { x: 8, y: 26, w: 116, h: 86 }
 const HINT = { x: 8, y: 126, w: 116 }
+/** Top-left corner of the written calculation grid (in place of the speech card) */
+const GRID = { x: 8, y: 38 }
 const MAX_DIGITS = 7
 
 type Field = 'value' | 'rest'
 
 export class ShowScene extends PixelScene {
+  private round: Round = { kind: 'theater' }
   private slots: ShowSlot[] = []
   private index = 0
   private task!: Task
@@ -54,12 +61,17 @@ export class ShowScene extends PixelScene {
   private progress!: Phaser.GameObjects.Graphics
   private caption!: Caption
   private challengeMark!: Phaser.GameObjects.Container
+  private grid?: WrittenCalcGrid
+  /** Wrong digits in the current square of the written grid */
+  private squareMistakes = 0
 
   constructor() {
     super('Show')
   }
 
-  init() {
+  init(data: { round?: Round }) {
+    this.round = data.round ?? { kind: 'theater' }
+    this.grid = undefined
     this.index = 0
     this.results = []
     this.streak = 0
@@ -86,7 +98,9 @@ export class ShowScene extends PixelScene {
     this.answer = this.add.container(0, 0)
     this.hint = this.add.container(HINT.x, HINT.y).setVisible(false)
 
-    this.hud = new Hud(this, { onHome: () => this.goTo('Village', { from: 'theater' }) })
+    this.hud = new Hud(this, {
+      onHome: () => this.goTo('Village', { from: roundHut(this.round) }),
+    })
     this.progress = this.add.graphics().setDepth(900)
     this.caption = new Caption(this)
 
@@ -96,7 +110,7 @@ export class ShowScene extends PixelScene {
       ok: () => this.confirm(),
     })
 
-    this.slots = planShow(Math.random)
+    this.slots = planRound(this.round, Math.random)
     this.nextTask()
   }
 
@@ -104,7 +118,7 @@ export class ShowScene extends PixelScene {
 
   private nextTask() {
     if (this.index >= this.slots.length) {
-      this.goTo('ShowEnd', { results: this.results })
+      this.goTo('ShowEnd', { results: this.results, round: this.round })
       return
     }
     const slot = this.slots[this.index]
@@ -113,12 +127,21 @@ export class ShowScene extends PixelScene {
     this.typed = { value: '', rest: '' }
     this.field = 'value'
     this.busy = false
+    this.squareMistakes = 0
     this.hint.setVisible(false)
     this.challengeMark.setVisible(slot.challenge)
 
-    const q = this.task.question
-    const size = q.length <= 18 ? 22 : q.length <= 44 ? 14 : 12
-    this.card.typeText(q, size, sfx.tick)
+    this.grid?.destroy()
+    this.grid = undefined
+    if (this.task.format.kind === 'written') {
+      this.card.setVisible(false)
+      this.grid = new WrittenCalcGrid(this, GRID.x, GRID.y, layoutWritten(this.task.format))
+    } else {
+      this.card.setVisible(true)
+      const q = this.task.question
+      const size = q.length <= 18 ? 22 : q.length <= 44 ? 14 : 12
+      this.card.typeText(q, size, sfx.tick)
+    }
 
     const choice = this.task.format.kind === 'choice'
     this.pad.setVisible(!choice)
@@ -128,6 +151,7 @@ export class ShowScene extends PixelScene {
   }
 
   private type(d: string) {
+    if (this.grid) return this.writtenDigit(Number(d))
     if (this.busy || this.typed[this.field].length >= MAX_DIGITS) return
     if (this.typed[this.field] === '0') this.typed[this.field] = ''
     this.typed[this.field] += d
@@ -135,14 +159,14 @@ export class ShowScene extends PixelScene {
   }
 
   private erase() {
-    if (this.busy) return
+    if (this.busy || this.grid) return
     if (this.field === 'rest' && this.typed.rest === '') this.field = 'value'
     else this.typed[this.field] = this.typed[this.field].slice(0, -1)
     this.renderAnswer()
   }
 
   private confirm() {
-    if (this.busy || this.typed.value === '') return
+    if (this.busy || this.grid || this.typed.value === '') return
     const remainder = this.task.format.kind !== 'choice' && this.task.format.remainder
     if (remainder && this.field === 'value') {
       this.field = 'rest'
@@ -159,6 +183,38 @@ export class ShowScene extends PixelScene {
   private judge(given: Answer) {
     if (checkAnswer(this.task, given)) this.onCorrect()
     else this.onWrong()
+  }
+
+  /**
+   * Written grid: every digit is checked at once. The first wrong digit in a square shows
+   * a hint for that square, the second shows the right digit in accent-blue to type it.
+   * Coins as in a show: no mistake = first try, hints only = second try, a shown digit = third.
+   */
+  private writtenDigit(d: number) {
+    const grid = this.grid
+    if (this.busy || !grid?.current) return
+    if (grid.enter(d)) {
+      this.squareMistakes = 0
+      this.hint.setVisible(false)
+      if (grid.done) this.onCorrect()
+      return
+    }
+    sfx.boop()
+    this.squareMistakes++
+    const hint = grid.current.hint
+    if (this.squareMistakes === 1) {
+      this.attempt = Math.max(this.attempt, 2)
+      this.showHint(texts.show.hint, [hint], this.belowGrid())
+    } else {
+      this.attempt = 3
+      grid.showDigit()
+      this.showHint(texts.show.solution, [hint, texts.learn.typeBlue], this.belowGrid())
+    }
+  }
+
+  /** The hint card goes under the grid, so the grid stays readable. */
+  private belowGrid(): number {
+    return this.grid ? GRID.y + this.grid.cardHeight + 4 : HINT.y
   }
 
   private onCorrect() {
@@ -179,7 +235,8 @@ export class ShowScene extends PixelScene {
       sfx.fanfare()
       this.caption.show(`${texts.show.streak} +${bonus}`, 1500)
     }
-    this.card.setText(this.praise(), 20)
+    if (this.grid) this.caption.show(this.praise(), 1300)
+    else this.card.setText(this.praise(), 20)
     this.hint.setVisible(false)
 
     this.time.delayedCall(1400, () => {
@@ -207,7 +264,7 @@ export class ShowScene extends PixelScene {
   private renderAnswer() {
     this.answer.removeAll(true)
     const format = this.task.format
-    if (format.kind === 'choice') return
+    if (format.kind === 'choice' || format.kind === 'written') return
     const y = CARD.y + 58
     const box = (x: number, w: number, value: string, field: Field) => {
       const g = this.add.graphics()
@@ -229,7 +286,7 @@ export class ShowScene extends PixelScene {
       })
       this.answer.add([g, text, zone])
     }
-    if (format.kind !== 'written' && format.remainder) {
+    if (format.remainder) {
       box(CARD.x + 8, 38, this.typed.value, 'value')
       this.answer.add(addText(this, CARD.x + CARD.w / 2, y + 10, texts.show.rest, 'label', 6))
       box(CARD.x + CARD.w - 46, 38, this.typed.rest, 'rest')
@@ -285,12 +342,13 @@ export class ShowScene extends PixelScene {
     }
   }
 
-  private showHint(title: string, lines: string[]) {
+  private showHint(title: string, lines: string[], y = HINT.y) {
     this.hint.removeAll(true)
+    this.hint.setY(y)
     const size = lines.length > 4 ? 10 : 12
     const body = addText(this, 8, 16, lines.join('\n'), 'title', size).setOrigin(0, 0)
     body.setWordWrapWidth(HINT.w - 14).setAlign('left')
-    const h = Math.min(SHOW_FLOOR_Y + 8 - HINT.y, Math.ceil(body.height) + 22)
+    const h = Math.min(SHOW_FLOOR_Y + 8 - y, Math.ceil(body.height) + 22)
     const g = this.add.graphics()
     g.fillStyle(palette.cream).fillRoundedRect(0, 0, HINT.w, h, 3)
     g.lineStyle(2, palette.ink).strokeRoundedRect(0, 0, HINT.w, h, 3)
@@ -379,6 +437,10 @@ export class ShowScene extends PixelScene {
       attempt: this.attempt,
       hintVisible: this.hint.visible,
       busy: this.busy,
+      /** Written grid: the digit expected in the active square */
+      written: this.grid?.current
+        ? { digit: this.grid.current.digit, carry: this.grid.current.carry }
+        : undefined,
     }
   }
 

@@ -116,6 +116,14 @@ export const texts = {
     rowSlow: 'Ohne Fehler! Unter 30 Sekunden gibt’s die Medaille.',
     gridDone: (item: string) => `Alle 100 auswendig! Du bekommst: ${item}!`,
   },
+  learn: {
+    title: { werkstatt: 'Rechenwerkstatt', zahlenturm: 'Zahlenturm', marktstand: 'Marktstand' },
+    level: 'Stufe',
+    start: 'Los!',
+    back: 'Zurück',
+    digitHint: 'Fast! Schau mal:',
+    typeBlue: 'Tipp die blaue Ziffer ab!',
+  },
   show: {
     soon: 'Bald geht’s los!',
     back: 'Zurück',

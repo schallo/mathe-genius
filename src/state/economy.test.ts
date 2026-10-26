@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { SHOW_LENGTH, SHOW_TOPICS, planShow } from '../math/show'
+import { SHOW_LENGTH, SHOW_TOPICS, planRound, planShow, roundHut } from '../math/show'
 import { seededRng } from '../math/random'
 import { REWARD, answerReward, streakBonus, summarizeShow } from './economy'
 
@@ -54,8 +54,29 @@ describe('planShow', () => {
     }
   })
 
-  it('keeps written tasks out of shows until the grid exists', () => {
-    expect(SHOW_TOPICS.some((t) => t.startsWith('schriftlich'))).toBe(false)
+  it('lets written tasks join the shows (the grid exists since step 9)', () => {
+    expect(SHOW_TOPICS.filter((t) => t.startsWith('schriftlich'))).toHaveLength(4)
+    const topics = new Set<string>()
+    for (let seed = 0; seed < 200; seed++)
+      for (const s of planShow(seededRng(seed))) topics.add(s.topic)
+    expect([...topics].some((t) => t.startsWith('schriftlich'))).toBe(true)
+  })
+
+  it('a learning-hut round is 10 tasks of the picked topic and level, no challenge', () => {
+    const round = {
+      kind: 'hut' as const,
+      hut: 'werkstatt',
+      topic: 'schriftlichDivision' as const,
+      level: 3 as const,
+    }
+    const slots = planRound(round, seededRng(1))
+    expect(slots).toHaveLength(SHOW_LENGTH)
+    expect(
+      slots.every((s) => s.topic === 'schriftlichDivision' && s.level === 3 && !s.challenge),
+    ).toBe(true)
+    expect(roundHut(round)).toBe('werkstatt')
+    expect(roundHut({ kind: 'theater' })).toBe('theater')
+    expect(planRound({ kind: 'theater' }, seededRng(1)).at(-1)?.challenge).toBe(true)
   })
 
   it('caps the challenge at level 5', () => {

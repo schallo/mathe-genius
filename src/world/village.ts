@@ -45,7 +45,8 @@ export const HUTS: Hut[] = [
     x: 128,
     y: 40,
     roof: 'stoneDark',
-    scene: null,
+    scene: 'LearnHut',
+    data: { hut: 'zahlenturm' },
   },
   // Einmaleins-Dojos (GAME_DESIGN §6a), one for · and one for : (decided 2026-10-23)
   {
@@ -84,7 +85,8 @@ export const HUTS: Hut[] = [
     x: 128,
     y: 180,
     roof: 'mintDark',
-    scene: null,
+    scene: 'LearnHut',
+    data: { hut: 'marktstand' },
   },
   {
     id: 'laden',
@@ -120,7 +122,8 @@ export const HUTS: Hut[] = [
     x: 20,
     y: 390,
     roof: 'woodDark',
-    scene: null,
+    scene: 'LearnHut',
+    data: { hut: 'werkstatt' },
   },
 ]
 

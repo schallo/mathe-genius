@@ -8,6 +8,7 @@ type ShowState = {
   attempt: number
   hintVisible: boolean
   busy: boolean
+  written?: { digit: number; carry: boolean }
 }
 type Debug = {
   activeScene(): string | undefined
@@ -53,6 +54,16 @@ async function typeNumber(page: Page, n: number) {
 
 /** Answer the current task, correctly or with a wrong value. */
 async function answer(page: Page, state: ShowState, correct = true) {
+  if (state.format.kind === 'written') {
+    // Written grid: one digit per square; a wrong answer is one wrong digit
+    if (!correct) return page.keyboard.type(String((state.written!.digit + 1) % 10))
+    for (let i = 0; i < 40; i++) {
+      const now = await showState(page)
+      if (!now?.written || now.index !== state.index) return
+      await page.keyboard.type(String(now.written.digit))
+    }
+    return
+  }
   const value = correct ? state.answer.value : state.answer.value + 1
   if (state.format.kind === 'choice') {
     const options = state.format.options!

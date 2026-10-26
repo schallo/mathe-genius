@@ -24,6 +24,8 @@ export type LevelInfo = {
 export type Topic = {
   id: TopicId
   title: string
+  /** Short name for the topic keys in a learning hut */
+  short: string
   /** Learning hut where it is practised (GAME_DESIGN §3a) */
   hut: 'dojo' | 'werkstatt' | 'zahlenturm' | 'marktstand'
   /** Available in timed battles (GAME_DESIGN §6b) */
@@ -37,6 +39,7 @@ export const TOPICS: Topic[] = [
   {
     id: 'einmaleins',
     title: 'Einmaleins',
+    short: 'Einmaleins',
     hut: 'dojo',
     battle: true,
     generator: einmaleins,
@@ -51,6 +54,7 @@ export const TOPICS: Topic[] = [
   {
     id: 'kopfrechnen',
     title: 'Kopfrechnen Plus/Minus',
+    short: 'Kopfrechnen',
     hut: 'zahlenturm',
     battle: true,
     generator: kopfrechnen,
@@ -65,6 +69,7 @@ export const TOPICS: Topic[] = [
   {
     id: 'halbschriftlich',
     title: 'Halbschriftlich mal und geteilt',
+    short: 'Halbschriftlich',
     hut: 'werkstatt',
     battle: false,
     generator: halbschriftlich,
@@ -79,6 +84,7 @@ export const TOPICS: Topic[] = [
   {
     id: 'zahlenraum',
     title: 'Zahlenraum bis 1 Million',
+    short: 'Zahlenraum',
     hut: 'zahlenturm',
     battle: false,
     generator: zahlenraum,
@@ -93,6 +99,7 @@ export const TOPICS: Topic[] = [
   {
     id: 'schriftlichAddition',
     title: 'Schriftlich plus',
+    short: 'Schriftlich plus',
     hut: 'werkstatt',
     battle: false,
     generator: schriftlichAddition,
@@ -107,6 +114,7 @@ export const TOPICS: Topic[] = [
   {
     id: 'schriftlichSubtraktion',
     title: 'Schriftlich minus',
+    short: 'Schriftlich minus',
     hut: 'werkstatt',
     battle: false,
     generator: schriftlichSubtraktion,
@@ -121,6 +129,7 @@ export const TOPICS: Topic[] = [
   {
     id: 'schriftlichMultiplikation',
     title: 'Schriftlich mal',
+    short: 'Schriftlich mal',
     hut: 'werkstatt',
     battle: false,
     generator: schriftlichMultiplikation,
@@ -135,6 +144,7 @@ export const TOPICS: Topic[] = [
   {
     id: 'schriftlichDivision',
     title: 'Schriftlich geteilt',
+    short: 'Schriftlich geteilt',
     hut: 'werkstatt',
     battle: false,
     generator: schriftlichDivision,
@@ -149,6 +159,7 @@ export const TOPICS: Topic[] = [
   {
     id: 'geld',
     title: 'Geld und Sachaufgaben',
+    short: 'Geld',
     hut: 'marktstand',
     battle: false,
     generator: geld,
