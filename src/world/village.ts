@@ -34,8 +34,9 @@ export const HUTS: Hut[] = [
     id: 'bibliothek',
     name: 'Bibliothek',
     sign: 'Bibliothek',
-    x: 20,
-    y: 40,
+    // Opposite Mein Haus (moved 2026-10-27; the pond took its old place)
+    x: 128,
+    y: 320,
     roof: 'curtainLight',
     scene: 'Library',
   },
@@ -129,7 +130,7 @@ export const HUTS: Hut[] = [
   },
 ]
 
-export const POND = { x: 132, y: 326, width: 28, height: 18 }
+export const POND = { x: 22, y: 48, width: 28, height: 18 }
 
 /** The village is an island: sea above `top` and below `bottom`, beach above the lower sea. */
 export const SEA = { top: 12, bottom: 484 }
@@ -208,7 +209,8 @@ export function plantKeepOut(): Rect[] {
       x: h.x + HUT_WIDTH / 2 - SIGN_HALF_WIDTH,
       y: h.y - SIGN_HEIGHT - 2,
       w: 2 * SIGN_HALF_WIDTH,
-      h: SIGN_HEIGHT + 4,
+      // down to the end of the board's posts
+      h: SIGN_HEIGHT + 12,
     })),
     ...HUTS.map(branchPath).map((r) => grow({ x: r.x, y: r.y, w: r.width, h: r.height }, 2)),
     { x: MAIN_PATH.x - 3, y: 0, w: MAIN_PATH.width + 6, h: VILLAGE_HEIGHT },

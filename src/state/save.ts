@@ -67,6 +67,11 @@ export type SaveData = {
   version: typeof SAVE_VERSION
   /** Time of the last change (ms since 1970), used to pick the newer save when merging */
   updatedAt: number
+  /**
+   * When the parents last reset the progress (ms since 1970, 0 = never). Saves from before
+   * a reset never merge back into a newer one, so a reset also reaches the cloud and other devices.
+   */
+  resetAt: number
   character: { name: string; look: CharacterLook } | null
   pets: PetSave[]
   activePetId: string | null
@@ -117,6 +122,7 @@ export function emptySave(): SaveData {
   return {
     version: SAVE_VERSION,
     updatedAt: 0,
+    resetAt: 0,
     character: null,
     pets: [],
     activePetId: null,
@@ -221,6 +227,7 @@ export function parseSave(input: unknown): SaveData | null {
   return {
     version: SAVE_VERSION,
     updatedAt: count(data.updatedAt),
+    resetAt: count(data.resetAt),
     character:
       character && typeof character.name === 'string' && character.look
         ? { name: character.name, look: normalizeLook(character.look) }
@@ -420,6 +427,14 @@ export function writeSave(storage: Writer | undefined, data: SaveData): boolean 
   }
 }
 
+/**
+ * Parent area "Neu anfangen": a fresh start with character creation. The parents'
+ * settings (sound, rounds per day, "auswendig" time) stay.
+ */
+export function resetProgress(save: SaveData, now: number): SaveData {
+  return { ...emptySave(), settings: save.settings, resetAt: now, updatedAt: now }
+}
+
 /** Ids stay unique across devices, so pets adopted on the PC and the iPhone never collide. */
 function newId(prefix: string): string {
   return `${prefix}-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`
@@ -446,6 +461,8 @@ export function activePet(data: SaveData): PetSave | undefined {
  * answers; records keep the best, badges are combined.
  */
 export function mergeSaves(a: SaveData, b: SaveData): SaveData {
+  // After a reset by the parents the reset save wins as a whole: nothing from before comes back
+  if (a.resetAt !== b.resetAt) return a.resetAt > b.resetAt ? a : b
   const [older, newer] = a.updatedAt <= b.updatedAt ? [a, b] : [b, a]
   const byId = new Map<string, PetSave>()
   for (const pet of [...older.pets, ...newer.pets]) {
@@ -458,6 +475,7 @@ export function mergeSaves(a: SaveData, b: SaveData): SaveData {
   return {
     version: SAVE_VERSION,
     updatedAt: newer.updatedAt,
+    resetAt: newer.resetAt,
     character: newer.character ?? older.character,
     pets,
     activePetId,

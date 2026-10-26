@@ -97,3 +97,48 @@ test('parent area: grown-up question, export and import', async ({ page }, testI
   await waitForScene(page, 'Title')
   await expect(page.locator('.zh-panel')).toHaveCount(0)
 })
+
+test('reset: only with the name typed in exactly, then a fresh start', async ({ page }) => {
+  await page.addInitScript((save) => {
+    if (!sessionStorage.getItem('seeded')) {
+      localStorage.setItem('mathe-buehne', save)
+      sessionStorage.setItem('seeded', '1')
+    }
+  }, JSON.stringify(V1_SAVE))
+  await page.goto('/')
+  await waitForScene(page, 'Title')
+  await tapWorld(page, 14, 346) // lock
+  await waitForScene(page, 'Parent')
+  const question = await page.locator('.zh-panel h2').textContent()
+  const [a, b] = question!.match(/\d+/g)!.map(Number)
+  await page.locator('input[name="answer"]').fill(String(a * b))
+  await page.getByRole('button', { name: 'OK' }).click()
+
+  await page.getByRole('button', { name: 'Spielstand zurücksetzen …' }).click()
+  await expect(page.getByRole('heading', { name: 'Wirklich neu anfangen?' })).toBeVisible()
+  await page.screenshot({ path: `test-results/parent-reset-${test.info().project.name}.png` })
+
+  // Wrong name: nothing happens
+  await page.locator('input[name="confirm"]').fill('Lena')
+  await page.getByRole('button', { name: 'Endgültig zurücksetzen' }).click()
+  await expect(page.getByText('Der Name stimmt nicht – es wurde nichts gelöscht.')).toBeVisible()
+  const before = await page.evaluate(() => JSON.parse(localStorage.getItem('mathe-buehne')!))
+  expect(before.character.name).toBe('Leni')
+
+  // Cancel leads back to the menu, still nothing deleted
+  await page.getByRole('button', { name: 'Abbrechen' }).click()
+  await expect(page.getByRole('heading', { name: 'Fortschritt' })).toBeVisible()
+
+  // The right name: a fresh start, the settings stay
+  await page.getByRole('button', { name: 'Spielstand zurücksetzen …' }).click()
+  await page.locator('input[name="confirm"]').fill('Leni')
+  await page.getByRole('button', { name: 'Endgültig zurücksetzen' }).click()
+  await waitForScene(page, 'Title')
+  const after = await page.evaluate(() => JSON.parse(localStorage.getItem('mathe-buehne')!))
+  expect(after.character).toBeNull()
+  expect(after.pets).toEqual([])
+  expect(after.resetAt).toBeGreaterThan(0)
+  expect(after.settings.muted).toBe(true)
+  await tapWorld(page, 90, 277) // SPIELEN → character creation
+  await waitForScene(page, 'CharacterCreate')
+})

@@ -21,6 +21,7 @@ import {
   loadSave,
   mergeSaves,
   parseSave,
+  resetProgress,
   writeSave,
 } from './save'
 import { reconcile } from './reconcile'
@@ -222,5 +223,38 @@ describe('reconcile', () => {
     const r = reconcile(local, remote)
     expect(coinBalance(r.merged)).toBe(30)
     expect(r).toMatchObject({ push: true, replaceLocal: true })
+  })
+})
+
+describe('reset by the parents', () => {
+  it('starts fresh but keeps the parent settings', () => {
+    let s = addPet(
+      { ...emptySave(), character: { name: 'Leni', look: DEFAULT_LOOK } },
+      'hund',
+      'Bello',
+    )
+    s = earnCoins(s, 300, 'pc')
+    s = { ...s, settings: { muted: true, knownMs: 4000, roundsPerDay: 3 } }
+    const fresh = resetProgress(s, 1000)
+    expect(fresh.character).toBeNull()
+    expect(fresh.pets).toEqual([])
+    expect(coinBalance(fresh)).toBe(0)
+    expect(fresh.settings).toEqual({ muted: true, knownMs: 4000, roundsPerDay: 3 })
+    expect(fresh).toMatchObject({ resetAt: 1000, updatedAt: 1000 })
+  })
+
+  it('a reset wins the sync: the old progress of another device never comes back', () => {
+    const old = {
+      ...earnCoins(addPet(emptySave(), 'hund', 'Bello'), 300, 'phone'),
+      updatedAt: 5000,
+    }
+    const fresh = resetProgress(old, 2000)
+    // Even though the old save was changed later, the reset save wins as a whole
+    expect(mergeSaves(old, fresh)).toBe(fresh)
+    expect(mergeSaves(fresh, old)).toBe(fresh)
+    // After the reset both devices merge normally again
+    const later = { ...earnCoins(fresh, 10, 'pc'), updatedAt: 3000 }
+    expect(coinBalance(mergeSaves(fresh, later))).toBe(10)
+    expect(parseSave(JSON.parse(JSON.stringify(fresh)))?.resetAt).toBe(2000)
   })
 })

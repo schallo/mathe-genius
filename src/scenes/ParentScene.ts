@@ -9,7 +9,14 @@ import { TOPICS } from '../math/topics'
 import { LEVELS, type Level } from '../math/types'
 import { dayKey } from '../state/calendar'
 import { setTopicLevel } from '../state/learning'
-import { coinBalance, earnCoins, mergeSaves, parseSave, starBalance } from '../state/save'
+import {
+  coinBalance,
+  earnCoins,
+  mergeSaves,
+  parseSave,
+  resetProgress,
+  starBalance,
+} from '../state/save'
 import { deviceId, getSave, replaceSave, updateSave } from '../state/store'
 import { onSyncStatus, signIn, signOut, syncNow, syncStatus, type SyncStatus } from '../state/sync'
 import { HtmlPanel, esc } from '../ui/HtmlPanel'
@@ -105,8 +112,14 @@ export class ParentScene extends PixelScene {
           <input type="file" name="file" accept="application/json,.json" hidden />
           <p class="zh-note">Import fügt den Spielstand zum vorhandenen hinzu – es geht nichts verloren.</p>
         </div>
+        <div class="zh-card">
+          <h2>Neu anfangen</h2>
+          <p>Setzt den ganzen Spielstand zurück – auch auf allen anderen Geräten mit Cloud-Sync.</p>
+          <button data-action="reset">Spielstand zurücksetzen …</button>
+        </div>
         <button class="zh-gold" data-action="back">Zurück zum Spiel</button>`,
       )
+      .on('reset', () => this.showReset())
       .on('signin', async () => {
         try {
           await signIn(this.panel.field('email').value, this.panel.field('password').value)
@@ -213,6 +226,50 @@ export class ParentScene extends PixelScene {
     updateSave((s) => earnCoins(s, coins, deviceId()))
     this.message = `+${coins} Münzen für ${getSave().character?.name ?? 'dein Kind'}!`
     this.showMenu()
+  }
+
+  /**
+   * Second step before a reset: what gets deleted, a backup first, and the character's
+   * name typed in exactly – so nothing is reset by accident.
+   */
+  private showReset(error = '') {
+    const save = getSave()
+    const name = save.character?.name ?? 'NEU'
+    this.panel
+      .render(
+        `<h1>Eltern-Bereich</h1>
+        <div class="zh-card">
+          <h2>Wirklich neu anfangen?</h2>
+          <p>Das wird gelöscht: Figur und Name, ${coinBalance(save)} Münzen, ${starBalance(save)} Sterne,
+            alle gekauften Sachen, ${save.pets.length} Tier(e), Einmaleins-Fortschritt, Stufen, Kalender und Album.</p>
+          <p>Bleibt: deine Einstellungen und die Cloud-Anmeldung.</p>
+          <p class="zh-note">Tipp: Exportiere vorher den Spielstand, dann kannst du ihn wieder importieren.</p>
+          <button data-action="export">Erst exportieren</button>
+          <form data-action="noop">
+            <label>Zum Bestätigen den Namen eintippen: <b>${esc(name)}</b>
+              <input name="confirm" autocomplete="off" aria-label="Name zur Bestätigung" /></label>
+            <button class="zh-danger" data-action="reset-now">Endgültig zurücksetzen</button>
+            <button data-action="cancel">Abbrechen</button>
+          </form>
+          <p class="zh-error">${esc(error)}</p>
+        </div>`,
+      )
+      .on('export', () => this.exportSave())
+      .on('cancel', () => {
+        this.message = ''
+        this.showMenu()
+      })
+      .on('reset-now', () => {
+        if (this.panel.field('confirm').value.trim() !== name) {
+          this.showReset('Der Name stimmt nicht – es wurde nichts gelöscht.')
+          return
+        }
+        replaceSave(resetProgress(getSave(), Date.now()))
+        // The fresh start reaches the cloud (and from there the other devices) right away
+        void syncNow()
+        this.goTo('Title')
+      })
+    this.panel.field('confirm').focus()
   }
 
   private syncSection(status: SyncStatus): string {

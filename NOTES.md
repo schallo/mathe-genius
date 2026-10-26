@@ -61,13 +61,26 @@ Done: steps 1–8, v0.8.1 (no +100 button, no door plates, faster e2e tests). Li
     - Regular pets (Tierheim): Hündchen (starter) _Treuer Freund_ – first wrong answer per round costs nothing; Kätzchen 400 _Glückspfote_ – streak bonus after 4; Hamster (starter) _Mehr Zeit_ +2 s in battles; Kaninchen 350 _Hoppel-Hilfe_ – 1 free mistake, 2 from level 5; Schildkröte 300 _Ruhige Pfote_ +3 s in battles; Wellensittich 450 _Sternenvogel_ +1 star per level-up; Meerschweinchen 350 _Münzschatz_ +1 coin per first-try answer; Maus 250 _Flinke Maus_ – streak after 4; Dalmatiner 500 (like Hündchen); Rote Katze 500 (like Kätzchen).
     - Special animals (unique, arrive with their own name, stars + coins in the Tierheim, "Noch 2 ★" as a goal): **Mr Wriggles** – golden hamster with a top hat, 3 ★ + 300, +1 coin per right answer and +2 s in battles; **Prinzessin Pfötchen** – white cat with a crown, 5 ★ + 500, streak after 3; **Sir Bello** – dog with bow tie and monocle, 5 ★ + 500, 2 free mistakes; **Sternen-Katze** – lilac cat with stars in the fur, 6 ★ + 400, +1 star per level-up; **Kapitän Panzer** – turtle with a sailor hat, 4 ★ + 350, +4 s in battles; **Regenbogen-Hase** – rainbow bunny, 8 ★ + 600, 1 free mistake, +1 coin per right answer, +1 star per level-up.
     - Needs: sprites, data entries, trait logic + tests, trait display in the Tierheim and on stage, GAME_DESIGN §4 update.
-11. **Check with school** the open assumptions in "Math engine assumptions" below (subtraction method etc.).
+11. **Fishing mini game** (wish 2026-10-27): the Laden sells an **Angel** (fishing rod). With it, walking up to the village pond (top left) opens a fishing game:
+    1. **Cast:** throw the line (tap/hold for distance).
+    2. **Wait** until a fish bites (random short wait, a bobbing float shows the bite).
+    3. **Reel in** by holding/tapping – without tearing the line: the fish's pull switches at random between **strong, medium and weak**.
+    4. **Power:** she starts with 100 power that recovers over time (recover rate to tune so it stays a challenge). Reeling in uses power, more the stronger the fish pulls; at 0 power the fish gets away and she starts again (nothing is lost).
+    - **Reward** (decided 2026-10-27): the first fish she catches is a special pet – **Goldi**, a goldfish in a water bubble (it joins her like a befriended animal, named Goldi). After that, every catch gives **1 star, at most 3 stars per day**; further catches that day are just for fun. No coins (math stays the only way to earn coins).
+    - **Place** (decided 2026-10-27): the village pond at the top left (it moved there in v0.12.1).
+12. **Check with school** the open assumptions in "Math engine assumptions" below (subtraction method etc.).
 
 Smaller follow-ups:
 
 - ~~Village: parent mailbox~~ done in step 11.
 - ~~iPhone: real-device test of the home-screen app~~ done 2026-10-25: screens work on PC and iPhone.
 - Sound: check the "−" glyph and sounds on the real iPhone.
+
+## Reset and village layout (v0.12.1, 2026-10-27)
+
+- **Neu anfangen** in the parent area: resets the whole progress (character, coins, stars, items, pets, dojo, levels, calendar, album) to a fresh start with character creation; the parents' settings and the cloud login stay. Protection: a second page lists what gets deleted, offers "Erst exportieren", and the final button only works with the character's name typed in exactly.
+- Sync-proof: the save carries `resetAt`; when two saves meet, the one with the newer reset wins as a whole (nothing from before the reset merges back), so the cloud copy and the other devices take over the fresh start at their next sync.
+- **Bibliothek moved opposite Mein Haus** (right column, bottom row); the pond took its old place at the top left. Plants keep clear of the name boards down to the end of their posts.
 
 ## More islands, animals and items (step 12, v0.12.0, 2026-10-27)
 

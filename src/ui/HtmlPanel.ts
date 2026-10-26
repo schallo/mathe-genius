@@ -18,6 +18,7 @@ const STYLE = `
   padding: 8px 12px; margin: 0 8px 8px 0; border: 1px solid ${css('ink')}; border-radius: 6px;
   background: ${css('paperWhite')}; color: ${css('ink')}; cursor: pointer; }
 .zh-panel button.zh-gold { background: ${css('gold')}; }
+.zh-panel button.zh-danger { background: ${css('rose')}; border-color: ${css('roseDark')}; }
 .zh-panel .zh-note { font-size: 12px; opacity: 0.8; }
 .zh-panel .zh-error { color: ${css('heroDark')}; }
 .zh-panel label { display: block; margin: 0 0 8px; }

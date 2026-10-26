@@ -114,8 +114,8 @@ test('album: silhouettes, a full page gives a star; the Bibliothek door opens', 
   ]
   await seedSave(page, start({ owned: toys }))
   await toVillage(page)
-  // Walk to the Bibliothek at the top of the island (no longer a construction site)
-  await page.evaluate(() => (window as any).__debug.villageTap(36, 50))
+  // Walk to the Bibliothek (opposite Mein Haus)
+  await page.evaluate(() => (window as any).__debug.villageTap(144, 330))
   await waitForScene(page, 'Library', 30_000)
   // All toys owned: Spielzeug is full → one bonus star
   await expect.poll(async () => (await save(page)).album?.claimed).toEqual(['spielzeug'])
