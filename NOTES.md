@@ -50,7 +50,7 @@ Done: steps 1–8, v0.8.1 (no +100 button, no door plates, faster e2e tests). Li
 
 1. ~~Step 9 – Learning huts~~ done (v0.9.0).
 2. ~~Theater with a weekly hut~~ done (v0.9.1).
-3. **Step 10 – Adaptive difficulty**, mistakes coming back, stars per level (spending stars).
+3. ~~Step 10 – Adaptive difficulty, mistakes coming back, stars~~ done (v0.10.0).
 4. **Step 11 – Album, daily calendar, full parent area** (settings incl. "auswendig" time, progress overview, bonus coins, shows per day).
 5. **Step 12 – More areas and animals**, 60–80 items.
 6. ~~Coin icon~~ done (v0.9.2): round 9 × 9 coin with rim, shading and shine.
@@ -64,10 +64,20 @@ Smaller follow-ups:
 - ~~iPhone: real-device test of the home-screen app~~ done 2026-10-25: screens work on PC and iPhone.
 - Sound: check the "−" glyph and sounds on the real iPhone.
 
+## Adaptive levels, mistakes, stars (step 10, v0.10.0, 2026-10-26)
+
+- **Her level per topic** (`src/math/adaptive.ts`, `save.mastery`): 3 tasks right on the first try in a row → one level up; 2 misses in a row (needed the hint or the solution) → one level down, never below 1. Only tasks at or above her level count up, and only tasks at or below her level count down – so the harder Theater tasks (level + 1) can lift her but never pull her down, and easier tasks she picks in a hut don't lift her.
+- Counted in the Theater and the learning huts (Rechenwerkstatt, Zahlenturm, Marktstand). Battles and the dojos don't change topic levels (the dojos have their own fact tracking).
+- The Theater plays her current level + 1. The hut picker marks her level with a small star and starts there if she has no saved pick yet.
+- **Stars:** one for each level reached for the first time (2–5) and one for mastering level 5 (3 in a row there): up to 5 per topic. Stars and the best level never go down. A star counter appears in the top bar once she has stars (not in shows and drills, where the progress dots sit there). A level-up shows "Kopfrechnen: Stufe 2! +1 Stern" with a little fanfare.
+- **Star items** (GAME_DESIGN §4): Sternspange (2 ★ + 30 coins) and Glitzerkrone (5 ★ + 80 coins) under Schmuck. The card shows "★ 2 ● 30", or "Noch 3 ★" while stars are missing. Spending is counted per device (`save.starsSpent`) so syncing never loses or doubles stars.
+- **Mistakes come back** (`src/math/review.ts`, `save.review`): tasks solved only with a hint or the worked solution (Theater, huts) and wrong battle answers are kept (each task once, max. 20). Up to 2 come back in the next Theater show at random places, marked "Nochmal". Right on the first try → gone; wrong again → back two shows later. Old mistakes in the Theater pay double coins like every Theater task.
+- Sync: per topic the copy with more answers wins (best level and mastery only grow); the newer device's mistake queue wins.
+
 ## Theater with a weekly hut (v0.9.1, 2026-10-26)
 
 - Replaces the 60/30/10 mix (GAME_DESIGN §6 updated). The week counts from Monday (local time) and the rotation runs on across new year: Mal-Dojo → Teil-Dojo → Zahlenturm → Rechenwerkstatt → Marktstand (`weekHut` in `src/math/show.ts`).
-- **One level harder:** for the huts every topic runs one level above her level (the fixed defaults until step 10: Kopfrechnen, Zahlenraum, Halbschriftlich, the four written topics and Geld at level 1 → the Theater uses level 2), topics of the hut take turns. The dojos have no levels, so their harder form is: **Mal-Dojo week** = 5 plain facts + 5 missing factors (`? · 8 = 56`), **Teil-Dojo week** = division with remainder (Einmaleins level 5).
+- **One level harder:** for the huts every topic runs one level above her level (adaptive since step 10; starting defaults: Kopfrechnen, Zahlenraum, Halbschriftlich, the four written topics and Geld at level 1 → the Theater uses level 2), topics of the hut take turns. The dojos have no levels, so their harder form is: **Mal-Dojo week** = 5 plain facts + 5 missing factors (`? · 8 = 56`), **Teil-Dojo week** = division with remainder (Einmaleins level 5).
 - **Double coins for every task** (10 / 6 / 2), the five-in-a-row bonus (10) and the show bonus (20). The old single "Extra" star task is gone.
 - A label on the stage edge: "Diese Woche: Mal-Dojo · Münzen ×2"; the end card says "Doppelte Münzen!".
 - Theater answers in the Mal-/Teil-Dojo weeks are not counted into the dojo fact tracking (no timer in shows).

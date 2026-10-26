@@ -12,7 +12,7 @@ import { Pet } from '../art/pets/Pet'
 import { ensureStageTexture } from '../art/stage'
 import { sfx } from '../audio/sfx'
 import { texts } from '../data/texts'
-import { GAME_WIDTH } from '../display'
+import { GAME_HEIGHT, GAME_WIDTH } from '../display'
 import {
   SHOW_LENGTH,
   coinFactor,
@@ -29,7 +29,11 @@ import { layoutWritten } from '../math/written'
 import { palette } from '../palette'
 import { answerReward, streakBonus, type TaskResult } from '../state/economy'
 import { activePet } from '../state/save'
-import { addCoins, getSave } from '../state/store'
+import { currentLevels } from '../math/adaptive'
+import { dueReviews } from '../math/review'
+import { topic as topicOf } from '../math/topics'
+import { recordShowTask } from '../state/learning'
+import { addCoins, deviceId, getSave, updateSave } from '../state/store'
 import { Caption } from '../ui/Caption'
 import { Hud } from '../ui/Hud'
 import { Key } from '../ui/Key'
@@ -73,6 +77,8 @@ export class ShowScene extends PixelScene {
   private progress!: Phaser.GameObjects.Graphics
   private caption!: Caption
   private grid?: WrittenCalcGrid
+  /** "Nochmal" on an old mistake that came back */
+  private reviewMark!: Phaser.GameObjects.Text
   /** Wrong digits in the current square of the written grid */
   private squareMistakes = 0
 
@@ -106,10 +112,12 @@ export class ShowScene extends PixelScene {
     this.hint = this.add.container(HINT.x, HINT.y).setVisible(false)
 
     this.hud = new Hud(this, {
+      stars: false,
       onHome: () => this.goTo('Village', { from: roundHut(this.round) }),
     })
     this.progress = this.add.graphics().setDepth(900)
-    this.caption = new Caption(this)
+    // Messages appear on the free middle of the stage, never over the number pad
+    this.caption = new Caption(this).setViewY(SHOW_FLOOR_Y - 38 - GAME_HEIGHT + 24)
 
     this.pad = new NumberPad(this, {
       digit: (d) => this.type(d),
@@ -117,7 +125,12 @@ export class ShowScene extends PixelScene {
       ok: () => this.confirm(),
     })
 
-    this.slots = planRound(this.round, Math.random)
+    // Her current levels; a Theater show also brings back up to 2 old mistakes
+    const reviews = this.round.kind === 'theater' ? dueReviews(save.review).map((r) => r.task) : []
+    this.slots = planRound(this.round, Math.random, currentLevels(save.mastery), reviews)
+    this.reviewMark = addText(this, CARD.x + 6, CARD.y + 7, texts.show.review, 'label', 5)
+      .setOrigin(0, 0.5)
+      .setDepth(20)
     // The Theater shows which hut's tasks it plays this week (on the stage edge, above the pad)
     if (this.round.kind === 'theater') {
       const hut = this.round.hut
@@ -136,6 +149,7 @@ export class ShowScene extends PixelScene {
     }
     const slot = this.slots[this.index]
     this.task = slotTask(slot, Math.random)
+    this.reviewMark.setVisible(!!slot.review)
     this.attempt = 1
     this.typed = { value: '', rest: '' }
     this.field = 'value'
@@ -151,7 +165,7 @@ export class ShowScene extends PixelScene {
     } else {
       this.card.setVisible(true)
       const q = this.task.question
-      const size = q.length <= 18 ? 22 : q.length <= 44 ? 14 : 12
+      const size = q.length <= 11 ? 22 : q.length <= 16 ? 18 : q.length <= 44 ? 14 : 12
       this.card.typeText(q, size, sfx.tick)
     }
 
@@ -237,6 +251,16 @@ export class ShowScene extends PixelScene {
     const reward = answerReward(this.attempt, factor)
     const bonus = streakBonus(this.streak, factor)
     addCoins(reward + bonus)
+    // Her level for this topic, stars for a new level, mistakes for later shows
+    const review = !!this.slots[this.index].review
+    let levelUp: { level: number; stars: number } | undefined
+    updateSave((s) => {
+      const result = recordShowTask(s, this.task, this.attempt, review, deviceId())
+      if (result.change === 'up' || result.stars) {
+        levelUp = { level: result.save.mastery[this.task.topic]!.level, stars: result.stars }
+      }
+      return result.save
+    })
 
     sfx.pling()
     this.hero.jump()
@@ -250,6 +274,17 @@ export class ShowScene extends PixelScene {
     if (this.grid) this.caption.show(this.praise(), 1300)
     else this.card.setText(this.praise(), 20)
     this.hint.setVisible(false)
+    if (levelUp) {
+      const name = topicOf(this.task.topic).short
+      const text = [
+        texts.show.levelUp(name, levelUp.level),
+        ...(levelUp.stars ? [texts.show.star] : []),
+      ]
+      this.time.delayedCall(bonus ? 700 : 0, () => {
+        sfx.fanfare()
+        this.caption.show(text.join(' '), 2000)
+      })
+    }
 
     this.time.delayedCall(1400, () => {
       this.index++
@@ -450,6 +485,7 @@ export class ShowScene extends PixelScene {
       hintVisible: this.hint.visible,
       busy: this.busy,
       round: this.round,
+      review: !!this.slots[this.index]?.review,
       /** Written grid: the digit expected in the active square */
       written: this.grid?.current
         ? { digit: this.grid.current.digit, carry: this.grid.current.carry }

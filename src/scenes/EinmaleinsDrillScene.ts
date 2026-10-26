@@ -134,7 +134,7 @@ export class EinmaleinsDrillScene extends PixelScene {
     const pet = activePet(save)
     if (pet) this.pet = new Pet(this, 170, FLOOR_Y, pet.species)
 
-    this.hud = new Hud(this, { onHome: () => this.toMenu() })
+    this.hud = new Hud(this, { onHome: () => this.toMenu(), stars: false })
     // Messages appear above the floor, so they never cover the number pad
     this.caption = new Caption(this).setViewY(FLOOR_Y - 10 - GAME_HEIGHT + 24)
     this.progress = this.add.graphics().setDepth(900)

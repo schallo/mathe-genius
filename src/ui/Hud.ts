@@ -7,7 +7,7 @@ import { icon } from '../art/icons'
 import { isMuted, setMuted } from '../audio/sfx'
 import { GAME_WIDTH } from '../display'
 import { palette } from '../palette'
-import { coinBalance } from '../state/save'
+import { coinBalance, starBalance } from '../state/save'
 import { wishProgress } from '../state/shop'
 import { getSave } from '../state/store'
 import { addText } from './text'
@@ -26,10 +26,12 @@ function pillButton(scene: Phaser.Scene, x: number, texture: string, onPress: ()
 
 export class Hud extends Phaser.GameObjects.Container {
   private coinText: Phaser.GameObjects.Text
+  private starText?: Phaser.GameObjects.Text
   private coins: number
   private wishBar: Phaser.GameObjects.Container
 
-  constructor(scene: Phaser.Scene, options: { onHome?: () => void } = {}) {
+  /** `stars: false` in scenes with progress dots in the top bar (shows, drills) */
+  constructor(scene: Phaser.Scene, options: { onHome?: () => void; stars?: boolean } = {}) {
     super(scene, 0, 0)
     const mute = pillButton(scene, 4, icon(scene, isMuted() ? 'soundOff' : 'soundOn'), () => {
       setMuted(!isMuted())
@@ -45,6 +47,17 @@ export class Hud extends Phaser.GameObjects.Container {
     const coin = scene.add.image(GAME_WIDTH - 42, 10, icon(scene, 'coin'), 'icon')
     this.coinText = addText(scene, GAME_WIDTH - 21, 9, String(this.coins), 'title', 14)
     this.add([g, coin, this.coinText])
+
+    // Stars (GAME_DESIGN §4): only shown once she has earned one
+    const stars = starBalance(getSave())
+    if (stars > 0 && options.stars !== false) {
+      const s = scene.add.graphics()
+      s.fillStyle(palette.paperWhite).fillRoundedRect(GAME_WIDTH - 84, 3, 31, 14, 3)
+      s.lineStyle(1, palette.ink).strokeRoundedRect(GAME_WIDTH - 84, 3, 31, 14, 3)
+      const star = scene.add.image(GAME_WIDTH - 76, 10, icon(scene, 'star'), 'icon')
+      this.starText = addText(scene, GAME_WIDTH - 62, 9, String(stars), 'title', 14)
+      this.add([s, star, this.starText])
+    }
 
     this.wishBar = scene.add.container(0, 0)
     this.add(this.wishBar)
@@ -79,6 +92,7 @@ export class Hud extends Phaser.GameObjects.Container {
   setCoins(coins: number): void {
     this.coins = coins
     this.coinText.setText(String(coins))
+    this.starText?.setText(String(starBalance(getSave())))
     this.refreshWish()
   }
 

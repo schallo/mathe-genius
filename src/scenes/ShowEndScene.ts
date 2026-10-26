@@ -9,6 +9,7 @@ import { GAME_WIDTH } from '../display'
 import { REWARD, summarizeShow, type TaskResult } from '../state/economy'
 import { activePet, coinBalance } from '../state/save'
 import { wakeAll } from '../battle/progress'
+import { finishTheaterShow } from '../state/learning'
 import { addCoins, getSave, updateSave } from '../state/store'
 import { Hud } from '../ui/Hud'
 import { Key } from '../ui/Key'
@@ -44,6 +45,8 @@ export class ShowEndScene extends PixelScene {
     addCoins(REWARD.showBonus * factor)
     // A finished show wakes up pets that were napping after a battle
     updateSave(wakeAll)
+    // The clock of the mistake queue counts Theater shows
+    if (this.round.kind === 'theater') updateSave(finishTheaterShow)
     const hud = new Hud(this)
     const summary = summarizeShow(this.results, factor)
 

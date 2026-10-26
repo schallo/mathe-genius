@@ -18,6 +18,7 @@ import {
   type BattleState,
 } from '../battle/battle'
 import { addAnswerTime, addPetXp, finishBattle, petLevel } from '../battle/progress'
+import { recordMistake } from '../state/learning'
 import { SPECIES, traitOf, type SpeciesId, type WildForm } from '../data/creatures'
 import { texts } from '../data/texts'
 import { GAME_HEIGHT, GAME_WIDTH } from '../display'
@@ -219,6 +220,8 @@ export class BattleScene extends PixelScene {
     const result = answerWrong(this.state, timeout)
     this.state = result.state
     sfx.boop()
+    // A wrong answer comes back in a later Theater show (GAME_DESIGN §6b)
+    if (!timeout) updateSave((s) => recordMistake(s, this.task))
     if (result.joker) {
       this.caption.show(texts.battle.joker, 1200)
       this.typed = ''

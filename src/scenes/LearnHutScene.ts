@@ -9,8 +9,10 @@ import { ensureStageTexture } from '../art/stage'
 import { sfx } from '../audio/sfx'
 import { texts } from '../data/texts'
 import { GAME_WIDTH } from '../display'
+import { currentLevels } from '../math/adaptive'
 import { TOPICS, topic as topicOf } from '../math/topics'
 import { LEVELS, type Level, type TopicId } from '../math/types'
+import { icon } from '../art/icons'
 import { palette } from '../palette'
 import { activePet } from '../state/save'
 import { getSave, updateSave } from '../state/store'
@@ -33,6 +35,8 @@ export class LearnHutScene extends PixelScene {
   private topicKeys: Key[] = []
   private levelKeys: Key[] = []
   private levelTitle!: Phaser.GameObjects.Text
+  /** Small star over the key of her current level */
+  private levelStar!: Phaser.GameObjects.Image
   private hero!: Character
   private pet?: Pet
 
@@ -48,7 +52,7 @@ export class LearnHutScene extends PixelScene {
     const saved = getSave().learn[this.hut]
     const known = saved && topics.some((t) => t.id === saved.topic)
     this.topic = known ? saved.topic : topics[0].id
-    this.level = known ? saved.level : 1
+    this.level = known ? saved.level : currentLevels(getSave().mastery)[this.topic]
   }
 
   private topics() {
@@ -102,6 +106,7 @@ export class LearnHutScene extends PixelScene {
       )
       this.levelKeys.push(key)
     })
+    this.levelStar = this.add.image(0, LEVEL_Y, icon(this, 'star'), 'icon').setDepth(5)
     const card = this.add.graphics()
     card.fillStyle(palette.cream).fillRoundedRect(8, 248, GAME_WIDTH - 16, 20, 3)
     card.lineStyle(1, palette.ink).strokeRoundedRect(8, 248, GAME_WIDTH - 16, 20, 3)
@@ -127,6 +132,9 @@ export class LearnHutScene extends PixelScene {
     this.topicKeys.forEach((k, i) => k.setFill(topics[i].id === this.topic ? 'gold' : 'cream'))
     this.levelKeys.forEach((k, i) => k.setFill(LEVELS[i] === this.level ? 'gold' : 'cream'))
     this.levelTitle.setText(topicOf(this.topic).levels[this.level].title)
+    // Her level in this topic (adaptive, see math/adaptive.ts)
+    const mine = currentLevels(getSave().mastery)[this.topic]
+    this.levelStar.setX(12 + (mine - 1) * 32 + 24)
   }
 
   private start() {

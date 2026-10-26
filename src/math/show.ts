@@ -3,7 +3,8 @@
 //   calendar week the shows take all tasks from another hut, one level harder than her
 //   level there, and every task pays double coins.
 // - Learning huts: 10 calm tasks of the topic and level she picked.
-// Adaptive levels and mistake repetition follow in build step 10.
+// Theater shows also bring back up to 2 old mistakes (math/review.ts); her levels come
+// from math/adaptive.ts.
 import { shuffle } from './einmaleins'
 import { missingFactorTask, multiplication } from './generators/einmaleins'
 import { generateTask, TOPICS } from './topics'
@@ -11,10 +12,18 @@ import type { Level, Rng, Task, TopicId } from './types'
 
 export const SHOW_LENGTH = 10
 
-/** One task of a round. `variant` picks a special Einmaleins task (Mal-Dojo week). */
-export type ShowSlot = { topic: TopicId; level: Level; variant?: 'multiply' | 'missingFactor' }
+/**
+ * One task of a round. `variant` picks a special Einmaleins task (Mal-Dojo week);
+ * `review` is an old mistake that comes back as it was.
+ */
+export type ShowSlot = {
+  topic: TopicId
+  level: Level
+  variant?: 'multiply' | 'missingFactor'
+  review?: Task
+}
 
-/** Her current level per topic (fixed defaults until step 10 makes them adaptive). */
+/** Her starting level per topic (math/adaptive.ts moves it up and down). */
 export const DEFAULT_LEVELS: Record<TopicId, Level> = {
   einmaleins: 2,
   kopfrechnen: 1,
@@ -85,6 +94,7 @@ export function planTheater(
 }
 
 export function slotTask(slot: ShowSlot, rng: Rng): Task {
+  if (slot.review) return slot.review
   if (slot.variant === 'multiply') return multiplication(rng, slot.level)
   if (slot.variant === 'missingFactor') return missingFactorTask(rng, slot.level)
   return generateTask(slot.topic, slot.level, rng)
@@ -103,7 +113,26 @@ export const roundHut = (round: Round) => (round.kind === 'hut' ? round.hut : 't
 /** Theater shows pay double coins for every task (and for the bonuses). */
 export const coinFactor = (round: Round) => (round.kind === 'theater' ? 2 : 1)
 
-export function planRound(round: Round, rng: Rng): ShowSlot[] {
-  if (round.kind === 'theater') return planTheater(round.hut, rng)
-  return Array.from({ length: SHOW_LENGTH }, () => ({ topic: round.topic, level: round.level }))
+/**
+ * The 10 tasks of a round. A Theater show uses her current `levels` and replaces tasks
+ * at random places with the old mistakes in `reviews`.
+ */
+export function planRound(
+  round: Round,
+  rng: Rng,
+  levels: Record<TopicId, Level> = DEFAULT_LEVELS,
+  reviews: Task[] = [],
+): ShowSlot[] {
+  if (round.kind === 'hut') {
+    return Array.from({ length: SHOW_LENGTH }, () => ({ topic: round.topic, level: round.level }))
+  }
+  const slots = planTheater(round.hut, rng, levels)
+  const places = shuffle(
+    slots.map((_, i) => i),
+    rng,
+  )
+  reviews.slice(0, SHOW_LENGTH).forEach((task, i) => {
+    slots[places[i]] = { topic: task.topic, level: task.level, review: task }
+  })
+  return slots
 }

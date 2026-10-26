@@ -15,7 +15,7 @@ export const CARD_W = 54
 export const CARD_H = 60
 
 export type CardPrice =
-  | { kind: 'price'; coins: number }
+  | { kind: 'price'; coins: number; stars?: number }
   | { kind: 'missing'; coins: number }
   | { kind: 'owned' }
   | { kind: 'text'; text: string }
@@ -41,7 +41,14 @@ export class ItemCard extends Key {
   setPrice(price: CardPrice): this {
     for (const o of this.priceRow) o.destroy()
     const y = 51
-    if (price.kind === 'price') {
+    if (price.kind === 'price' && price.stars) {
+      // Star item: stars and coins side by side
+      const star = this.scene.add.image(CARD_W / 2 - 21, y, icon(this.scene, 'star'), 'icon')
+      const stars = addText(this.scene, CARD_W / 2 - 12, y, String(price.stars), 'title', 12)
+      const coin = this.scene.add.image(CARD_W / 2 + 1, y, icon(this.scene, 'coin'), 'icon')
+      const text = addText(this.scene, CARD_W / 2 + 14, y, String(price.coins), 'title', 12)
+      this.priceRow = [star, stars, coin, text]
+    } else if (price.kind === 'price') {
       const coin = this.scene.add.image(CARD_W / 2 - 8, y, icon(this.scene, 'coin'), 'icon')
       const text = addText(this.scene, CARD_W / 2 + 4, y, String(price.coins), 'title', 12)
       this.priceRow = [coin, text]

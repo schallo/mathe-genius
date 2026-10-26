@@ -1,14 +1,19 @@
 // Buying, wearing, adopting and the wish goal (GAME_DESIGN §4). Pure logic.
 import type { CharacterLook } from '../art/character/look'
 import { ITEMS, item as findItem, type Item } from '../data/items'
-import { addPet, coinBalance, spendCoins, type SaveData } from './save'
+import { addPet, coinBalance, spendCoins, spendStars, starBalance, type SaveData } from './save'
 
 export function isOwned(save: SaveData, item: Item): boolean {
   return !!item.starter || save.owned.includes(item.id)
 }
 
 export function canAfford(save: SaveData, item: Item): boolean {
-  return coinBalance(save) >= item.price
+  return coinBalance(save) >= item.price && missingStars(save, item) === 0
+}
+
+/** Stars still missing for a star item (0 when she has enough or it needs none). */
+export function missingStars(save: SaveData, item: Item): number {
+  return Math.max(0, (item.starCost ?? 0) - starBalance(save))
 }
 
 /** Coins still missing for an item (0 when she can buy it). */
@@ -38,6 +43,7 @@ export function buy(save: SaveData, item: Item, device: string): BuyResult {
   if (isOwned(save, item)) return { ok: false, reason: 'owned' }
   if (!canAfford(save, item)) return { ok: false, reason: 'coins' }
   let next = spendCoins(save, item.price, device)
+  if (item.starCost) next = spendStars(next, item.starCost, device)
   next = {
     ...next,
     owned: [...next.owned, item.id],

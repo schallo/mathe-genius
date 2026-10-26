@@ -11,8 +11,10 @@ import {
   type FactMap,
   type FactStats,
 } from '../math/einmaleins'
+import { mergeMastery, type Mastery, type TopicProgress } from '../math/adaptive'
+import { emptyReview, type ReviewItem, type ReviewQueue } from '../math/review'
 import { TOPICS } from '../math/topics'
-import { LEVELS, type Level, type TopicId } from '../math/types'
+import { LEVELS, type Level, type Task, type TopicId } from '../math/types'
 
 // Kept from the working title "Mathe-Bühne" so existing progress stays readable
 export const SAVE_KEY = 'mathe-buehne'
@@ -74,6 +76,12 @@ export type SaveData = {
   battle: BattleSave
   dojo: DojoSave
   learn: LearnPicks
+  /** Her level per topic (adaptive, GAME_DESIGN §6) */
+  mastery: Mastery
+  /** Tasks she got wrong, coming back in later Theater shows */
+  review: ReviewQueue
+  /** Stars spent on star items, per device */
+  starsSpent: Counter
   /** Stars earned, counted per device like coins (GAME_DESIGN §4) */
   stars: Counter
   settings: {
@@ -105,6 +113,9 @@ export function emptySave(): SaveData {
     battle: emptyBattle(),
     dojo: emptyDojo(),
     learn: {},
+    mastery: {},
+    review: emptyReview(),
+    starsSpent: {},
     stars: {},
     settings: { muted: false, knownMs: DEFAULT_KNOWN_MS },
   }
@@ -124,10 +135,15 @@ export function spendCoins(save: SaveData, amount: number, device: string): Save
   return { ...save, coins: { ...save.coins, spent } }
 }
 
-export const starBalance = (save: SaveData) => total(save.stars)
+export const starBalance = (save: SaveData) => total(save.stars) - total(save.starsSpent)
 
 export function earnStars(save: SaveData, amount: number, device: string): SaveData {
   return { ...save, stars: { ...save.stars, [device]: (save.stars[device] ?? 0) + amount } }
+}
+
+export function spendStars(save: SaveData, amount: number, device: string): SaveData {
+  const spent = { ...save.starsSpent, [device]: (save.starsSpent[device] ?? 0) + amount }
+  return { ...save, starsSpent: spent }
 }
 
 const count = (n: unknown) => (Number.isInteger(n) && (n as number) >= 0 ? (n as number) : 0)
@@ -199,6 +215,9 @@ export function parseSave(input: unknown): SaveData | null {
     battle: parseBattle(data.battle),
     dojo: parseDojo(data.dojo),
     learn: parseLearn(data.learn),
+    mastery: parseMastery(data.mastery),
+    review: parseReview(data.review),
+    starsSpent: counter(data.starsSpent),
     stars: counter(data.stars),
     settings: {
       muted: settings?.muted === true,
@@ -223,6 +242,52 @@ function parseLearn(input: unknown): LearnPicks {
     if (topic && level) out[hut] = { topic: topic.id, level }
   }
   return out
+}
+
+// Mastery, review queue and spent stars came with step 10 (additive, no version bump)
+const isLevel = (n: unknown): n is Level => LEVELS.includes(n as Level)
+
+function parseMastery(input: unknown): Mastery {
+  if (!input || typeof input !== 'object') return {}
+  const out: Mastery = {}
+  for (const [topic, v] of Object.entries(input)) {
+    const p = v as Partial<TopicProgress> | null
+    if (!TOPICS.some((t) => t.id === topic) || !p || !isLevel(p.level)) continue
+    out[topic as TopicId] = {
+      level: p.level,
+      best: isLevel(p.best) && p.best >= p.level ? p.best : p.level,
+      streak: count(p.streak),
+      misses: count(p.misses),
+      mastered: p.mastered === true,
+      solved: count(p.solved),
+      firstTry: count(p.firstTry),
+    }
+  }
+  return out
+}
+
+/** A stored task only needs what the show uses; anything odd is dropped. */
+function isTask(t: unknown): t is Task {
+  const task = t as Partial<Task> | null
+  return (
+    !!task &&
+    typeof task.question === 'string' &&
+    typeof task.answer?.value === 'number' &&
+    ['numpad', 'choice', 'written'].includes(task.format?.kind ?? '') &&
+    TOPICS.some((x) => x.id === task.topic) &&
+    isLevel(task.level) &&
+    Array.isArray(task.hintSteps) &&
+    Array.isArray(task.solutionSteps)
+  )
+}
+
+function parseReview(input: unknown): ReviewQueue {
+  if (!input || typeof input !== 'object') return emptyReview()
+  const raw = input as { items?: unknown; shows?: unknown }
+  const items: ReviewItem[] = (Array.isArray(raw.items) ? raw.items : [])
+    .filter((i) => i && isTask(i.task))
+    .map((i) => ({ task: i.task, due: count(i.due), misses: count(i.misses) }))
+  return { items, shows: count(raw.shows) }
 }
 
 function parseFact(v: unknown): FactStats | null {
@@ -384,6 +449,9 @@ export function mergeSaves(a: SaveData, b: SaveData): SaveData {
       },
     },
     learn: { ...older.learn, ...newer.learn },
+    mastery: mergeMastery(older.mastery, newer.mastery),
+    review: { ...newer.review, shows: Math.max(a.review.shows, b.review.shows) },
+    starsSpent: mergeCounters(a.starsSpent, b.starsSpent),
     stars: mergeCounters(a.stars, b.stars),
     settings: newer.settings,
   }

@@ -7,7 +7,15 @@ import type { PixelMap } from '../pixels'
 export const ACCESSORY_ROLES = 'abc'
 
 export type AccessoryStyle =
-  'schleife' | 'hut' | 'brille' | 'krone' | 'blumenkranz' | 'malkrone' | 'diadem'
+  | 'schleife'
+  | 'hut'
+  | 'brille'
+  | 'krone'
+  | 'blumenkranz'
+  | 'malkrone'
+  | 'diadem'
+  | 'sternspange'
+  | 'glitzerkrone'
 
 type Maps = Record<'down' | 'up' | 'side', PixelMap>
 
@@ -76,6 +84,37 @@ export const accessories: Record<AccessoryStyle, Maps> = {
     '....cccaccc.....',
     ...empty(16),
   ]),
+  // Star items: a gold star clip at the side, a crown with sky and white sparkles
+  sternspange: {
+    down: [
+      '................',
+      '...........a....',
+      '..........aaa...',
+      '...........a....',
+      ...empty(16),
+    ],
+    up: [
+      '................',
+      '....a...........',
+      '...aaa..........',
+      '....a...........',
+      ...empty(16),
+    ],
+    side: [
+      '................',
+      '....a...........',
+      '...aaa..........',
+      '....a...........',
+      ...empty(16),
+    ],
+  },
+  glitzerkrone: same([
+    '................',
+    '....a..c..a.....',
+    '....aaaaaaaa....',
+    '....abacabaa....',
+    ...empty(16),
+  ]),
   // Wreath of leaves with pink and cream flowers
   blumenkranz: same([
     '................',
@@ -101,4 +140,6 @@ export const ACCESSORY_COLORS: Partial<Record<AccessoryStyle, AccessoryColors>> 
   blumenkranz: { a: 'mintDark', b: 'rose', c: 'cream' },
   malkrone: { a: 'gold', b: 'mint', outline: 'goldDark' },
   diadem: { a: 'gold', b: 'sky', c: 'lilac', outline: 'goldDark' },
+  sternspange: { a: 'gold', b: 'gold', outline: 'goldDark' },
+  glitzerkrone: { a: 'gold', b: 'sky', c: 'paperWhite', outline: 'goldDark' },
 }

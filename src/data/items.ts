@@ -97,6 +97,24 @@ export const ITEMS: Item[] = [
   },
   { id: 'krone', category: 'accessoires', name: 'Krone', price: 100, wear: { accessory: 'krone' } },
 
+  // Star items: stars (for new levels) plus coins (GAME_DESIGN §4)
+  {
+    id: 'sternspange',
+    category: 'accessoires',
+    name: 'Sternspange',
+    price: 30,
+    starCost: 2,
+    wear: { accessory: 'sternspange' },
+  },
+  {
+    id: 'glitzerkrone',
+    category: 'accessoires',
+    name: 'Glitzerkrone',
+    price: 80,
+    starCost: 5,
+    wear: { accessory: 'glitzerkrone' },
+  },
+
   // Rewards for a fully gold Einmaleins grid
   {
     id: 'einmaleins-krone',

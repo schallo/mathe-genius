@@ -3,7 +3,16 @@ import { sfx } from '../audio/sfx'
 import { CATEGORY_NAMES, SHOP_CATEGORIES, type Item, type ItemCategory } from '../data/items'
 import { texts } from '../data/texts'
 import { coinBalance } from '../state/save'
-import { buy, canAfford, isOwned, missingCoins, setWish, shopItems, tryOn } from '../state/shop'
+import {
+  buy,
+  canAfford,
+  isOwned,
+  missingCoins,
+  missingStars,
+  setWish,
+  shopItems,
+  tryOn,
+} from '../state/shop'
 import { deviceId, getSave, replaceSave, updateSave } from '../state/store'
 import { confetti } from '../ui/confetti'
 import { ItemCard } from '../ui/ItemCard'
@@ -81,8 +90,10 @@ export class ShopScene extends RoomScene {
         isOwned(save, item)
           ? { kind: 'owned' }
           : canAfford(save, item)
-            ? { kind: 'price', coins: item.price }
-            : { kind: 'missing', coins: missingCoins(save, item) },
+            ? { kind: 'price', coins: item.price, stars: item.starCost }
+            : missingStars(save, item) > 0
+              ? { kind: 'text', text: texts.shop.missingStarsShort(missingStars(save, item)) }
+              : { kind: 'missing', coins: missingCoins(save, item) },
       )
       card.setSelected(item.id === this.selected?.id)
       return card
@@ -109,7 +120,10 @@ export class ShopScene extends RoomScene {
     }
     const result = buy(save, item, deviceId())
     if (!result.ok) {
-      this.caption.show(texts.shop.missing(missingCoins(save, item)))
+      const stars = missingStars(save, item)
+      this.caption.show(
+        stars > 0 ? texts.shop.missingStars(stars) : texts.shop.missing(missingCoins(save, item)),
+      )
       return
     }
     replaceSave({ ...result.save, updatedAt: Date.now() })
