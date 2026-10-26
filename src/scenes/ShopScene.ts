@@ -17,6 +17,7 @@ import { deviceId, getSave, replaceSave, updateSave } from '../state/store'
 import { confetti } from '../ui/confetti'
 import { ItemCard } from '../ui/ItemCard'
 import { Key } from '../ui/Key'
+import { Pager } from '../ui/Pager'
 import { Tabs } from '../ui/Tabs'
 import { RoomScene, cardPosition } from './RoomScene'
 
@@ -27,6 +28,7 @@ export class ShopScene extends RoomScene {
   private cards: ItemCard[] = []
   private buyKey!: Key
   private wishKey!: Key
+  private pager!: Pager
 
   constructor() {
     super('Shop')
@@ -46,9 +48,11 @@ export class ShopScene extends RoomScene {
       SHOP_CATEGORIES.map((id) => ({ id, label: CATEGORY_NAMES[id] })),
       (id) => {
         this.category = id
+        this.pager.reset()
         this.select(undefined)
       },
     ).select(this.category)
+    this.pager = new Pager(this, 318, () => this.refresh())
 
     this.buyKey = new Key(this, 14, 284, 74, 28, texts.shop.buy, () => this.buySelected(), {
       fill: 'gold',
@@ -83,7 +87,7 @@ export class ShopScene extends RoomScene {
   private refresh() {
     const save = getSave()
     for (const card of this.cards) card.destroy()
-    this.cards = shopItems(this.category).map((item, i) => {
+    this.cards = this.pager.slice(shopItems(this.category)).map((item, i) => {
       const { x, y } = cardPosition(i)
       const card = new ItemCard(this, x, y, item, this.savedLook(), () => this.select(item))
       card.setPrice(

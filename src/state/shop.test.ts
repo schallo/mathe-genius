@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { DEFAULT_LOOK } from '../art/character/look'
+import { DEFAULT_BOY_LOOK, DEFAULT_LOOK } from '../art/character/look'
 import { accessories } from '../art/character/accessory'
 import { hairstyles } from '../art/character/hair'
 import { outfits } from '../art/character/outfit'
@@ -36,21 +36,26 @@ describe('item data', () => {
     }
   })
 
-  it('has the first ~15 items: 3 dresses, 3 haircuts, 2 pets', () => {
-    expect(shopItems('kleider')).toHaveLength(3)
-    expect(shopItems('frisuren')).toHaveLength(3)
+  it('has dresses, haircuts and pets for sale in every category', () => {
+    expect(shopItems('kleider').length).toBeGreaterThanOrEqual(7)
+    expect(shopItems('frisuren').length).toBeGreaterThanOrEqual(5)
     expect(adoptablePets()).toHaveLength(2)
     const forSale = ITEMS.filter((i) => !i.starter)
     expect(forSale.length).toBeGreaterThanOrEqual(12)
     for (const c of SHOP_CATEGORIES) expect(shopItems(c).length).toBeGreaterThan(0)
   })
 
-  it('starts with her starter look owned', () => {
+  it('starts with the starter look of the girl and the boy owned', () => {
     const save = emptySave()
-    for (const value of [DEFAULT_LOOK.hair, DEFAULT_LOOK.outfit, DEFAULT_LOOK.accessory]) {
-      expect(ITEMS.some((i) => i.starter && Object.values(i.wear ?? {}).includes(value))).toBe(true)
+    for (const look of [DEFAULT_LOOK, DEFAULT_BOY_LOOK]) {
+      for (const value of [look.hair, look.outfit, look.accessory].filter((v) => v !== null)) {
+        expect(ITEMS.some((i) => i.starter && Object.values(i.wear ?? {}).includes(value))).toBe(
+          true,
+        )
+      }
     }
-    expect(ownedItems(save, 'frisuren').map((i) => i.id)).toEqual(['pferdeschwanz', 'bob'])
+    expect(ownedItems(save, 'frisuren').map((i) => i.id)).toEqual(['pferdeschwanz', 'bob', 'kurz'])
+    expect(ownedItems(save, 'kleider').map((i) => i.id)).toEqual(['kleid', 'shirt'])
   })
 })
 

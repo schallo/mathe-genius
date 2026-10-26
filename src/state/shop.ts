@@ -30,7 +30,7 @@ export function tryOn(look: CharacterLook, item: Item): CharacterLook {
 export function isWearing(look: CharacterLook, item: Item): boolean {
   if (!item.wear) return false
   return Object.entries(item.wear)
-    .filter(([k]) => !k.endsWith('Color'))
+    .filter(([k]) => !k.includes('Color'))
     .every(([k, v]) => look[k as keyof CharacterLook] === v)
 }
 

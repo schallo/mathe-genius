@@ -55,7 +55,7 @@ Done: steps 1–8, v0.8.1 (no +100 button, no door plates, faster e2e tests). Li
 5. **Step 12 – More areas and animals**, 60–80 items.
 6. ~~Coin icon~~ done (v0.9.2): round 9 × 9 coin with rim, shading and shine.
 7. ~~Village plants~~ done (v0.9.2): palms along both shores, then leafy trees, firs, bushes and flower bushes at random (fixed seed, `placePlants` in `src/world/village.ts`), never on huts, name boards, paths or the pond; only trunks/bases block walking.
-8. **Avatar options** (wish 2026-10-26): a male version of the avatar (boy body/face, boy hair styles), more clothes, hair styles and accessories, and multi-colour outfits (e.g. trousers and shirt in different colours – outfit layer with separate top/bottom colours).
+8. ~~Avatar options~~ done (v0.10.1).
 9. **Check with school** the open assumptions in "Math engine assumptions" below (subtraction method etc.).
 
 Smaller follow-ups:
@@ -63,6 +63,15 @@ Smaller follow-ups:
 - Village: parent mailbox (currently only the lock on the title screen).
 - ~~iPhone: real-device test of the home-screen app~~ done 2026-10-25: screens work on PC and iPhone.
 - Sound: check the "−" glyph and sounds on the real iPhone.
+
+## Avatar options (v0.10.1, 2026-10-26)
+
+- **Girl or boy** at character creation (new first row "Figur"). It only picks the starting look – boy: short hair, T-Shirt & Hose (jeans), no bow; the rows "Kleid/Schleife" become "Shirt/Hose". Skin and hair colour are kept when switching. Every item fits everyone afterwards (`look.figure` is only remembered for the creation screen).
+- **Two-tone outfits**: outfit maps have top roles (a, b) and bottom roles (c, d) with their own colour (`outfitColor`, `outfitColor2`) and outline. Long trousers (`longLegs`) also colour the walking legs. In Mein Haus a two-tone outfit shows two rows of colour swatches (top, then trousers/skirt).
+- **New items**: Kleider T-Shirt & Hose (starter), Schlafanzug 70, Pulli & Rock 90, Latzhose 120, Kapuzenpulli 140; Frisuren Kurz (starter), Stachelig 60, Lange Haare 120; Schmuck Mütze 35, Basecap 40, Schal 45, Rucksack 70. New clothes colours jeans, braun, grau, terrakotta; accessories also in himmel, mint, flieder, terrakotta.
+- **Pages**: Laden and Mein Haus show 6 cards per page with ◀ ▶ keys when there are more.
+- Older saves get the new look fields on load (`normalizeLook`).
+- Deviation: the colour swatches in Mein Haus are 18 art px (one row) or 15 art px (two rows), below 48 screen px on the iPhone, to fit 9 colours in 180 px.
 
 ## Adaptive levels, mistakes, stars (step 10, v0.10.0, 2026-10-26)
 

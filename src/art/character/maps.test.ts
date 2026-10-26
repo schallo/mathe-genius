@@ -8,7 +8,11 @@ import { OUTFIT_ROLES, outfits } from './outfit'
 
 const layers = [
   { name: 'body', roles: BODY_ROLES, variants: { body } },
-  { name: 'outfit', roles: OUTFIT_ROLES, variants: outfits },
+  {
+    name: 'outfit',
+    roles: OUTFIT_ROLES,
+    variants: Object.fromEntries(Object.entries(outfits).map(([k, o]) => [k, o.maps])),
+  },
   { name: 'hair', roles: HAIR_ROLES, variants: hairstyles },
   { name: 'accessory', roles: ACCESSORY_ROLES, variants: accessories },
 ]

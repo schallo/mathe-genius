@@ -31,9 +31,30 @@ function staticFrames(maps: Record<string, PixelMap>, fill: number, shade: numbe
   })
 }
 
+/**
+ * Two-tone outfit: the top (a, b) and the bottom (c, d) each get their own colours and
+ * outline; where they meet, fill wins over outline.
+ */
+function outfitPixels(map: PixelMap, top: [number, number], bottom: [number, number]) {
+  const only = (keep: string) => map.map((row) => row.replace(new RegExp(`[^${keep}.]`, 'g'), '.'))
+  const topMap = pad(only('ab'))
+  const bottomMap = pad(only('cd')).map((row) => row.replace(/c/g, 'a').replace(/d/g, 'b'))
+  const legendTop = { a: top[0], b: top[1] }
+  const legendBottom = { a: bottom[0], b: bottom[1] }
+  const topFill = rasterize(topMap, legendTop)
+  const bottomFill = rasterize(bottomMap, legendBottom)
+  const topAll = rasterize(topMap, legendTop, top[1])
+  const bottomAll = rasterize(bottomMap, legendBottom, bottom[1])
+  return topAll.map((row, y) =>
+    row.map((_, x) => topFill[y][x] ?? bottomFill[y][x] ?? topAll[y][x] ?? bottomAll[y][x]),
+  )
+}
+
 export const textureKeys = (look: CharacterLook) => ({
   body: `char-body-${look.skin}`,
-  outfit: `char-outfit-${look.outfit}-${look.outfitColor}`,
+  outfit: outfits[look.outfit].twoTone
+    ? `char-outfit-${look.outfit}-${look.outfitColor}-${look.outfitColor2}`
+    : `char-outfit-${look.outfit}-${look.outfitColor}`,
   hair: `char-hair-${look.hair}-${look.hairColor}`,
   accessory: look.accessory
     ? `char-acc-${look.accessory}-${ACCESSORY_COLORS[look.accessory] ? 'fixed' : look.accessoryColor}`
@@ -59,8 +80,23 @@ export function ensureCharacterTextures(scene: Phaser.Scene, look: CharacterLook
   }
 
   if (!scene.textures.exists(keys.outfit)) {
-    const { fill, shade } = outfitShades[look.outfitColor]
-    addFrames(scene, keys.outfit, staticFrames(outfits[look.outfit], color(fill), color(shade)))
+    const def = outfits[look.outfit]
+    const top = outfitShades[look.outfitColor]
+    const bottom = outfitShades[def.twoTone ? look.outfitColor2 : look.outfitColor]
+    const topColors: [number, number] = [color(top.fill), color(top.shade)]
+    const bottomColors: [number, number] = [color(bottom.fill), color(bottom.shade)]
+    const frames = DIRECTIONS.flatMap((dir) =>
+      legs[dir].map(([full, lifted], n) => {
+        const pixels = outfitPixels(def.maps[dir], topColors, bottomColors)
+        // Long trousers: the legs of each walk frame in the trouser colour
+        if (def.longLegs) {
+          for (const x of full) pixels[20][x] = pixels[21][x] = bottomColors[1]
+          for (const x of lifted) pixels[20][x] = bottomColors[1]
+        }
+        return { name: `${dir}-${n}`, pixels }
+      }),
+    )
+    addFrames(scene, keys.outfit, frames)
   }
 
   if (!scene.textures.exists(keys.hair)) {

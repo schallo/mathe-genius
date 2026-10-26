@@ -80,7 +80,7 @@ test('first start: create the character, name her, pick and name a puppy', async
 
   await tapWorld(page, 90, 277) // SPIELEN
   await waitForScene(page, 'CharacterCreate')
-  await tapWorld(page, 63, 235) // dress: rosa
+  await tapWorld(page, 63, 247) // dress: rosa (rows: Figur, Haut, Frisur, Haare, Kleid, …)
   await shot(page, '2-create')
   await tapWorld(page, 90, 314) // WEITER
 
@@ -115,6 +115,40 @@ test('first start: create the character, name her, pick and name a puppy', async
 
   const origin = new URL(page.url()).origin
   expect(requests.filter((url) => !url.startsWith(origin))).toEqual([])
+})
+
+test('first start as a boy: short hair, T-shirt and trousers in two colours', async ({ page }) => {
+  await page.goto('/')
+  await waitForScene(page, 'Title')
+  await tapWorld(page, 90, 277) // SPIELEN
+  await waitForScene(page, 'CharacterCreate')
+  await tapWorld(page, 139, 135) // Figur: Junge
+  await page.waitForTimeout(500)
+  await tapWorld(page, 88, 275) // Hose: braun
+  await page.waitForTimeout(300)
+  await shot(page, '2-create-boy')
+  await tapWorld(page, 90, 314) // WEITER
+  await waitForScene(page, 'NameEntry')
+  for (const letter of 'MAX') await tapLetter(page, letter)
+  await tapFertig(page)
+  await waitForScene(page, 'StarterPet')
+  await tapWorld(page, 33, 210) // Hündchen card
+  await page.waitForTimeout(300)
+  await tapWorld(page, 90, 314) // WEITER
+  await waitForScene(page, 'NameEntry')
+  await tapZufall(page)
+  await tapFertig(page)
+  await waitForScene(page, 'Village')
+  await shot(page, '6-village-boy')
+  const save = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), SAVE_KEY)
+  expect(save.character.name).toBe('Max')
+  expect(save.character.look).toMatchObject({
+    figure: 'junge',
+    hair: 'kurz',
+    outfit: 'shirt',
+    outfitColor2: 'braun',
+    accessory: null,
+  })
 })
 
 test('the physical keyboard types names on the PC', async ({ page }, testInfo) => {

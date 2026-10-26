@@ -1,6 +1,6 @@
 // Save data in localStorage, versioned with migrations (CLAUDE.md: wrapped in try/catch).
 // The same format is used for JSON export/import and the cloud copy (GAME_DESIGN §8).
-import type { CharacterLook } from '../art/character/look'
+import { normalizeLook, type CharacterLook } from '../art/character/look'
 import { SPECIES, type SpeciesId } from '../data/creatures'
 import {
   DEFAULT_KNOWN_MS,
@@ -206,7 +206,10 @@ export function parseSave(input: unknown): SaveData | null {
   return {
     version: SAVE_VERSION,
     updatedAt: count(data.updatedAt),
-    character: character && typeof character.name === 'string' && character.look ? character : null,
+    character:
+      character && typeof character.name === 'string' && character.look
+        ? { name: character.name, look: normalizeLook(character.look) }
+        : null,
     pets,
     activePetId: pets.some((p) => p.id === data.activePetId) ? (data.activePetId as string) : null,
     coins: { earned: counter(coins?.earned), spent: counter(coins?.spent) },

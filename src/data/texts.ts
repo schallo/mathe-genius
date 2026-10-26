@@ -14,7 +14,12 @@ export const texts = {
     hair: 'Frisur',
     hairColor: 'Haare',
     dress: 'Kleid',
+    shirt: 'Shirt',
+    trousers: 'Hose',
     bow: 'Schleife',
+    figure: 'Figur',
+    girl: 'Mädchen',
+    boy: 'Junge',
     next: 'Weiter',
   },
   names: {

@@ -16,6 +16,10 @@ export type AccessoryStyle =
   | 'diadem'
   | 'sternspange'
   | 'glitzerkrone'
+  | 'cap'
+  | 'muetze'
+  | 'schal'
+  | 'rucksack'
 
 type Maps = Record<'down' | 'up' | 'side', PixelMap>
 
@@ -115,6 +119,85 @@ export const accessories: Record<AccessoryStyle, Maps> = {
     '....abacabaa....',
     ...empty(16),
   ]),
+  // Cap with a brim (front: over the forehead, side: sticking out in front)
+  cap: {
+    down: [
+      '................',
+      '.....aaaaaa.....',
+      '....aaaaaaaa....',
+      '...aaaaaaaaaa...',
+      '..bbbbbbbbbbbb..',
+      ...empty(15),
+    ],
+    up: [
+      '................',
+      '.....aaaaaa.....',
+      '....aaaaaaaa....',
+      '...aaaaaaaaaa...',
+      '...abbbbbbbba...',
+      ...empty(15),
+    ],
+    side: [
+      '................',
+      '.....aaaaaa.....',
+      '....aaaaaaaa....',
+      '...aaaaaaaaaa...',
+      '...aaaaaaaabbbb.',
+      ...empty(15),
+    ],
+  },
+  // Beanie with a pompom
+  muetze: same([
+    '................',
+    '.......bb.......',
+    '.....aaaaaa.....',
+    '....aaaaaaaa....',
+    '...aaaaaaaaaa...',
+    '..bbbbbbbbbbbb..',
+    ...empty(14),
+  ]),
+  // Striped scarf round the neck with a hanging end
+  schal: {
+    down: [
+      ...empty(12),
+      '....aaaaaaaa....',
+      '....abababab....',
+      '.....ab.........',
+      '.....aa.........',
+      ...empty(4),
+    ],
+    up: [...empty(12), '....aaaaaaaa....', '....abababab....', ...empty(6)],
+    side: [
+      ...empty(12),
+      '....aaaaaaaa....',
+      '....abababab....',
+      '....aa..........',
+      '....ab..........',
+      ...empty(4),
+    ],
+  },
+  // Backpack: straps in front, the bag on her back
+  rucksack: {
+    down: [...empty(14), '....b......b....', '....b......b....', '....b......b....', ...empty(3)],
+    up: [
+      ...empty(13),
+      '.....aaaaaa.....',
+      '....aaaaaaaa....',
+      '....abbbbbba....',
+      '....aaaaaaaa....',
+      '....aaaaaaaa....',
+      '.....bbbbbb.....',
+      '................',
+    ],
+    side: [
+      ...empty(14),
+      '..aaa...........',
+      '..aba...........',
+      '..aaa...........',
+      '..bbb...........',
+      ...empty(2),
+    ],
+  },
   // Wreath of leaves with pink and cream flowers
   blumenkranz: same([
     '................',
