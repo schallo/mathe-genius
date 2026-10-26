@@ -32,6 +32,7 @@ import {
   type Hut,
 } from '../world/village'
 import { PixelScene } from './PixelScene'
+import { GAME_SPEED } from '../clock'
 
 const SPEED = 48 // art px per second
 const DOOR_RADIUS = 5
@@ -76,7 +77,7 @@ export class VillageScene extends PixelScene {
     for (const hut of HUTS) {
       addHutSign(this, hut, hut.y + HUT_HEIGHT + 2)
       this.add
-        .image(hut.x, hut.y, ensureHutTexture(this, hut.roof, hut.icon))
+        .image(hut.x, hut.y, ensureHutTexture(this, hut.roof))
         .setOrigin(0)
         .setDepth(hut.y + HUT_HEIGHT)
       if (!hut.scene) {
@@ -172,7 +173,7 @@ export class VillageScene extends PixelScene {
   update() {
     if (this.leaving) return
     // Real elapsed time (Phaser's smoothed delta lags behind on slow frames), capped after tab switches
-    const delta = Math.min(this.game.loop.rawDelta, 100)
+    const delta = Math.min(this.game.loop.rawDelta, 100) * GAME_SPEED
     const step = (SPEED * delta) / 1000
     const held = (dir: keyof typeof this.keys) => this.keys[dir].some((k) => k.isDown)
     const kx = Number(held('right')) - Number(held('left'))

@@ -37,7 +37,6 @@ export const texts = {
     missing: (coins: number) => `Noch ${coins} Münzen, dann gehört es dir!`,
     wishSet: (name: string) => `Dein Wunsch: ${name}!`,
     pick: 'Tipp etwas an!',
-    test: '+100',
   },
   wardrobe: {
     rename: 'Name ändern',

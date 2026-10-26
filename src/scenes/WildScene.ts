@@ -38,6 +38,7 @@ import {
   type HidingSpot,
 } from '../world/wild'
 import { PixelScene } from './PixelScene'
+import { GAME_SPEED } from '../clock'
 
 const SPEED = 48 // art px per second, like in the village
 const CREATURE_SPEED = 10
@@ -225,8 +226,10 @@ export class WildScene extends PixelScene {
 
   // ---------- Update ----------
 
-  update(time: number) {
-    const delta = Math.min(this.game.loop.rawDelta, 100)
+  update() {
+    const delta = Math.min(this.game.loop.rawDelta, 100) * GAME_SPEED
+    // Scene clock (runs faster in tests with ?speed), same as the timers above
+    const time = this.time.now
     if (this.leaving) return
     const step = (SPEED * delta) / 1000
     const held = (dir: keyof typeof this.keys) => this.keys[dir].some((k) => k.isDown)

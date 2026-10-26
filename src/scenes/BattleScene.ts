@@ -1,6 +1,7 @@
 // Battle screen (GAME_DESIGN §6b, STYLE_GUIDE §9a): wild creature top right, her pet bottom
 // left, task box with a calm time bar, the number pad in its usual place. Answers are
-// auto-confirmed once enough digits are typed; times are measured with performance.now().
+// auto-confirmed once enough digits are typed; times are measured with performance.now()
+// (through gameNow(), see clock.ts).
 import Phaser from 'phaser'
 import { FOE_SPOT, PET_SPOT, ensureBattleTexture } from '../art/battle'
 import { icon } from '../art/icons'
@@ -32,6 +33,7 @@ import { NumberPad, PAD } from '../ui/NumberPad'
 import { SpeechCard } from '../ui/SpeechCard'
 import { addText } from '../ui/text'
 import { PixelScene } from './PixelScene'
+import { gameNow } from '../clock'
 
 const SCALE = 3
 const FOE_BOX = { x: 4, y: 40, w: 92, h: 28 }
@@ -161,7 +163,7 @@ export class BattleScene extends PixelScene {
     this.phase = 'task'
     this.drawTaskBox(false)
     this.renderTask()
-    this.startedAt = performance.now()
+    this.startedAt = gameNow()
   }
 
   private key() {
@@ -189,7 +191,7 @@ export class BattleScene extends PixelScene {
   }
 
   private judge() {
-    const elapsed = performance.now() - this.startedAt
+    const elapsed = gameNow() - this.startedAt
     if (Number(this.typed) === this.task.answer.value) this.onCorrect(elapsed)
     else this.onWrong(false)
   }
@@ -221,7 +223,7 @@ export class BattleScene extends PixelScene {
       this.caption.show(texts.battle.joker, 1200)
       this.typed = ''
       this.renderTask()
-      this.startedAt = performance.now()
+      this.startedAt = gameNow()
       return
     }
     this.phase = 'busy'
@@ -264,7 +266,7 @@ export class BattleScene extends PixelScene {
     g.fillStyle(palette.accentBlue).fillRect(2, 2, 3, h - 4)
     const head = addText(this, 8, 8, texts.battle.tip, 'label', 5).setOrigin(0, 0.5)
     this.tipCard = this.add.container(8, Math.max(72, 170 - h), [g, head, body]).setDepth(20)
-    this.startedAt = performance.now()
+    this.startedAt = gameNow()
   }
 
   private end(won: boolean) {
@@ -507,7 +509,7 @@ export class BattleScene extends PixelScene {
     this.foe?.tick(delta)
     this.pet?.tick(delta)
     if (this.phase === 'task') {
-      const now = performance.now()
+      const now = gameNow()
       const share = 1 - (now - this.startedAt) / this.limitMs
       this.drawTimeBar(Math.max(0, share), now)
       if (share <= 0) this.onWrong(true)

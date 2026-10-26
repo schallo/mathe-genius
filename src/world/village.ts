@@ -10,9 +10,6 @@ export const CELL = 4
 export const HUT_WIDTH = 32
 export const HUT_HEIGHT = 34
 
-export type HutIcon =
-  'mask' | 'coin' | 'paw' | 'times' | 'divide' | 'book' | 'heart' | 'hammer' | 'plus' | 'apple'
-
 export type Hut = {
   id: string
   /** German name in captions */
@@ -22,7 +19,6 @@ export type Hut = {
   x: number
   y: number
   roof: PaletteToken
-  icon: HutIcon
   /** Scene key to open, or null while the hut is still a construction site */
   scene: string | null
   /** Passed to the scene, e.g. which dojo it is */
@@ -40,7 +36,6 @@ export const HUTS: Hut[] = [
     x: 20,
     y: 40,
     roof: 'curtainLight',
-    icon: 'book',
     scene: null,
   },
   {
@@ -50,7 +45,6 @@ export const HUTS: Hut[] = [
     x: 128,
     y: 40,
     roof: 'stoneDark',
-    icon: 'plus',
     scene: null,
   },
   // Einmaleins-Dojos (GAME_DESIGN §6a), one for · and one for : (decided 2026-10-23)
@@ -61,7 +55,6 @@ export const HUTS: Hut[] = [
     x: 20,
     y: 110,
     roof: 'heroDark',
-    icon: 'times',
     scene: 'EinmaleinsMenu',
     data: { op: 'mul' },
   },
@@ -72,7 +65,6 @@ export const HUTS: Hut[] = [
     x: 128,
     y: 110,
     roof: 'lilac',
-    icon: 'divide',
     scene: 'EinmaleinsMenu',
     data: { op: 'div' },
   },
@@ -83,7 +75,6 @@ export const HUTS: Hut[] = [
     x: 20,
     y: 180,
     roof: 'curtainMid',
-    icon: 'mask',
     scene: 'Show',
   },
   {
@@ -93,7 +84,6 @@ export const HUTS: Hut[] = [
     x: 128,
     y: 180,
     roof: 'mintDark',
-    icon: 'apple',
     scene: null,
   },
   {
@@ -103,7 +93,6 @@ export const HUTS: Hut[] = [
     x: 20,
     y: 250,
     roof: 'goldDark',
-    icon: 'coin',
     scene: 'Shop',
   },
   {
@@ -113,7 +102,6 @@ export const HUTS: Hut[] = [
     x: 128,
     y: 250,
     roof: 'roseDark',
-    icon: 'paw',
     scene: 'Shelter',
   },
   {
@@ -123,7 +111,6 @@ export const HUTS: Hut[] = [
     x: 20,
     y: 320,
     roof: 'heroDark',
-    icon: 'heart',
     scene: 'Wardrobe',
   },
   {
@@ -133,7 +120,6 @@ export const HUTS: Hut[] = [
     x: 20,
     y: 390,
     roof: 'woodDark',
-    icon: 'hammer',
     scene: null,
   },
 ]

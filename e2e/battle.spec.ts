@@ -1,28 +1,16 @@
 import { expect, test, type Page } from '@playwright/test'
-
-async function tapWorld(page: Page, x: number, y: number) {
-  const p = await page.evaluate(([x, y]) => (window as any).__debug.toPage(x, y), [x, y])
-  await page.mouse.click(p.x, p.y)
-}
-
-async function waitForScene(page: Page, key: string, timeout = 25_000) {
-  await expect
-    .poll(() => page.evaluate(() => (window as any).__debug.activeScene()), { timeout })
-    .toBe(key)
-  await page.waitForTimeout(800)
-}
-
-const save = (page: Page) =>
-  page.evaluate(() => {
-    const s = JSON.parse(localStorage.getItem('mathe-buehne')!)
-    const sum = (c: Record<string, number>) => Object.values(c).reduce((a, n) => a + n, 0)
-    return { ...s, balance: sum(s.coins.earned) - sum(s.coins.spent) }
-  })
+import {
+  activeScene,
+  openScene,
+  readSave as save,
+  seedSave,
+  shot,
+  tapWorld,
+  toVillage,
+  waitForScene,
+} from './helpers.ts'
 
 const battle = (page: Page) => page.evaluate(() => (window as any).__debug.battle())
-
-const shot = (page: Page, name: string) =>
-  page.screenshot({ path: `test-results/${name}-${test.info().project.name}.png` })
 
 function start(wins: Record<string, number> = {}) {
   return {
@@ -50,27 +38,23 @@ function start(wins: Record<string, number> = {}) {
   }
 }
 
-/** Title → village → jetty → wild island. */
+/** Title → village, then straight onto the wild island (the boat trip is tested in the village). */
 async function toWild(page: Page, seed: object) {
-  await page.addInitScript((s) => {
-    if (!sessionStorage.getItem('seeded')) {
-      localStorage.setItem('mathe-buehne', s)
-      sessionStorage.setItem('seeded', '1')
-    }
-  }, JSON.stringify(seed))
-  await page.goto('/')
-  await waitForScene(page, 'Title')
-  await tapWorld(page, 90, 277) // SPIELEN
-  await waitForScene(page, 'Village')
-  // The village scrolls: walk up the main path to the jetty (a tap outside the view)
-  await page.evaluate(() => (window as any).__debug.villageTap(90, 6))
-  await waitForScene(page, 'Wild', 30_000)
+  await seedSave(page, seed)
+  await toVillage(page)
+  await openScene(page, 'Wild', { from: 'steg' })
 }
 
 const wildTap = (page: Page, x: number, y: number) =>
   page.evaluate(([x, y]) => (window as any).__debug.wildTap(x, y), [x, y])
 
 const creature = async (page: Page, species: string) => {
+  // Walking into an animal that already hopped out starts a battle on the way: leave it
+  // with the house button (free) and search on
+  if ((await activeScene(page)) === 'Battle') {
+    await tapWorld(page, 32, 10)
+    await waitForScene(page, 'Wild')
+  }
   const wild = await page.evaluate(() => (window as any).__debug.wild())
   return wild.creatures.find((c: { species: string }) => c.species === species)
 }
@@ -81,7 +65,7 @@ async function find(page: Page, species: string) {
   for (let i = 0; i < 12 && !(await creature(page, species)).found; i++) {
     const c = await creature(page, species)
     await wildTap(page, c.spot.x, c.spot.y - 4)
-    await page.waitForTimeout(3000)
+    await page.waitForTimeout(1200)
   }
   expect((await creature(page, species)).found).toBe(true)
   await page.waitForTimeout(300)
@@ -181,6 +165,6 @@ test('gentle defeat: the pet naps, nothing is lost', async ({ page }) => {
   await find(page, 'igel')
   const igel = await creature(page, 'igel')
   await wildTap(page, Math.round(igel.x), Math.round(igel.y) - 6)
-  await page.waitForTimeout(6000)
+  await page.waitForTimeout(2500)
   expect(await page.evaluate(() => (window as any).__debug.activeScene())).toBe('Wild')
 })

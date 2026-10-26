@@ -2,9 +2,10 @@
 import Phaser from 'phaser'
 import { GAME_HEIGHT, GAME_WIDTH, renderScale } from '../display'
 import { palette } from '../palette'
+import { GAME_SPEED } from '../clock'
 
 const INK = Phaser.Display.Color.IntegerToRGB(palette.ink)
-const FADE_MS = 200
+const FADE_MS = 200 / GAME_SPEED
 
 export abstract class PixelScene extends Phaser.Scene {
   protected setupCamera(
@@ -13,6 +14,9 @@ export abstract class PixelScene extends Phaser.Scene {
   ): Phaser.Cameras.Scene2D.Camera {
     // goTo() disables input while fading out, and Phaser keeps that when a scene restarts
     this.input.enabled = true
+    // Faster game time in end-to-end tests (?speed=N, see clock.ts)
+    this.time.timeScale = GAME_SPEED
+    this.tweens.timeScale = GAME_SPEED
     const cam = this.cameras.main
     // Zoom pivots around the camera centre; the bounds keep the view inside the world
     cam.setZoom(renderScale()).setBounds(0, 0, worldWidth, worldHeight)

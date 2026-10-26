@@ -1,28 +1,15 @@
 import { expect, test, type Page } from '@playwright/test'
-
-async function tapWorld(page: Page, x: number, y: number) {
-  const p = await page.evaluate(([x, y]) => (window as any).__debug.toPage(x, y), [x, y])
-  await page.mouse.click(p.x, p.y)
-}
-
-async function waitForScene(page: Page, key: string, timeout = 25_000) {
-  await expect
-    .poll(() => page.evaluate(() => (window as any).__debug.activeScene()), { timeout })
-    .toBe(key)
-  await page.waitForTimeout(800)
-}
-
-const save = (page: Page) =>
-  page.evaluate(() => {
-    const s = JSON.parse(localStorage.getItem('mathe-buehne')!)
-    const sum = (c: Record<string, number>) => Object.values(c).reduce((a, n) => a + n, 0)
-    return { ...s, balance: sum(s.coins.earned) - sum(s.coins.spent), stars: sum(s.stars) }
-  })
+import {
+  openScene,
+  readSave as save,
+  seedSave,
+  shot,
+  tapWorld,
+  toVillage,
+  waitForScene,
+} from './helpers.ts'
 
 const drill = (page: Page) => page.evaluate(() => (window as any).__debug.drill())
-
-const shot = (page: Page, name: string) =>
-  page.screenshot({ path: `test-results/${name}-${test.info().project.name}.png` })
 
 const START = {
   version: 4,
@@ -50,20 +37,11 @@ const START = {
   settings: { muted: true, knownMs: 3000 },
 }
 
-/** Title → village → walk to a dojo door (taps outside the view go through the debug hook). */
-async function toDojo(page: Page, x: number) {
-  await page.addInitScript((s) => {
-    if (!sessionStorage.getItem('seeded')) {
-      localStorage.setItem('mathe-buehne', s)
-      sessionStorage.setItem('seeded', '1')
-    }
-  }, JSON.stringify(START))
-  await page.goto('/')
-  await waitForScene(page, 'Title')
-  await tapWorld(page, 90, 277) // SPIELEN
-  await waitForScene(page, 'Village')
-  await page.evaluate((x) => (window as any).__debug.villageTap(x, 125), x)
-  await waitForScene(page, 'EinmaleinsMenu', 30_000)
+/** Title → village, then straight into a dojo (walking there is tested in the village tests). */
+async function toDojo(page: Page, op: 'mul' | 'div') {
+  await seedSave(page, START)
+  await toVillage(page)
+  await openScene(page, 'EinmaleinsMenu', { op, from: op === 'mul' ? 'maldojo' : 'teildojo' })
 }
 
 /** Waits for a new fact, then types `value` (the right answer unless given). */
@@ -92,7 +70,7 @@ const BACK = [90, 283] as const
 
 test('Mal-Dojo: Üben the 7s with a hint, coins and the grid fills in', async ({ page }) => {
   test.setTimeout(180_000)
-  await toDojo(page, 36)
+  await toDojo(page, 'mul')
   await shot(page, 'dojo-mul-menu')
 
   await tapWorld(page, ...MODE.practice)
@@ -143,7 +121,7 @@ test('Mal-Dojo: Üben the 7s with a hint, coins and the grid fills in', async ({
 
 test('Teil-Dojo: Reihen-Meister medal, Turbo-Duell record, Blitzrunde', async ({ page }) => {
   test.setTimeout(300_000)
-  await toDojo(page, 144)
+  await toDojo(page, 'div')
 
   // Reihen-Meister: the 3s without a mistake, quickly → medal
   await tapWorld(page, ...MODE.row)
@@ -191,7 +169,7 @@ test('Teil-Dojo: Reihen-Meister medal, Turbo-Duell record, Blitzrunde', async ({
   await waitForScene(page, 'EinmaleinsDrill')
   const started = Date.now()
   state = await drill(page)
-  while (state.phase !== 'end' && Date.now() - started < 70_000) {
+  while (state.phase !== 'end' && Date.now() - started < 40_000) {
     state = await answer(page, false)
     if (state.correct === 10) await shot(page, 'dojo-div-blitz')
     await page.waitForTimeout(150)
@@ -202,4 +180,19 @@ test('Teil-Dojo: Reihen-Meister medal, Turbo-Duell record, Blitzrunde', async ({
   s = await save(page)
   expect(s.dojo.records.div.blitz).toBe(state.correct)
   expect(s.dojo.records.mul.blitz).toBe(0)
+})
+
+test('the test speed factor runs game time faster, real speed stays real', async ({ page }) => {
+  await seedSave(page, START)
+  for (const speed of [1, 4]) {
+    await page.goto(`/?speed=${speed}`)
+    await waitForScene(page, 'Title')
+    await openScene(page, 'EinmaleinsDrill', { op: 'mul', mode: 'blitz' })
+    const before = (await drill(page)).elapsedMs
+    await page.waitForTimeout(1000)
+    const passed = (await drill(page)).elapsedMs - before
+    // About 1 s of game time per real second at speed 1, about 4 s at speed 4
+    expect(passed).toBeGreaterThan(speed * 900)
+    expect(passed).toBeLessThan(speed * 1000 + 600)
+  }
 })

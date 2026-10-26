@@ -2,11 +2,9 @@
 import { sfx } from '../audio/sfx'
 import { CATEGORY_NAMES, SHOP_CATEGORIES, type Item, type ItemCategory } from '../data/items'
 import { texts } from '../data/texts'
-import { GAME_WIDTH } from '../display'
 import { coinBalance } from '../state/save'
 import { buy, canAfford, isOwned, missingCoins, setWish, shopItems, tryOn } from '../state/shop'
-import { addCoins, deviceId, getSave, replaceSave, updateSave } from '../state/store'
-import { TEST_MODE } from '../testMode'
+import { deviceId, getSave, replaceSave, updateSave } from '../state/store'
 import { confetti } from '../ui/confetti'
 import { ItemCard } from '../ui/ItemCard'
 import { Key } from '../ui/Key'
@@ -61,23 +59,6 @@ export class ShopScene extends RoomScene {
         fontSize: 7,
       },
     )
-
-    // Temporary test helper: only in `npm run dev` or with ?test in the URL
-    if (TEST_MODE) {
-      new Key(
-        this,
-        GAME_WIDTH - 88,
-        3,
-        34,
-        14,
-        texts.shop.test,
-        () => {
-          addCoins(100)
-          this.refresh()
-        },
-        { fill: 'gold', label: true, fontSize: 5 },
-      ).setName('test-coins')
-    }
 
     this.select(undefined)
   }

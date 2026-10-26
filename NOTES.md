@@ -48,15 +48,13 @@
 
 Done: steps 1–7 incl. the live Firebase connection (config in `src/firebaseConfig.ts`). Live: https://schallo.github.io/mathe-genius/ (up to step 6 until the step 7 push).
 
-- **Temporary test button:** the shop shows a gold `+100` button only in `npm run dev` or with `?test` in the URL (`src/testMode.ts`). Remove it once shopping is tested.
-
-1. ~~Firebase setup~~ done. **Test sync (you):** sign in in the parent area on the PC and on the iPhone (GitHub Pages version), earn coins on one, check they arrive on the other.
+1. ~~Firebase setup~~ done. ~~Test sync~~ done 2026-10-25: login and sync work.
 2. ~~Push step 5~~ done.
 3. **Playtest the shows with Leni** (number pad, hints, coins): too easy/hard? Which topic should be the focus (currently Einmaleins level 2)?
 4. **Check with school** the open assumptions in "Math engine assumptions" below (subtraction method etc.).
 5. ~~Step 6~~ done – ⏸ **checkpoint: please test the shop, Mein Haus and Tierheim** (locally with `npm run dev`, or online with `?test` after the push).
 6. ~~Step 7 – Battles~~ done – ⏸ **checkpoint: please test the jetty → Blumenwiese, battles against Igel, Eichhörnchen and Fuchs, a defeat (nap) and befriending (3 wins against one species).**
-7. ~~Step 8 – Einmaleins-Dojos~~ done – ⏸ **checkpoint: please test the Mal-Dojo and the Teil-Dojo (Üben with a row or Mix, Blitzrunde, Turbo-Duell twice to see the ghost, Reihen-Meister medal) and watch the grid fill in.**
+7. ~~Step 8 – Einmaleins-Dojos~~ done, checkpoint passed 2026-10-25.
 8. **Step 9 – Learning huts** (Rechenwerkstatt with the written calculation grid, Zahlenturm, Marktstand); written tasks join the shows.
 9. **Step 10 – Adaptive difficulty**, mistakes coming back, stars per level.
 10. **Step 11 – Album, daily calendar, full parent area** (settings, progress overview, bonus coins, shows per day).
@@ -65,8 +63,15 @@ Done: steps 1–7 incl. the live Firebase connection (config in `src/firebaseCon
 Smaller follow-ups:
 
 - Village: parent mailbox (currently only the lock on the title screen).
-- iPhone: real-device test of the home-screen app (sizes, sounds, safe areas).
+- ~~iPhone: real-device test of the home-screen app~~ done 2026-10-25: screens work on PC and iPhone.
 - Sound: check the "−" glyph and sounds on the real iPhone.
+
+## Faster end-to-end tests (2026-10-26)
+
+- The tests open the game with `?speed=4`: all game time (Phaser timers and tweens, walking, battle timers, Einmaleins speed modes) runs 4× faster through one clock (`src/clock.ts`). Only active with that URL parameter, never for Leni. Real-world times (pet naps) stay real.
+- Tests jump straight into a hut with `__debug.start(scene, data)` (helper `openScene` in `e2e/helpers.ts`) instead of walking through the village.
+- `smoke.spec.ts` stays at real speed and still walks into the Theater; `dojo.spec.ts` checks that game time runs 1× without and 4× with the parameter.
+- Full run: 10.9 min → 5.0 min.
 
 ## Version label (2026-10-25)
 

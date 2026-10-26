@@ -1,7 +1,7 @@
 // Einmaleins drills (GAME_DESIGN §6a, STYLE_GUIDE §9 "Einmaleins-Training"): Üben,
 // Blitzrunde, Turbo-Duell and Reihen-Meister on a calm open stage – only her character,
 // her pet and the task card. The number pad stays in its usual place. Times are measured
-// with performance.now(); speed modes confirm on their own once enough digits are typed
+// with performance.now() (through gameNow(), see clock.ts); speed modes confirm on their own once enough digits are typed
 // and show the next fact at once.
 import Phaser from 'phaser'
 import { Character } from '../art/character/Character'
@@ -48,6 +48,7 @@ import { confetti } from '../ui/confetti'
 import { addText } from '../ui/text'
 import { formatSeconds } from './EinmaleinsMenuScene'
 import { PixelScene } from './PixelScene'
+import { gameNow } from '../clock'
 
 export type DrillMode = 'practice' | 'blitz' | 'duel' | 'row'
 
@@ -165,7 +166,7 @@ export class EinmaleinsDrillScene extends PixelScene {
 
     this.plan()
     if (duel) this.setupTrack()
-    this.roundStart = performance.now()
+    this.roundStart = gameNow()
     this.nextFact()
   }
 
@@ -211,7 +212,7 @@ export class EinmaleinsDrillScene extends PixelScene {
     this.drawCard(false)
     this.render()
     this.renderProgress()
-    this.shownAt = performance.now()
+    this.shownAt = gameNow()
   }
 
   private type(d: string) {
@@ -235,7 +236,7 @@ export class EinmaleinsDrillScene extends PixelScene {
   }
 
   private judge() {
-    const ms = performance.now() - this.shownAt
+    const ms = gameNow() - this.shownAt
     const ok = Number(this.typed) === factAnswer(this.fact)
     if (this.phase === 'retype') {
       // Retyping the shown result is practice, not a measured answer
@@ -315,7 +316,7 @@ export class EinmaleinsDrillScene extends PixelScene {
   private end() {
     if (this.phase === 'end') return
     this.phase = 'end'
-    const elapsed = performance.now() - this.roundStart
+    const elapsed = gameNow() - this.roundStart
     this.pad.setVisible(false)
     this.hint.setVisible(false)
     this.card.setVisible(false)
@@ -495,7 +496,7 @@ export class EinmaleinsDrillScene extends PixelScene {
     this.pet?.tick(delta)
     this.ghost?.tick(delta)
     if (this.phase === 'end') return
-    const elapsed = performance.now() - this.roundStart
+    const elapsed = gameNow() - this.roundStart
     if (this.mode === 'blitz') {
       this.timer?.draw(1 - elapsed / BLITZ_MS)
       if (elapsed >= BLITZ_MS) this.end()
@@ -514,6 +515,8 @@ export class EinmaleinsDrillScene extends PixelScene {
   /** For end-to-end tests (window.__debug.drill()). */
   debugState() {
     return {
+      /** Game time since the round started (runs faster with ?speed) */
+      elapsedMs: gameNow() - this.roundStart,
       mode: this.mode,
       op: this.op,
       phase: this.phase,

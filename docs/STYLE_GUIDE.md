@@ -191,7 +191,7 @@ Look and feel of a classic **2D handheld monster-RPG** (top-down village, separa
 - The title screen is a beach: `sky` above, a band of sea, sand below where her character stands.
 
 - **Top-down 3/4 view** on a **16 × 16 px tile grid** (180 px = 11¼ tiles wide; the map may scroll vertically).
-- Huts: chunky, 2–3 tiles wide, with a clearly visible door, a roof colour per hut and a **big name board on the roof** (cream board, dark wooden frame on two posts, the name in VT323, max. 10 letters). A small icon sign above the door stays as decoration (coin = Laden, paw = Tierheim, 1×1 = Dojo, mask = Theater, book = Bibliothek). Decided 2026-10-22: the tiny icons alone were not remembered; she reads well, so the word does the job.
+- Huts: chunky, 2–3 tiles wide, with a clearly visible door, a roof colour per hut and a **big name board on the roof** (cream board, dark wooden frame on two posts, the name in VT323, max. 10 letters). No icon plates above the doors. Decided 2026-10-22: the tiny icons alone were not remembered; she reads well, so the word does the job. The icon plates were removed on 2026-10-26.
 - Paths in `path-light` with a `path-dark` edge, grass in 2–3 green steps with a few flower pixels (`rose`, `cream`, `gold`).
 - Her character and active pet walk on the grid; a tap target shows a small `gold` sparkle where she walks to.
 - Wild creatures wander slowly in their area and bob idle like pets. A small `paper-white` pill with their level floats above them.

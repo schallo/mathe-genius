@@ -1,32 +1,19 @@
-// Hut sprites (STYLE_GUIDE §9a): chunky 32 × 34 px, roof colour per hut, visible door,
-// small icon sign above the door and a big name board on the roof (chosen 2026-10-22:
-// names are easier to remember than icons). Unbuilt huts get a construction barrier.
+// Hut sprites (STYLE_GUIDE §9a): chunky 32 × 34 px, roof colour per hut, visible door and
+// a big name board on the roof (chosen 2026-10-22: names are easier to remember than icons;
+// the small icon plates above the doors were removed 2026-10-26). Unbuilt huts get a
+// construction barrier.
 import type Phaser from 'phaser'
 import { palette, type PaletteToken } from '../palette'
 import { addText } from '../ui/text'
-import { HUT_HEIGHT, HUT_WIDTH, SIGN_HEIGHT, type Hut, type HutIcon } from '../world/village'
-import { addFrames, rasterize, type PixelMap } from './pixels'
+import { HUT_HEIGHT, HUT_WIDTH, SIGN_HEIGHT, type Hut } from '../world/village'
+import { addFrames, rasterize } from './pixels'
 
-/** 5 × 5 icons. Roles: a = main colour, b = second colour. */
-const icons: Record<HutIcon, { map: PixelMap; a: PaletteToken; b: PaletteToken }> = {
-  mask: { map: ['aaaaa', 'ababa', 'aaaaa', 'abbba', '.aaa.'], a: 'gold', b: 'ink' },
-  coin: { map: ['.aaa.', 'aabaa', 'aabaa', 'aabaa', '.aaa.'], a: 'gold', b: 'goldDark' },
-  paw: { map: ['.a.a.', 'a...a', '.aaa.', 'aaaaa', '.aaa.'], a: 'hairBrown', b: 'hairBrown' },
-  times: { map: ['a...a', '.a.a.', '..a..', '.a.a.', 'a...a'], a: 'ink', b: 'ink' },
-  divide: { map: ['..a..', '.....', 'aaaaa', '.....', '..a..'], a: 'ink', b: 'ink' },
-  book: { map: ['aa.aa', 'ab.ba', 'ab.ba', 'aa.aa', '.aaa.'], a: 'curtainMid', b: 'cream' },
-  heart: { map: ['.a.a.', 'aaaaa', 'aaaaa', '.aaa.', '..a..'], a: 'rose', b: 'rose' },
-  hammer: { map: ['aaaa.', 'aaaa.', '.b...', '.b...', '.b...'], a: 'stoneDark', b: 'woodDark' },
-  plus: { map: ['..a..', '..a..', 'aaaaa', '..a..', '..a..'], a: 'ink', b: 'ink' },
-  apple: { map: ['..b..', '.aaa.', 'aaaaa', 'aaaaa', '.aaa.'], a: 'roseDark', b: 'mintDark' },
+export function hutTextureKey(roof: PaletteToken) {
+  return `hut-${roof}`
 }
 
-export function hutTextureKey(roof: PaletteToken, icon: HutIcon) {
-  return `hut-${roof}-${icon}`
-}
-
-export function ensureHutTexture(scene: Phaser.Scene, roof: PaletteToken, icon: HutIcon): string {
-  const key = hutTextureKey(roof, icon)
+export function ensureHutTexture(scene: Phaser.Scene, roof: PaletteToken): string {
+  const key = hutTextureKey(roof)
   if (scene.textures.exists(key)) return key
 
   const px: (number | null)[][] = Array.from({ length: HUT_HEIGHT }, () =>
@@ -61,16 +48,6 @@ export function ensureHutTexture(scene: Phaser.Scene, roof: PaletteToken, icon: 
   rect(12, 22, 8, 12, palette.woodDark)
   rect(13, 23, 6, 11, palette.woodMid)
   px[28][17] = palette.gold
-
-  // Sign above the door: cream board with the icon
-  rect(11, 13, 10, 8, palette.woodDark)
-  rect(12, 14, 8, 6, palette.cream)
-  const icon5 = icons[icon]
-  rasterize(icon5.map, { a: palette[icon5.a], b: palette[icon5.b] }).forEach((row, y) =>
-    row.forEach((c, x) => {
-      if (c !== null) px[14 + y][13 + x] = c
-    }),
-  )
 
   addFrames(scene, key, [{ name: 'hut', pixels: px }])
   return key

@@ -98,6 +98,8 @@ declare global {
       battle(): ReturnType<BattleScene['debugState']> | undefined
       drill(): ReturnType<EinmaleinsDrillScene['debugState']> | undefined
       wild(): ReturnType<WildScene['debugState']> | undefined
+      /** Starts a scene directly, e.g. a hut without walking there */
+      start(key: string, data?: object): void
       /** Taps a world point on the wild island, even outside the view */
       wildTap(x: number, y: number): void
       /** Taps a world point in the village, even outside the view */
@@ -124,6 +126,7 @@ window.__debug = {
     game.scene.isActive('Wild')
       ? (game.scene.getScene('Wild') as WildScene).debugState()
       : undefined,
+  start: (key, data) => game.scene.getScenes(true)[0]?.scene.start(key, data),
   wildTap: (x, y) => (game.scene.getScene('Wild') as WildScene).debugTap(x, y),
   villageTap: (x, y) => (game.scene.getScene('Village') as VillageScene).debugTap(x, y),
   toPage(x, y) {

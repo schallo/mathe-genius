@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { openScene, tapWorld, toVillage, waitForScene } from './helpers.ts'
 
 type ShowState = {
   index: number
@@ -18,16 +19,6 @@ const debug = <T>(page: Page, fn: (d: Debug) => T) =>
     (src) => new Function('d', `return (${src})(d)`)((window as any).__debug),
     fn.toString(),
   ) as Promise<T>
-
-async function tapWorld(page: Page, x: number, y: number) {
-  const p = await page.evaluate(([x, y]) => (window as any).__debug.toPage(x, y), [x, y])
-  await page.mouse.click(p.x, p.y)
-}
-
-async function waitForScene(page: Page, key: string, timeout = 25_000) {
-  await expect.poll(() => debug(page, (d) => d.activeScene()), { timeout }).toBe(key)
-  await page.waitForTimeout(800)
-}
 
 const SAVED = {
   version: 1,
@@ -83,12 +74,9 @@ async function startShow(page: Page) {
     (save) => localStorage.setItem('mathe-buehne', save),
     JSON.stringify(SAVED),
   )
-  await page.goto('/')
-  await waitForScene(page, 'Title')
-  await tapWorld(page, 90, 277) // SPIELEN
-  await waitForScene(page, 'Village')
-  await tapWorld(page, 36, 196) // Theater
-  await waitForScene(page, 'Show')
+  await toVillage(page)
+  // Walking into the Theater is tested in smoke.spec.ts
+  await openScene(page, 'Show', { from: 'theater' })
 }
 
 test('play a whole show: hint, worked solution, coins, show end', async ({ page }) => {
@@ -116,7 +104,7 @@ test('play a whole show: hint, worked solution, coins, show end', async ({ page 
   }
 
   await waitForScene(page, 'ShowEnd')
-  await page.waitForTimeout(2500)
+  await page.waitForTimeout(1000)
   await page.screenshot({ path: `test-results/show-end-${test.info().project.name}.png` })
 
   // 1 (after solution) + 8 × 5 + 1 × 10 (challenge) + 1 streak bonus (tasks 2–6) + 10 show bonus
