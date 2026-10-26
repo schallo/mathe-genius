@@ -1,9 +1,16 @@
-// Parent area (GAME_DESIGN §8). Step 5: grown-up question, cloud sync login, export/import.
-// Settings and the progress overview follow in step 11.
+// Parent area (GAME_DESIGN §8): grown-up question, progress overview, settings (rounds per
+// day, "auswendig" time, her level per topic), bonus coins, cloud sync, export/import.
+// Opened from the lock on the title screen or the mailbox in the village.
 import { ensureStageTexture } from '../art/stage'
+import { currentLevels } from '../math/adaptive'
+import { factText, knownCount, missedFacts, slowestFacts, type DojoOp } from '../math/einmaleins'
 import { zufall } from '../math/random'
-import { coinBalance, mergeSaves, parseSave } from '../state/save'
-import { getSave, replaceSave } from '../state/store'
+import { TOPICS } from '../math/topics'
+import { LEVELS, type Level } from '../math/types'
+import { dayKey } from '../state/calendar'
+import { setTopicLevel } from '../state/learning'
+import { coinBalance, earnCoins, mergeSaves, parseSave, starBalance } from '../state/save'
+import { deviceId, getSave, replaceSave, updateSave } from '../state/store'
 import { onSyncStatus, signIn, signOut, syncNow, syncStatus, type SyncStatus } from '../state/sync'
 import { HtmlPanel, esc } from '../ui/HtmlPanel'
 import { PixelScene } from './PixelScene'
@@ -11,9 +18,20 @@ import { PixelScene } from './PixelScene'
 export class ParentScene extends PixelScene {
   private panel!: HtmlPanel
   private message = ''
+  /** Where "Zurück" leads: the title screen or the village (mailbox) */
+  private from: 'title' | 'village' = 'title'
 
   constructor() {
     super('Parent')
+  }
+
+  init(data: { from?: 'title' | 'village' }) {
+    this.from = data.from ?? 'title'
+  }
+
+  private back() {
+    if (this.from === 'village') this.goTo('Village', { from: 'mailbox' })
+    else this.goTo('Title')
   }
 
   create() {
@@ -51,7 +69,7 @@ export class ParentScene extends PixelScene {
           this.showGate()
         }
       })
-      .on('back', () => this.goTo('Title'))
+      .on('back', () => this.back())
     this.panel.field('answer').focus()
   }
 
@@ -65,6 +83,16 @@ export class ParentScene extends PixelScene {
     this.panel
       .render(
         `<h1>Eltern-Bereich</h1>
+        ${this.message ? `<div class="zh-card"><p>${esc(this.message)}</p></div>` : ''}
+        ${this.progressSection()}
+        ${this.settingsSection()}
+        <div class="zh-card">
+          <h2>Bonus-Münzen</h2>
+          <p>Zum Beispiel für Hausaufgaben außerhalb des Spiels.</p>
+          <button data-action="bonus" data-coins="10">+10</button>
+          <button data-action="bonus" data-coins="25">+25</button>
+          <button data-action="bonus" data-coins="50">+50</button>
+        </div>
         <div class="zh-card">
           <h2>Cloud-Sync</h2>
           ${this.syncSection(syncStatus())}
@@ -76,7 +104,6 @@ export class ParentScene extends PixelScene {
           <button data-action="import">Importieren</button>
           <input type="file" name="file" accept="application/json,.json" hidden />
           <p class="zh-note">Import fügt den Spielstand zum vorhandenen hinzu – es geht nichts verloren.</p>
-          <p class="zh-error">${esc(this.message)}</p>
         </div>
         <button class="zh-gold" data-action="back">Zurück zum Spiel</button>`,
       )
@@ -92,8 +119,100 @@ export class ParentScene extends PixelScene {
       .on('sync', () => void syncNow())
       .on('export', () => this.exportSave())
       .on('import', () => this.panel.field('file').click())
-      .on('back', () => this.goTo('Title'))
+      .on('bonus', (el) => this.giveBonus(Number(el.dataset.coins)))
+      .on('save-settings', () => this.saveSettings())
+      .on('back', () => this.back())
     this.panel.field('file').addEventListener('change', (e) => this.importSave(e))
+  }
+
+  /** Levels and accuracy per topic, the Einmaleins grids, open mistakes, days played. */
+  private progressSection(): string {
+    const save = getSave()
+    const levels = currentLevels(save.mastery)
+    const rows = TOPICS.map((t) => {
+      const p = save.mastery[t.id]
+      const rate = p && p.solved ? `${Math.round((100 * p.firstTry) / p.solved)} %` : '–'
+      return `<tr><td>${esc(t.title)}</td><td>${levels[t.id]}</td><td>${p?.solved ?? 0}</td><td>${rate}</td></tr>`
+    }).join('')
+    const facts = save.dojo.facts
+    const list = (
+      items: { fact: Parameters<typeof factText>[0]; value: number }[],
+      unit: string,
+    ) =>
+      items.length
+        ? items
+            .map(
+              (r) =>
+                `${esc(factText(r.fact))} (${unit === 's' ? (r.value / 1000).toFixed(1).replace('.', ',') + ' s' : r.value + '×'})`,
+            )
+            .join(', ')
+        : '–'
+    const dojo = (op: DojoOp, name: string) =>
+      `<p><b>${name}:</b> ${knownCount(facts, op)} von 100 auswendig</p>
+       <p class="zh-note">Am langsamsten: ${list(slowestFacts(facts, op), 's')}<br />
+       Am häufigsten falsch: ${list(missedFacts(facts, op), 'x')}</p>`
+    const mistakes = save.review.items
+      .map((i) => esc(i.task.question.replace(' = ?', '')))
+      .join(', ')
+    const month = dayKey(new Date()).slice(0, 7)
+    const played = Object.keys(save.calendar.days).filter((d) => d.startsWith(month)).length
+    return `<div class="zh-card">
+      <h2>Fortschritt</h2>
+      <p>${esc(save.character?.name ?? '–')} · ${coinBalance(save)} Münzen · ${starBalance(save)} Sterne · ${played} Tage gespielt diesen Monat</p>
+      <table class="zh-table"><tr><th>Thema</th><th>Stufe</th><th>Aufgaben</th><th>Sofort richtig</th></tr>${rows}</table>
+      ${dojo('mul', 'Mal-Dojo')}
+      ${dojo('div', 'Teil-Dojo')}
+      <p><b>Fehler, die wiederkommen:</b> ${mistakes || '–'}</p>
+    </div>`
+  }
+
+  private settingsSection(): string {
+    const save = getSave()
+    const levels = currentLevels(save.mastery)
+    const options = (values: number[], selected: number, label = (v: number) => String(v)) =>
+      values
+        .map((v) => `<option value="${v}"${v === selected ? ' selected' : ''}>${label(v)}</option>`)
+        .join('')
+    const topicRows = TOPICS.map(
+      (t) =>
+        `<label>${esc(t.title)} <select name="level-${t.id}">${options(LEVELS, levels[t.id])}</select></label>`,
+    ).join('')
+    return `<div class="zh-card">
+      <h2>Einstellungen</h2>
+      <label>Runden pro Tag bis zur Pause-Meldung
+        <select name="roundsPerDay">${options([1, 2, 3, 4, 5], save.settings.roundsPerDay)}</select></label>
+      <label>Einmaleins „auswendig“ unter
+        <select name="knownMs">${options([2000, 3000, 4000, 5000], save.settings.knownMs, (v) => `${v / 1000} s`)}</select></label>
+      <p class="zh-note">Stufe pro Thema (passt sich danach beim Spielen weiter an):</p>
+      ${topicRows}
+      <button class="zh-gold" data-action="save-settings">Speichern</button>
+    </div>`
+  }
+
+  private saveSettings() {
+    const value = (name: string) => Number(this.panel.field(name).value)
+    updateSave((s) => {
+      let next = {
+        ...s,
+        settings: { ...s.settings, roundsPerDay: value('roundsPerDay'), knownMs: value('knownMs') },
+      }
+      const levels = currentLevels(next.mastery)
+      for (const t of TOPICS) {
+        const level = value(`level-${t.id}`) as Level
+        if (LEVELS.includes(level) && level !== levels[t.id])
+          next = setTopicLevel(next, t.id, level)
+      }
+      return next
+    })
+    this.message = 'Einstellungen gespeichert.'
+    this.showMenu()
+  }
+
+  private giveBonus(coins: number) {
+    if (!(coins > 0)) return
+    updateSave((s) => earnCoins(s, coins, deviceId()))
+    this.message = `+${coins} Münzen für ${getSave().character?.name ?? 'dein Kind'}!`
+    this.showMenu()
   }
 
   private syncSection(status: SyncStatus): string {

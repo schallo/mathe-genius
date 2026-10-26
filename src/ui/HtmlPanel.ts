@@ -20,6 +20,12 @@ const STYLE = `
 .zh-panel button.zh-gold { background: ${css('gold')}; }
 .zh-panel .zh-note { font-size: 12px; opacity: 0.8; }
 .zh-panel .zh-error { color: ${css('heroDark')}; }
+.zh-panel label { display: block; margin: 0 0 8px; }
+.zh-panel select { font: inherit; font-size: 16px; padding: 4px; margin-left: 4px;
+  border: 1px solid ${css('ink')}; border-radius: 4px; background: ${css('paperWhite')}; }
+.zh-panel .zh-table { width: 100%; border-collapse: collapse; margin: 0 0 8px; font-size: 12px; }
+.zh-panel .zh-table th, .zh-panel .zh-table td { text-align: left; padding: 2px 4px;
+  border-bottom: 1px solid ${css('pageGrid')}; }
 `
 
 export class HtmlPanel {

@@ -42,19 +42,19 @@ Calm practice (huts, theatre) teaches; battles test speed. Both earn coins. Pets
 
 A small top-down pixel village on an **island** that fits on **one or two screens** (portrait): sea and a sandy beach at the bottom (where she arrives), a wooden **jetty (Steg)** at the top, palm trees along the sides. Her character walks around with **tap to walk** (tap a spot or a hut; arrow keys/WASD on the PC). Her active pet follows her. Entering a hut door opens that hut's scene.
 
-| Hut                                           | Purpose                                                                                                                            |
-| --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| **Theater**                                   | The shows from section 3: 10 tasks from the hut of the week (weekly rotation), one level harder, no timer, hints, double coins.    |
-| **Lernhütten** (learning huts, one per field) | Focus training of one math field, she picks the topic and level. Calm, no timer, hints and worked solutions, same coins as a show. |
-| – **Mal-Dojo** / **Teil-Dojo**                | The Einmaleins-Training from section 6a, one hut for multiplication, one for division, each with its own grid and row badges.      |
-| – **Rechenwerkstatt**                         | Halbschriftlich and schriftlich ·, :, +, − (written calculation grid).                                                             |
-| – **Zahlenturm**                              | Zahlenraum bis 1 Million, Kopfrechnen Plus/Minus, rounding.                                                                        |
-| – **Marktstand**                              | Größen and Sachaufgaben (money first).                                                                                             |
-| **Laden**                                     | Shop (section 4).                                                                                                                  |
-| **Mein Haus**                                 | Garderobe: wardrobe, hairstyles, renaming.                                                                                         |
-| **Tierheim** (pet shelter)                    | Adopt pets, name them, play with them, see their level, choose the active battle pet. Tired pets nap here.                         |
-| **Bibliothek**                                | Sammelalbum and daily calendar.                                                                                                    |
-| **Steg** (jetty at the top of the island)     | Boat to the wild islands with the battle areas (section 6b).                                                                       |
+| Hut                                                | Purpose                                                                                                                            |
+| -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| **Bonuswoche** (the stage hut, formerly "Theater") | The shows from section 3: 10 tasks from the hut of the week (weekly rotation), one level harder, no timer, hints, double coins.    |
+| **Lernhütten** (learning huts, one per field)      | Focus training of one math field, she picks the topic and level. Calm, no timer, hints and worked solutions, same coins as a show. |
+| – **Mal-Dojo** / **Teil-Dojo**                     | The Einmaleins-Training from section 6a, one hut for multiplication, one for division, each with its own grid and row badges.      |
+| – **Rechenwerkstatt**                              | Halbschriftlich and schriftlich ·, :, +, − (written calculation grid).                                                             |
+| – **Zahlenturm**                                   | Zahlenraum bis 1 Million, Kopfrechnen Plus/Minus, rounding.                                                                        |
+| – **Marktstand**                                   | Größen and Sachaufgaben (money first).                                                                                             |
+| **Laden**                                          | Shop (section 4).                                                                                                                  |
+| **Mein Haus**                                      | Garderobe: wardrobe, hairstyles, renaming.                                                                                         |
+| **Tierheim** (pet shelter)                         | Adopt pets, name them, play with them, see their level, choose the active battle pet. Tired pets nap here.                         |
+| **Bibliothek**                                     | Sammelalbum and daily calendar.                                                                                                    |
+| **Steg** (jetty at the top of the island)          | Boat to the wild islands with the battle areas (section 6b).                                                                       |
 
 - Huts that aren't built yet are shown as a cute construction site ("Hier wird gebaut!"), so the village feels alive from the start.
 - The parent area is opened from a small locked mailbox, not a hut.
@@ -185,7 +185,7 @@ Each topic has **levels 1–5**. Reaching a level gives a star.
 ### Difficulty & learning logic
 
 - **Adaptive:** each topic tracks a mastery score. 3 correct in a row → slightly harder; 2 mistakes in a row → slightly easier.
-- **Theater with a weekly hut** (decided 2026-10-25): every calendar week the shows take all 10 tasks from another hut (Mal-Dojo → Teil-Dojo → Zahlenturm → Rechenwerkstatt → Marktstand), **one level above** her level there, and **every task pays double coins** (bonuses too). A sign on the stage shows the hut of the week. Missing a week never costs anything.
+- **Bonuswoche – the stage hut with a weekly hut** (decided 2026-10-25, named "Bonuswoche" 2026-10-27 instead of "Theater"): every calendar week the shows take all 10 tasks from another hut (Mal-Dojo → Teil-Dojo → Zahlenturm → Rechenwerkstatt → Marktstand), **one level above** her level there, and **every task pays double coins** (bonuses too). A sign on the stage shows the hut of the week. Missing a week never costs anything.
 - **Mistakes come back:** wrongly answered tasks are stored and appear again in a later show (simple spaced repetition).
 - **Hints instead of failure:** after a wrong answer, show a hint that teaches the method (e.g. split 6 · 47 into 6 · 40 + 6 · 7). After a second wrong answer, show the full worked solution and let her type the result.
 - Speed pressure belongs only in the dedicated **Einmaleins-Training** mode (section 6a) and in **battles** (section 6b). Shows and learning huts have no timers.
@@ -275,7 +275,7 @@ Timed mental-math battles in the style of classic 2D monster-RPG battle screens.
    0a. **Wilde Inseln** – reached by boat from the jetty, with wandering creatures. 0b. **Kampf** – battle screen (section 6b).
    0c. **Tierheim** – pet shelter. 0d. **Lernhütte** – topic/level picker and calm practice (same flow as a show).
 1. **Titel** – stage with closed curtains, her character peeking out, button "SPIELEN".
-2. **Bühne (Show)** – main math gameplay, inside the Theater hut.
+2. **Bühne (Show)** – main math gameplay, inside the Bonuswoche hut (formerly Theater).
    2a. **Einmaleins** – sub-mode menu (Üben, Blitzrunde, Turbo-Duell, Reihen-Meister) and the 10 × 10 progress grid.
    2b. **Name eingeben** – on-screen keyboard for the character and pet names.
 3. **Show-Ende** – summary, coins counted up one by one with sound.

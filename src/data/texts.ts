@@ -124,6 +124,32 @@ export const texts = {
     rowSlow: 'Ohne Fehler! Unter 30 Sekunden gibt’s die Medaille.',
     gridDone: (item: string) => `Alle 100 auswendig! Du bekommst: ${item}!`,
   },
+  library: {
+    album: 'Album',
+    calendar: 'Kalender',
+    categories: {
+      kleider: 'Kleider',
+      frisuren: 'Haare',
+      accessoires: 'Schmuck',
+      spielzeug: 'Spiel',
+      tiere: 'Tiere',
+    },
+    count: (n: number, total: number) => `${n} von ${total} gesammelt`,
+    have: (name: string) => `${name} – gesammelt!`,
+    missing: (name: string) => `${name} – fehlt noch`,
+    categoryDone: (n: number) =>
+      n === 1 ? 'Seite voll! +1 Stern' : `${n} Seiten voll! +${n} Sterne`,
+    weekdays: ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'],
+    thisWeek: 'Diese Woche',
+    boxSoon: (left: number, prize: string | null) =>
+      `Noch ${left} ${left === 1 ? 'Sticker' : 'Sticker'} bis zur Wochen-Kiste` +
+      (prize ? `: ${prize}!` : '!'),
+    boxOpened: 'Wochen-Kiste geöffnet!',
+    sticker: 'Sticker für heute!',
+    box: (item: string) => `Wochen-Kiste: ${item}!`,
+    boxCoins: (coins: number) => `Wochen-Kiste: +${coins} Münzen!`,
+    rest: 'Super gespielt! Deine Tiere machen jetzt ein Nickerchen.',
+  },
   learn: {
     title: { werkstatt: 'Rechenwerkstatt', zahlenturm: 'Zahlenturm', marktstand: 'Marktstand' },
     level: 'Stufe',

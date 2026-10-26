@@ -37,7 +37,7 @@ export const HUTS: Hut[] = [
     x: 20,
     y: 40,
     roof: 'curtainLight',
-    scene: null,
+    scene: 'Library',
   },
   {
     id: 'zahlenturm',
@@ -72,8 +72,9 @@ export const HUTS: Hut[] = [
   },
   {
     id: 'theater',
-    name: 'Theater',
-    sign: 'Theater',
+    // The stage hut: tasks from the hut of the week, double coins (renamed 2026-10-27)
+    name: 'Bonuswoche',
+    sign: 'Bonuswoche',
     x: 20,
     y: 180,
     roof: 'curtainMid',
@@ -136,6 +137,9 @@ export const BEACH_Y = 466
 
 /** Where she starts and where she reappears after leaving the village scene. */
 export const SPAWN = { x: 90, y: 470 }
+
+/** The parents' mailbox (opens the parent area), right of the beach square. */
+export const MAILBOX = { x: 118, y: 448, width: 10, height: 11 }
 
 /** Top end of the main path: the jetty with the boat to the wild islands. */
 export const WILD_EXIT = { x: MAIN_PATH.x, y: 0, width: MAIN_PATH.width, height: 10 }
@@ -209,6 +213,7 @@ export function plantKeepOut(): Rect[] {
     ...HUTS.map(branchPath).map((r) => grow({ x: r.x, y: r.y, w: r.width, h: r.height }, 2)),
     { x: MAIN_PATH.x - 3, y: 0, w: MAIN_PATH.width + 6, h: VILLAGE_HEIGHT },
     grow({ x: POND.x, y: POND.y, w: POND.width, h: POND.height }, 4),
+    grow({ x: MAILBOX.x, y: MAILBOX.y, w: MAILBOX.width, h: MAILBOX.height }, 3),
     { x: SPAWN.x - 22, y: SPAWN.y - 14, w: 44, h: 30 },
   ]
 }
@@ -295,6 +300,7 @@ export function buildWalkGrid(): Grid {
   }
   for (const hut of HUTS) block(hut.x - 2, hut.y + 6, HUT_WIDTH + 4, HUT_HEIGHT - 6)
   block(POND.x - 2, POND.y - 2, POND.width + 4, POND.height + 4)
+  block(MAILBOX.x + 2, MAILBOX.y + 6, 4, 5)
   for (const p of PLANTS) {
     const f = PLANT_KINDS[p.kind].foot
     block(p.x + f.x, p.y + f.y, f.w, f.h)

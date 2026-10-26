@@ -214,3 +214,29 @@ export function mergeFacts(a: FactMap, b: FactMap): FactMap {
   }
   return out
 }
+
+export type FactReport = { fact: Fact; value: number }
+
+/** Facts with the slowest average correct answer (ms), for the parent area. */
+export function slowestFacts(facts: FactMap, op: DojoOp, count = 5): FactReport[] {
+  return allFacts(op)
+    .map((fact) => {
+      const times = (facts[factId(fact)]?.recent ?? []).filter((a) => a.ok).map((a) => a.ms)
+      return { fact, value: times.length ? times.reduce((s, t) => s + t, 0) / times.length : 0 }
+    })
+    .filter((r) => r.value > 0)
+    .sort((a, b) => b.value - a.value)
+    .slice(0, count)
+}
+
+/** Facts answered wrong most often (number of wrong answers). */
+export function missedFacts(facts: FactMap, op: DojoOp, count = 5): FactReport[] {
+  return allFacts(op)
+    .map((fact) => {
+      const s = facts[factId(fact)]
+      return { fact, value: s ? s.seen - s.correct : 0 }
+    })
+    .filter((r) => r.value > 0)
+    .sort((a, b) => b.value - a.value)
+    .slice(0, count)
+}

@@ -21,7 +21,7 @@ describe('dojo rewards', () => {
   })
 
   it('records fact answers with the parent threshold', () => {
-    let s: SaveData = { ...emptySave(), settings: { muted: false, knownMs: 1500 } }
+    let s: SaveData = { ...emptySave(), settings: { muted: false, knownMs: 1500, roundsPerDay: 2 } }
     const fact = { op: 'mul' as const, k: 7, row: 8 }
     for (let i = 0; i < 3; i++) s = recordFact(s, fact, true, 2000)
     expect(s.dojo.facts['mul-7-8'].known).toBe(false)
@@ -106,7 +106,7 @@ describe('dojo save data', () => {
     expect(s.version).toBe(4)
     expect(coinBalance(s)).toBe(40)
     expect(s.dojo.records.mul).toEqual({ blitz: 0, duelMs: null, badges: [] })
-    expect(s.settings).toEqual({ muted: true, knownMs: 3000 })
+    expect(s.settings).toEqual({ muted: true, knownMs: 3000, roundsPerDay: 2 })
     expect(starBalance(s)).toBe(0)
   })
 

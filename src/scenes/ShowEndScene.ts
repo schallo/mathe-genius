@@ -10,6 +10,9 @@ import { REWARD, summarizeShow, type TaskResult } from '../state/economy'
 import { activePet, coinBalance } from '../state/save'
 import { wakeAll } from '../battle/progress'
 import { finishTheaterShow } from '../state/learning'
+import { recordRound } from '../state/calendar'
+import { Caption } from '../ui/Caption'
+import { deviceId } from '../state/store'
 import { addCoins, getSave, updateSave } from '../state/store'
 import { Hud } from '../ui/Hud'
 import { Key } from '../ui/Key'
@@ -47,6 +50,23 @@ export class ShowEndScene extends PixelScene {
     updateSave(wakeAll)
     // The clock of the mistake queue counts Theater shows
     if (this.round.kind === 'theater') updateSave(finishTheaterShow)
+    // Daily sticker, the week's box, and a friendly break after the day's rounds (GAME_DESIGN §7)
+    let day: ReturnType<typeof recordRound> | undefined
+    updateSave((s) => {
+      day = recordRound(s, new Date(), deviceId())
+      return day.save
+    })
+    const news = [
+      ...(day?.sticker ? [texts.library.sticker] : []),
+      ...(day?.box
+        ? [
+            day.box.item
+              ? texts.library.box(day.box.item.name)
+              : texts.library.boxCoins(day.box.coins),
+          ]
+        : []),
+      ...(day?.suggestBreak ? [texts.library.rest] : []),
+    ]
     const hud = new Hud(this)
     const summary = summarizeShow(this.results, factor)
 
@@ -92,6 +112,13 @@ ${texts.show.doubleCoins}`
       },
     })
     hud.setCoins(coinBalance(getSave()))
+    if (news.length) {
+      const caption = new Caption(this)
+      this.time.delayedCall(900, () => {
+        sfx.pling()
+        caption.show(news.join('\n'), 4500)
+      })
+    }
 
     const round = this.round
     new Key(this, 20, 260, 66, 30, texts.show.again, () => this.goTo('Show', { round }), {

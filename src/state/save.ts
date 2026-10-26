@@ -13,6 +13,13 @@ import {
 } from '../math/einmaleins'
 import { mergeMastery, type Mastery, type TopicProgress } from '../math/adaptive'
 import { emptyReview, type ReviewItem, type ReviewQueue } from '../math/review'
+import {
+  DEFAULT_ROUNDS_PER_DAY,
+  emptyCalendar,
+  mergeCalendar,
+  parseCalendar,
+  type CalendarSave,
+} from './calendar'
 import { TOPICS } from '../math/topics'
 import { LEVELS, type Level, type Task, type TopicId } from '../math/types'
 
@@ -82,12 +89,18 @@ export type SaveData = {
   review: ReviewQueue
   /** Stars spent on star items, per device */
   starsSpent: Counter
+  /** Daily stickers and opened week boxes (GAME_DESIGN §7) */
+  calendar: CalendarSave
+  /** Album categories whose bonus star was given */
+  album: { claimed: string[] }
   /** Stars earned, counted per device like coins (GAME_DESIGN §4) */
   stars: Counter
   settings: {
     muted: boolean
     /** An Einmaleins fact is "auswendig" after 3 correct answers faster than this */
     knownMs: number
+    /** Rounds per day before a friendly break message */
+    roundsPerDay: number
   }
 }
 
@@ -116,8 +129,10 @@ export function emptySave(): SaveData {
     mastery: {},
     review: emptyReview(),
     starsSpent: {},
+    calendar: emptyCalendar(),
+    album: { claimed: [] },
     stars: {},
-    settings: { muted: false, knownMs: DEFAULT_KNOWN_MS },
+    settings: { muted: false, knownMs: DEFAULT_KNOWN_MS, roundsPerDay: DEFAULT_ROUNDS_PER_DAY },
   }
 }
 
@@ -221,6 +236,14 @@ export function parseSave(input: unknown): SaveData | null {
     mastery: parseMastery(data.mastery),
     review: parseReview(data.review),
     starsSpent: counter(data.starsSpent),
+    calendar: parseCalendar(data.calendar),
+    album: {
+      claimed: Array.isArray((data.album as { claimed?: unknown })?.claimed)
+        ? ((data.album as { claimed: unknown[] }).claimed.filter(
+            (c) => typeof c === 'string',
+          ) as string[])
+        : [],
+    },
     stars: counter(data.stars),
     settings: {
       muted: settings?.muted === true,
@@ -230,6 +253,12 @@ export function parseSave(input: unknown): SaveData | null {
         settings.knownMs <= 10_000
           ? settings.knownMs
           : DEFAULT_KNOWN_MS,
+      roundsPerDay:
+        Number.isInteger(settings?.roundsPerDay) &&
+        (settings?.roundsPerDay as number) >= 1 &&
+        (settings?.roundsPerDay as number) <= 10
+          ? (settings?.roundsPerDay as number)
+          : DEFAULT_ROUNDS_PER_DAY,
     },
   }
 }
@@ -455,6 +484,8 @@ export function mergeSaves(a: SaveData, b: SaveData): SaveData {
     mastery: mergeMastery(older.mastery, newer.mastery),
     review: { ...newer.review, shows: Math.max(a.review.shows, b.review.shows) },
     starsSpent: mergeCounters(a.starsSpent, b.starsSpent),
+    calendar: mergeCalendar(a.calendar, b.calendar),
+    album: { claimed: [...new Set([...a.album.claimed, ...b.album.claimed])] },
     stars: mergeCounters(a.stars, b.stars),
     settings: newer.settings,
   }

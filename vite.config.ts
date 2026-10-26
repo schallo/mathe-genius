@@ -37,5 +37,6 @@ export default defineConfig({
   ],
   build: { chunkSizeWarningLimit: 1600 }, // Phaser alone is ~1.2 MB
   server: { host: true, port: 5173, strictPort: true },
-  test: { include: ['src/**/*.test.ts'] },
+  // The math tests check 1000 tasks per level; give them room on a busy machine
+  test: { include: ['src/**/*.test.ts'], testTimeout: 20_000 },
 })

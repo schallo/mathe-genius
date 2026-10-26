@@ -57,7 +57,7 @@ src/
 │   ├── BattleScene.ts      # timed battle screen
 │   ├── ShelterScene.ts     # Tierheim
 │   ├── LearnHutScene.ts    # topic/level picker + calm practice
-│   ├── ShowScene.ts        # math gameplay on stage (Theater hut)
+│   ├── ShowScene.ts        # math gameplay on stage (Bonuswoche hut, id `theater`)
 │   ├── EinmaleinsMenuScene.ts   # sub-modes + 10×10 progress grid
 │   ├── EinmaleinsDrillScene.ts  # Üben, Blitzrunde, Turbo-Duell, Reihen-Meister
 │   ├── ShowEndScene.ts

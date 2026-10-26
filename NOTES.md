@@ -44,25 +44,45 @@
 - Movement uses the real frame time (`game.loop.rawDelta`), not Phaser's smoothed delta, so walking speed stays right on slow frames.
 - **Starting look** is modelled on her (from a photo, not stored in the repo): fair skin (`skin1`), ginger hair (`hair-ginger`, new palette colour) pulled back into a ponytail, mint dress, pink bow.
 
-## Next tasks (as of 2026-10-26)
+## Next tasks (as of 2026-10-27)
 
 Done: steps 1–8, v0.8.1 (no +100 button, no door plates, faster e2e tests). Live: https://schallo.github.io/mathe-genius/. Firebase sync, the iPhone home-screen app and the step 6–8 checkpoints are tested.
 
 1. ~~Step 9 – Learning huts~~ done (v0.9.0).
 2. ~~Theater with a weekly hut~~ done (v0.9.1).
 3. ~~Step 10 – Adaptive difficulty, mistakes coming back, stars~~ done (v0.10.0).
-4. **Step 11 – Album, daily calendar, full parent area** (settings incl. "auswendig" time, progress overview, bonus coins, shows per day).
-5. **Step 12 – More areas and animals**, 60–80 items.
+4. ~~Step 11 – Album, daily calendar, full parent area~~ done (v0.11.0).
+5. **Step 12 – More open-world areas (wild islands) and animals**, 60–80 items. Each island is its own landscape with its own map, hiding places, colours and animals; the boat at the jetty gets an island picker, and an island unlocks when her strongest pet reaches its level (`Area.unlockLevel`):
+   - **Blumenwiese** (exists): meadow, bushes and tall grass – Igel, Eichhörnchen, Fuchs.
+   - **Flüsterwald**: dense forest with clearings, hollow trees and mushroom rings as hiding places – Fuchs, Eule, Waschbär.
+   - **Sonnensavanne**: dry grass, acacia trees, rocks and a water hole – Löwe, Elefant, Giraffe, Zebra.
+   - **Urzeittal**: ferns, volcano rocks, a steaming pond – T-Rex, Brachiosaurus, Triceratops, Flugsaurier.
+   - **Wolkenberg**: stone paths between clouds and rainbows (`stone` colours) – Einhorn, Pegasus, Drache.
+   - Stronger islands use higher topic levels, shorter timers and more HP (GAME_DESIGN §6b); befriending works the same everywhere.
 6. ~~Coin icon~~ done (v0.9.2): round 9 × 9 coin with rim, shading and shine.
 7. ~~Village plants~~ done (v0.9.2): palms along both shores, then leafy trees, firs, bushes and flower bushes at random (fixed seed, `placePlants` in `src/world/village.ts`), never on huts, name boards, paths or the pond; only trunks/bases block walking.
 8. ~~Avatar options~~ done (v0.10.1).
-9. **Check with school** the open assumptions in "Math engine assumptions" below (subtraction method etc.).
+9. ~~Rename the Theater to "Bonuswoche"~~ done (v0.11.0): only the visible name (hut name and roof board, docs); ids, scene keys and saves stay `theater`/`Show`.
+10. **More pets with their own traits** (wish 2026-10-27). Traits move from the family to each pet and work wherever the active pet is along (shows, huts, battles). They never solve a task: they only protect coins and streaks; adaptive levels, dojo times and the mistake queue still count her real answers. Trait strength grows a little with the pet's level. Wild animals keep their family traits.
+    - Regular pets (Tierheim): Hündchen (starter) _Treuer Freund_ – first wrong answer per round costs nothing; Kätzchen 400 _Glückspfote_ – streak bonus after 4; Hamster (starter) _Mehr Zeit_ +2 s in battles; Kaninchen 350 _Hoppel-Hilfe_ – 1 free mistake, 2 from level 5; Schildkröte 300 _Ruhige Pfote_ +3 s in battles; Wellensittich 450 _Sternenvogel_ +1 star per level-up; Meerschweinchen 350 _Münzschatz_ +1 coin per first-try answer; Maus 250 _Flinke Maus_ – streak after 4; Dalmatiner 500 (like Hündchen); Rote Katze 500 (like Kätzchen).
+    - Special animals (unique, arrive with their own name, stars + coins in the Tierheim, "Noch 2 ★" as a goal): **Mr Wriggles** – golden hamster with a top hat, 3 ★ + 300, +1 coin per right answer and +2 s in battles; **Prinzessin Pfötchen** – white cat with a crown, 5 ★ + 500, streak after 3; **Sir Bello** – dog with bow tie and monocle, 5 ★ + 500, 2 free mistakes; **Sternen-Katze** – lilac cat with stars in the fur, 6 ★ + 400, +1 star per level-up; **Kapitän Panzer** – turtle with a sailor hat, 4 ★ + 350, +4 s in battles; **Regenbogen-Hase** – rainbow bunny, 8 ★ + 600, 1 free mistake, +1 coin per right answer, +1 star per level-up.
+    - Needs: sprites, data entries, trait logic + tests, trait display in the Tierheim and on stage, GAME_DESIGN §4 update.
+11. **Check with school** the open assumptions in "Math engine assumptions" below (subtraction method etc.).
 
 Smaller follow-ups:
 
-- Village: parent mailbox (currently only the lock on the title screen).
+- ~~Village: parent mailbox~~ done in step 11.
 - ~~iPhone: real-device test of the home-screen app~~ done 2026-10-25: screens work on PC and iPhone.
 - Sound: check the "−" glyph and sounds on the real iPhone.
+
+## Album, calendar, parent area (step 11, v0.11.0, 2026-10-27)
+
+- **Bibliothek** is open (no construction sites left): tab **Album** with pages Kleider, Haare, Schmuck, Spiel, Tiere – owned items in colour, missing ones as a grey silhouette of just that piece (outfit, hair or accessory layer, or the pet); tapping shows the name. A full page gives **one bonus star** (claimed when she opens the Bibliothek; `save.album.claimed`). Tiere = every kind of animal, collected when she has a pet of that kind.
+- Tab **Kalender**: this month with a sticker on each day she finished a round (Theater show or learning-hut round), today outlined; "Diese Woche" with 5 sticker slots and the box.
+- **Wochen-Kiste** (5 stickers Monday–Sunday): never random – it holds the cheapest Schmuck/Spielzeug item she doesn't own yet (no star or reward items), shown in advance in the calendar; 40 coins once she has them all. One per week; missed days cost nothing.
+- **Break**: after `settings.roundsPerDay` rounds (default 2) the end card says once "Super gespielt! Deine Tiere machen jetzt ein Nickerchen." She can go on playing; nothing is taken away. (GAME_DESIGN's "daily bonus" is the sticker, which counts once per day anyway.)
+- **Parent area** (title lock or the new **mailbox** right of the beach square, both behind the grown-up question; "Zurück" returns where she came from): progress per topic (level, tasks, first-try rate), Mal-/Teil-Dojo with "auswendig" count, slowest and most-missed facts, open mistakes, days played this month; settings rounds per day, "auswendig" time (2–5 s), her level per topic (best level stays, no stars for it); bonus coins +10/+25/+50.
+- Not done: sound volume (there is only mute) and "active topics" (the Theater's weekly huts cover all topics).
 
 ## Avatar options (v0.10.1, 2026-10-26)
 

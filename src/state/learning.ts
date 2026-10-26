@@ -1,8 +1,8 @@
 // What a finished task changes in the save (GAME_DESIGN §6): her level per topic, stars for
 // new levels, and the queue of mistakes that come back in later Theater shows. Pure logic.
-import { recordTask, type TaskOutcome } from '../math/adaptive'
+import { recordTask, startProgress, type TaskOutcome } from '../math/adaptive'
 import { addMistake, answerReview, countShow } from '../math/review'
-import type { Task } from '../math/types'
+import type { Level, Task, TopicId } from '../math/types'
 import { earnStars, type SaveData } from './save'
 
 export type AnswerResult = {
@@ -39,4 +39,20 @@ export function recordMistake(save: SaveData, task: Task): SaveData {
 /** End of a Theater show: the clock of the mistake queue moves on. */
 export function finishTheaterShow(save: SaveData): SaveData {
   return { ...save, review: countShow(save.review) }
+}
+
+/**
+ * Parent area: sets her level for a topic by hand (e.g. the level from school). Her best
+ * level never goes down and no stars are given for it.
+ */
+export function setTopicLevel(save: SaveData, topic: TopicId, level: Level): SaveData {
+  const current = save.mastery[topic] ?? startProgress(topic)
+  const progress = {
+    ...current,
+    level,
+    best: Math.max(current.best, level) as Level,
+    streak: 0,
+    misses: 0,
+  }
+  return { ...save, mastery: { ...save.mastery, [topic]: progress } }
 }

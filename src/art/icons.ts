@@ -82,6 +82,39 @@ const ICONS: Record<string, Icon> = {
     map: ['......a', '.....aa', 'a...aa.', 'aa.aa..', '.aaa...', '..a....'],
     legend: { a: palette.mintDark },
   },
+  /** Week box of the calendar (closed / opened) */
+  box: {
+    map: ['aaaaaaa', 'abbcbba', 'aaacaaa', 'abbcbba', 'abbcbba', 'aaaaaaa'],
+    legend: { a: palette.woodDark, b: palette.woodMid, c: palette.gold },
+    outline: palette.woodEdge,
+  },
+  boxOpen: {
+    map: ['a.....a', '.a...a.', 'aaaaaaa', 'abbcbba', 'abbcbba', 'aaaaaaa'],
+    legend: { a: palette.woodDark, b: palette.woodMid, c: palette.gold },
+    outline: palette.woodEdge,
+  },
+  /** Parent mailbox in the village */
+  mailbox: {
+    map: [
+      '.aaaaa..',
+      'abbbbbac',
+      'abdddbac',
+      'abbbbba.',
+      'aaaaaaa.',
+      '...e....',
+      '...e....',
+      '...e....',
+      '..eee...',
+    ],
+    legend: {
+      a: palette.accentBlue,
+      b: palette.sky,
+      c: palette.gold,
+      d: palette.ink,
+      e: palette.woodDark,
+    },
+    outline: palette.woodEdge,
+  },
   star: {
     map: ['...a...', '...a...', 'aaaaaaa', '.aaaaa.', '..aaa..', '.aa.aa.', 'aa...aa'],
     legend: { a: palette.gold },

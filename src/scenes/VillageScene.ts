@@ -4,6 +4,7 @@ import { Character } from '../art/character/Character'
 import { DEFAULT_LOOK } from '../art/character/look'
 import { Pet } from '../art/pets/Pet'
 import { addHutSign, ensureBarrierTexture, ensureHutTexture } from '../art/hut'
+import { icon } from '../art/icons'
 import { addFrames, rasterize } from '../art/pixels'
 import { ensureVillageTexture } from '../art/village'
 import { texts } from '../data/texts'
@@ -20,6 +21,7 @@ import {
   CELL,
   HUTS,
   HUT_HEIGHT,
+  MAILBOX,
   MAIN_PATH,
   SPAWN,
   VILLAGE_HEIGHT,
@@ -87,6 +89,11 @@ export class VillageScene extends PixelScene {
           .setDepth(hut.y + HUT_HEIGHT + 1)
       }
     }
+    // Parents' mailbox: opens the parent area (behind the grown-up question)
+    this.add
+      .image(MAILBOX.x, MAILBOX.y, icon(this, 'mailbox'), 'icon')
+      .setOrigin(0)
+      .setDepth(MAILBOX.y + MAILBOX.height)
     new LabelPill(this, MAIN_PATH.x + MAIN_PATH.width + 22, 10, `↑ ${texts.village.wildSign}`, {
       size: 6,
     }).setDepth(10)
@@ -141,6 +148,15 @@ export class VillageScene extends PixelScene {
       if (getSave().owned.includes('ball')) this.time.delayedCall(450, () => this.pet?.hop())
       this.pet.showName(true)
       this.time.delayedCall(2000, () => this.pet?.showName(false))
+      return
+    }
+    if (
+      x >= MAILBOX.x - 4 &&
+      x < MAILBOX.x + MAILBOX.width + 4 &&
+      y >= MAILBOX.y - 4 &&
+      y < MAILBOX.y + MAILBOX.height + 2
+    ) {
+      this.goTo('Parent', { from: 'village' })
       return
     }
     const hut = hutAt(x, y)
