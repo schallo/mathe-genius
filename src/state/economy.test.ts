@@ -1,68 +1,101 @@
 import { describe, expect, it } from 'vitest'
-import { SHOW_LENGTH, SHOW_TOPICS, planRound, planShow, roundHut } from '../math/show'
+import {
+  DEFAULT_LEVELS,
+  SHOW_LENGTH,
+  WEEK_HUTS,
+  coinFactor,
+  planRound,
+  planTheater,
+  roundHut,
+  slotTask,
+  weekHut,
+} from '../math/show'
+import { topic } from '../math/topics'
 import { seededRng } from '../math/random'
 import { REWARD, answerReward, streakBonus, summarizeShow } from './economy'
 
 describe('rewards', () => {
-  it('pays 5 / 3 / 1 coins by attempt, double for challenges', () => {
+  it('pays 5 / 3 / 1 coins by attempt, double in the Theater', () => {
     expect(answerReward(1)).toBe(5)
     expect(answerReward(2)).toBe(3)
     expect(answerReward(3)).toBe(1)
     expect(answerReward(7)).toBe(1)
-    expect(answerReward(1, true)).toBe(10)
+    expect(answerReward(1, 2)).toBe(10)
+    expect(answerReward(3, 2)).toBe(2)
   })
 
   it('gives a streak bonus after every 5 first tries in a row', () => {
-    expect([1, 2, 3, 4, 5, 6, 10].map(streakBonus)).toEqual([0, 0, 0, 0, 5, 0, 5])
+    expect([1, 2, 3, 4, 5, 6, 10].map((n) => streakBonus(n))).toEqual([0, 0, 0, 0, 5, 0, 5])
   })
 
   it('sums up a show with streak and show bonus', () => {
-    const perfect = Array.from({ length: 10 }, () => ({ attempts: 1, challenge: false }))
+    const perfect = Array.from({ length: 10 }, () => ({ attempts: 1 }))
     // 10 × 5 + 2 streak bonuses + show bonus
     expect(summarizeShow(perfect)).toEqual({ solved: 10, total: 10, coins: 50 + 10 + 10 })
 
-    const mixed = [
-      { attempts: 1, challenge: false },
-      { attempts: 2, challenge: false },
-      { attempts: 3, challenge: false },
-      { attempts: 1, challenge: true },
-    ]
+    const mixed = [{ attempts: 1 }, { attempts: 2 }, { attempts: 3 }, { attempts: 1 }]
     expect(summarizeShow(mixed)).toEqual({
       solved: 3,
       total: 4,
-      coins: 5 + 3 + 1 + 10 + REWARD.showBonus,
+      coins: 5 + 3 + 1 + 5 + REWARD.showBonus,
     })
   })
 
+  it('doubles everything in a Theater show, bonuses too', () => {
+    const perfect = Array.from({ length: 10 }, () => ({ attempts: 1 }))
+    expect(summarizeShow(perfect, 2).coins).toBe(2 * (50 + 10 + 10))
+    expect(streakBonus(5, 2)).toBe(10)
+  })
+
   it('never ends a show with fewer coins than the show bonus', () => {
-    const slow = Array.from({ length: 10 }, () => ({ attempts: 5, challenge: false }))
+    const slow = Array.from({ length: 10 }, () => ({ attempts: 5 }))
     expect(summarizeShow(slow).coins).toBe(10 + REWARD.showBonus)
   })
 })
 
-describe('planShow', () => {
-  it('has 10 tasks: 6 focus, 3 revision, 1 challenge at the end', () => {
-    for (let seed = 0; seed < 200; seed++) {
-      const show = planShow(seededRng(seed))
-      expect(show).toHaveLength(SHOW_LENGTH)
-      expect(show.filter((s) => s.topic === 'einmaleins' && !s.challenge)).toHaveLength(6)
-      expect(show.filter((s) => s.challenge)).toEqual([
-        { topic: 'einmaleins', level: 3, challenge: true },
-      ])
-      expect(show.at(-1)!.challenge).toBe(true)
-      for (const s of show) expect(SHOW_TOPICS).toContain(s.topic)
+describe('Theater with a weekly hut', () => {
+  it('changes the hut every Monday and goes round all five', () => {
+    // Monday 26 October 2026 … Sunday 1 November 2026: one hut
+    const week = weekHut(new Date(2026, 9, 26))
+    for (let d = 26; d <= 31; d++) expect(weekHut(new Date(2026, 9, d, 18))).toBe(week)
+    expect(weekHut(new Date(2026, 10, 1, 23, 59))).toBe(week)
+    // The next five Mondays bring the other huts in order, then it starts again
+    const mondays = Array.from({ length: 6 }, (_, i) => weekHut(new Date(2026, 9, 26 + 7 * i)))
+    expect(new Set(mondays.slice(0, 5)).size).toBe(5)
+    expect(mondays[5]).toBe(mondays[0])
+    const at = WEEK_HUTS.indexOf(week)
+    expect(mondays[1]).toBe(WEEK_HUTS[(at + 1) % WEEK_HUTS.length])
+    // Across new year the rotation just continues
+    const dec28 = WEEK_HUTS.indexOf(weekHut(new Date(2026, 11, 28)))
+    expect(weekHut(new Date(2027, 0, 4))).toBe(WEEK_HUTS[(dec28 + 1) % WEEK_HUTS.length])
+  })
+
+  it('hut weeks: the hut topics, one level above her level, max. level 5', () => {
+    for (const hut of ['zahlenturm', 'werkstatt', 'marktstand'] as const) {
+      for (let seed = 0; seed < 50; seed++) {
+        const slots = planTheater(hut, seededRng(seed))
+        expect(slots).toHaveLength(SHOW_LENGTH)
+        for (const s of slots) {
+          expect(topic(s.topic).hut).toBe(hut)
+          expect(s.level).toBe(Math.min(5, DEFAULT_LEVELS[s.topic] + 1))
+        }
+      }
     }
+    // Werkstatt: all five topics take turns
+    expect(new Set(planTheater('werkstatt', seededRng(1)).map((s) => s.topic)).size).toBe(5)
+    const top = { ...DEFAULT_LEVELS, geld: 5 as const }
+    expect(planTheater('marktstand', seededRng(1), top).every((s) => s.level === 5)).toBe(true)
   })
 
-  it('lets written tasks join the shows (the grid exists since step 9)', () => {
-    expect(SHOW_TOPICS.filter((t) => t.startsWith('schriftlich'))).toHaveLength(4)
-    const topics = new Set<string>()
-    for (let seed = 0; seed < 200; seed++)
-      for (const s of planShow(seededRng(seed))) topics.add(s.topic)
-    expect([...topics].some((t) => t.startsWith('schriftlich'))).toBe(true)
+  it('Mal-Dojo week: facts and missing factors; Teil-Dojo week: division with remainder', () => {
+    const mal = planTheater('maldojo', seededRng(2)).map((s) => slotTask(s, seededRng(3)))
+    expect(mal.filter((t) => t.math.kind === 'missingFactor')).toHaveLength(5)
+    expect(mal.filter((t) => t.math.kind === 'calc' && t.math.op === '·')).toHaveLength(5)
+    const teil = planTheater('teildojo', seededRng(2)).map((s, i) => slotTask(s, seededRng(i)))
+    expect(teil.every((t) => t.format.kind === 'numpad' && t.format.remainder)).toBe(true)
   })
 
-  it('a learning-hut round is 10 tasks of the picked topic and level, no challenge', () => {
+  it('a learning-hut round is 10 tasks of the picked topic and level, normal coins', () => {
     const round = {
       kind: 'hut' as const,
       hut: 'werkstatt',
@@ -71,17 +104,11 @@ describe('planShow', () => {
     }
     const slots = planRound(round, seededRng(1))
     expect(slots).toHaveLength(SHOW_LENGTH)
-    expect(
-      slots.every((s) => s.topic === 'schriftlichDivision' && s.level === 3 && !s.challenge),
-    ).toBe(true)
+    expect(slots.every((s) => s.topic === 'schriftlichDivision' && s.level === 3)).toBe(true)
     expect(roundHut(round)).toBe('werkstatt')
-    expect(roundHut({ kind: 'theater' })).toBe('theater')
-    expect(planRound({ kind: 'theater' }, seededRng(1)).at(-1)?.challenge).toBe(true)
-  })
-
-  it('caps the challenge at level 5', () => {
-    const show = planShow(seededRng(1), { focus: 'geld', levels: { geld: 5 } })
-    expect(show.at(-1)).toEqual({ topic: 'geld', level: 5, challenge: true })
-    expect(show.every((s) => s.topic === 'geld')).toBe(true)
+    expect(coinFactor(round)).toBe(1)
+    const theater = { kind: 'theater' as const, hut: 'werkstatt' as const }
+    expect(roundHut(theater)).toBe('theater')
+    expect(coinFactor(theater)).toBe(2)
   })
 })

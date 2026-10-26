@@ -9,19 +9,22 @@ export const REWARD = {
   showBonus: 10,
 } as const
 
-/** attempt 1 = first try, 2 = after the hint, 3+ = after the worked solution. */
-export function answerReward(attempt: number, challenge = false): number {
+/**
+ * attempt 1 = first try, 2 = after the hint, 3+ = after the worked solution.
+ * `factor` 2 for Theater shows (double coins for every task).
+ */
+export function answerReward(attempt: number, factor = 1): number {
   const base =
     attempt <= 1 ? REWARD.firstTry : attempt === 2 ? REWARD.afterHint : REWARD.afterSolution
-  return challenge ? base * 2 : base
+  return base * factor
 }
 
 /** Bonus after every 5 first-try answers in a row. */
-export function streakBonus(streak: number): number {
-  return streak > 0 && streak % REWARD.streakLength === 0 ? REWARD.streakBonus : 0
+export function streakBonus(streak: number, factor = 1): number {
+  return streak > 0 && streak % REWARD.streakLength === 0 ? REWARD.streakBonus * factor : 0
 }
 
-export type TaskResult = { attempts: number; challenge: boolean }
+export type TaskResult = { attempts: number }
 
 export type ShowSummary = {
   /** Tasks solved on the first or second try */
@@ -30,19 +33,19 @@ export type ShowSummary = {
   coins: number
 }
 
-/** Coins for a whole show, including streak bonuses and the show bonus. */
-export function summarizeShow(results: TaskResult[]): ShowSummary {
+/** Coins for a whole round, including streak bonuses and the round bonus. */
+export function summarizeShow(results: TaskResult[], factor = 1): ShowSummary {
   let coins = 0
   let streak = 0
   for (const r of results) {
-    coins += answerReward(r.attempts, r.challenge)
+    coins += answerReward(r.attempts, factor)
     streak = r.attempts === 1 ? streak + 1 : 0
-    coins += streakBonus(streak)
+    coins += streakBonus(streak, factor)
   }
   return {
     solved: results.filter((r) => r.attempts <= 2).length,
     total: results.length,
-    coins: coins + REWARD.showBonus,
+    coins: coins + REWARD.showBonus * factor,
   }
 }
 

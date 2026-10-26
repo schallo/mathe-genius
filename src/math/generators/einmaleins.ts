@@ -37,7 +37,8 @@ export function division(rng: Rng, level: Level, remainder: boolean): Task {
   }
 }
 
-function missing(rng: Rng, level: Level): Task {
+/** Missing factor: ? · 9 = 63 */
+export function missingFactorTask(rng: Rng, level: Level): Task {
   const factor = zufall(rng, 2, 10)
   const q = zufall(rng, 2, 10)
   return {
@@ -63,7 +64,7 @@ export const einmaleins: Generator = (rng, level) => {
       return pick(rng, [
         () => multiplication(rng, level),
         () => division(rng, level, false),
-        () => missing(rng, level),
+        () => missingFactorTask(rng, level),
       ])()
     case 5:
       return division(rng, level, true)

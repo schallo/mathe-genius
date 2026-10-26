@@ -44,7 +44,7 @@ A small top-down pixel village on an **island** that fits on **one or two screen
 
 | Hut                                           | Purpose                                                                                                                            |
 | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| **Theater**                                   | The shows from section 3: 10 mixed tasks, no timer, hints, coins.                                                                  |
+| **Theater**                                   | The shows from section 3: 10 tasks from the hut of the week (weekly rotation), one level harder, no timer, hints, double coins.    |
 | **Lernhütten** (learning huts, one per field) | Focus training of one math field, she picks the topic and level. Calm, no timer, hints and worked solutions, same coins as a show. |
 | – **Mal-Dojo** / **Teil-Dojo**                | The Einmaleins-Training from section 6a, one hut for multiplication, one for division, each with its own grid and row badges.      |
 | – **Rechenwerkstatt**                         | Halbschriftlich and schriftlich ·, :, +, − (written calculation grid).                                                             |
@@ -185,7 +185,7 @@ Each topic has **levels 1–5**. Reaching a level gives a star.
 ### Difficulty & learning logic
 
 - **Adaptive:** each topic tracks a mastery score. 3 correct in a row → slightly harder; 2 mistakes in a row → slightly easier.
-- A show mixes topics: about **60 % current focus topic, 30 % revision, 10 % "challenge"** (one level above, worth double coins, marked with a star).
+- **Theater with a weekly hut** (decided 2026-10-25): every calendar week the shows take all 10 tasks from another hut (Mal-Dojo → Teil-Dojo → Zahlenturm → Rechenwerkstatt → Marktstand), **one level above** her level there, and **every task pays double coins** (bonuses too). A sign on the stage shows the hut of the week. Missing a week never costs anything.
 - **Mistakes come back:** wrongly answered tasks are stored and appear again in a later show (simple spaced repetition).
 - **Hints instead of failure:** after a wrong answer, show a hint that teaches the method (e.g. split 6 · 47 into 6 · 40 + 6 · 7). After a second wrong answer, show the full worked solution and let her type the result.
 - Speed pressure belongs only in the dedicated **Einmaleins-Training** mode (section 6a) and in **battles** (section 6b). Shows and learning huts have no timers.

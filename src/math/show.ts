@@ -1,70 +1,109 @@
-// Composition of a show (GAME_DESIGN §6): 10 tasks, about 60 % focus topic,
-// 30 % revision of other topics, 10 % challenge (one level above, double coins).
+// Rounds of 10 tasks. Pure logic.
+// - Theater (decided 2026-10-25, replaces the 60/30/10 mix of GAME_DESIGN §6): every
+//   calendar week the shows take all tasks from another hut, one level harder than her
+//   level there, and every task pays double coins.
+// - Learning huts: 10 calm tasks of the topic and level she picked.
 // Adaptive levels and mistake repetition follow in build step 10.
-import { pick } from './random'
-import { TOPICS } from './topics'
-import type { Level, Rng, TopicId } from './types'
+import { shuffle } from './einmaleins'
+import { missingFactorTask, multiplication } from './generators/einmaleins'
+import { generateTask, TOPICS } from './topics'
+import type { Level, Rng, Task, TopicId } from './types'
 
 export const SHOW_LENGTH = 10
 
-export type ShowSlot = { topic: TopicId; level: Level; challenge: boolean }
+/** One task of a round. `variant` picks a special Einmaleins task (Mal-Dojo week). */
+export type ShowSlot = { topic: TopicId; level: Level; variant?: 'multiply' | 'missingFactor' }
 
-export type ShowSettings = {
-  focus: TopicId
-  /** Current level per topic */
-  levels: Partial<Record<TopicId, Level>>
+/** Her current level per topic (fixed defaults until step 10 makes them adaptive). */
+export const DEFAULT_LEVELS: Record<TopicId, Level> = {
+  einmaleins: 2,
+  kopfrechnen: 1,
+  halbschriftlich: 1,
+  zahlenraum: 1,
+  schriftlichAddition: 1,
+  schriftlichSubtraktion: 1,
+  schriftlichMultiplikation: 1,
+  schriftlichDivision: 1,
+  geld: 1,
 }
 
-export const DEFAULT_SHOW_SETTINGS: ShowSettings = {
-  focus: 'einmaleins',
-  levels: {
-    einmaleins: 2,
-    kopfrechnen: 1,
-    halbschriftlich: 1,
-    zahlenraum: 1,
-    schriftlichAddition: 1,
-    schriftlichSubtraktion: 1,
-    schriftlichMultiplikation: 1,
-    schriftlichDivision: 1,
-    geld: 1,
-  },
+/** The weekly order of the Theater (hut ids from world/village.ts). */
+export const WEEK_HUTS = ['maldojo', 'teildojo', 'zahlenturm', 'werkstatt', 'marktstand'] as const
+export type WeekHut = (typeof WEEK_HUTS)[number]
+
+const DAY_MS = 24 * 60 * 60 * 1000
+
+/**
+ * Hut of the week for a date (local time). Weeks start on Monday and are counted from
+ * 1970, so the rotation simply continues across new year.
+ */
+export function weekHut(date: Date): WeekHut {
+  // Local calendar day number; 1 January 1970 was a Thursday, so +3 makes weeks start on Monday
+  const day = Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / DAY_MS)
+  const week = Math.floor((day + 3) / 7)
+  return WEEK_HUTS[week % WEEK_HUTS.length]
 }
 
-export const SHOW_TOPICS: TopicId[] = TOPICS.map((t) => t.id)
+const harder = (level: Level): Level => Math.min(5, level + 1) as Level
+
+/**
+ * The Theater show of a week. The dojos have no levels, so their harder form is:
+ * Mal-Dojo = plain facts mixed with missing factors (? · 8 = 56),
+ * Teil-Dojo = division with remainder (Einmaleins level 5).
+ */
+export function planTheater(
+  hut: WeekHut,
+  rng: Rng,
+  levels: Record<TopicId, Level> = DEFAULT_LEVELS,
+): ShowSlot[] {
+  if (hut === 'maldojo') {
+    const half = SHOW_LENGTH / 2
+    return shuffle(
+      Array.from({ length: SHOW_LENGTH }, (_, i) => ({
+        topic: 'einmaleins' as const,
+        level: 4 as const,
+        variant: i < half ? ('multiply' as const) : ('missingFactor' as const),
+      })),
+      rng,
+    )
+  }
+  if (hut === 'teildojo') {
+    return Array.from({ length: SHOW_LENGTH }, () => ({ topic: 'einmaleins' as const, level: 5 }))
+  }
+  // A hut's topics take turns, each one level above her level
+  const topics = shuffle(
+    TOPICS.filter((t) => t.hut === hut).map((t) => t.id),
+    rng,
+  )
+  return shuffle(
+    Array.from({ length: SHOW_LENGTH }, (_, i) => {
+      const topic = topics[i % topics.length]
+      return { topic, level: harder(levels[topic]) }
+    }),
+    rng,
+  )
+}
+
+export function slotTask(slot: ShowSlot, rng: Rng): Task {
+  if (slot.variant === 'multiply') return multiplication(rng, slot.level)
+  if (slot.variant === 'missingFactor') return missingFactorTask(rng, slot.level)
+  return generateTask(slot.topic, slot.level, rng)
+}
 
 /** A round of 10 tasks: a show in the Theater, or calm practice of one topic in a learning hut. */
-export type Round = { kind: 'theater' } | { kind: 'hut'; hut: string; topic: TopicId; level: Level }
+export type Round =
+  { kind: 'theater'; hut: WeekHut } | { kind: 'hut'; hut: string; topic: TopicId; level: Level }
+
+/** The Theater round of today's week. */
+export const theaterRound = (date = new Date()): Round => ({ kind: 'theater', hut: weekHut(date) })
 
 /** Hut id of the door she comes back out of. */
 export const roundHut = (round: Round) => (round.kind === 'hut' ? round.hut : 'theater')
 
+/** Theater shows pay double coins for every task (and for the bonuses). */
+export const coinFactor = (round: Round) => (round.kind === 'theater' ? 2 : 1)
+
 export function planRound(round: Round, rng: Rng): ShowSlot[] {
-  if (round.kind === 'theater') return planShow(rng)
-  return Array.from({ length: SHOW_LENGTH }, () => ({
-    topic: round.topic,
-    level: round.level,
-    challenge: false,
-  }))
-}
-
-const levelOf = (settings: ShowSettings, topic: TopicId): Level => settings.levels[topic] ?? 1
-
-export function planShow(rng: Rng, settings: ShowSettings = DEFAULT_SHOW_SETTINGS): ShowSlot[] {
-  const revision = SHOW_TOPICS.filter((t) => t !== settings.focus && settings.levels[t])
-  const focusLevel = levelOf(settings, settings.focus)
-  const slots: ShowSlot[] = []
-  for (let i = 0; i < 6; i++)
-    slots.push({ topic: settings.focus, level: focusLevel, challenge: false })
-  for (let i = 0; i < 3; i++) {
-    const topic = revision.length > 0 ? pick(rng, revision) : settings.focus
-    slots.push({ topic, level: levelOf(settings, topic), challenge: false })
-  }
-  slots.sort(() => rng() - 0.5)
-  // The challenge comes last, as the show's finale; at level 5 it stays at level 5
-  slots.push({
-    topic: settings.focus,
-    level: Math.min(5, focusLevel + 1) as Level,
-    challenge: true,
-  })
-  return slots
+  if (round.kind === 'theater') return planTheater(round.hut, rng)
+  return Array.from({ length: SHOW_LENGTH }, () => ({ topic: round.topic, level: round.level }))
 }

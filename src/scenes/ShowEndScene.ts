@@ -16,11 +16,11 @@ import { SpeechCard } from '../ui/SpeechCard'
 import { addText } from '../ui/text'
 import { PixelScene } from './PixelScene'
 import { SHOW_FLOOR_Y } from './ShowScene'
-import { roundHut, type Round } from '../math/show'
+import { coinFactor, roundHut, theaterRound, type Round } from '../math/show'
 
 export class ShowEndScene extends PixelScene {
   private results: TaskResult[] = []
-  private round: Round = { kind: 'theater' }
+  private round: Round = theaterRound()
   private hero!: Character
   private pet?: Pet
 
@@ -30,7 +30,7 @@ export class ShowEndScene extends PixelScene {
 
   init(data: { results: TaskResult[]; round?: Round }) {
     this.results = data.results ?? []
-    this.round = data.round ?? { kind: 'theater' }
+    this.round = data.round ?? theaterRound()
   }
 
   create() {
@@ -40,11 +40,12 @@ export class ShowEndScene extends PixelScene {
       .setOrigin(0)
 
     // Per-task coins were paid during the show; the show bonus is paid now
-    addCoins(REWARD.showBonus)
+    const factor = coinFactor(this.round)
+    addCoins(REWARD.showBonus * factor)
     // A finished show wakes up pets that were napping after a battle
     updateSave(wakeAll)
     const hud = new Hud(this)
-    const summary = summarizeShow(this.results)
+    const summary = summarizeShow(this.results, factor)
 
     const save = getSave()
     this.hero = new Character(this, 112, SHOW_FLOOR_Y, save.character?.look ?? DEFAULT_LOOK)
@@ -56,9 +57,23 @@ export class ShowEndScene extends PixelScene {
       summary.solved >= summary.total / 2
         ? texts.show.endSolved(summary.solved, summary.total)
         : texts.show.endEffort
-    const card = new SpeechCard(this, 14, 34, 152, 70, headline)
-    card.setTextY(24)
-    const coinsText = addText(this, GAME_WIDTH / 2, 92, texts.show.endCoins(0), 'title', 20)
+    const lines =
+      factor > 1
+        ? `${headline}
+${texts.show.doubleCoins}`
+        : headline
+    // A Theater card has one more line ("Doppelte Münzen!")
+    const cardH = factor > 1 ? 92 : 70
+    const card = new SpeechCard(this, 14, 34, 152, cardH, lines)
+    card.setTextY(factor > 1 ? 32 : 24)
+    const coinsText = addText(
+      this,
+      GAME_WIDTH / 2,
+      34 + cardH - 12,
+      texts.show.endCoins(0),
+      'title',
+      20,
+    )
     sfx.fanfare()
 
     // Count up one by one, with a soft coin sound

@@ -1,6 +1,7 @@
 // The show in the Theater hut (GAME_DESIGN §3, §6; STYLE_GUIDE §9 "Math tasks on stage"):
 // 10 tasks on the speech card, number pad or choice keys on the floor, hint → worked
-// solution → retype, coins for every solved task. No timer. A learning-hut round uses the
+// solution → retype, coins for every solved task. No timer. The Theater takes its tasks
+// from the hut of the week, one level harder, for double coins. A learning-hut round uses the
 // same flow with 10 tasks of the topic and level she picked. Written tasks are filled in
 // digit by digit on the squared-paper grid instead of the speech card.
 import Phaser from 'phaser'
@@ -12,8 +13,17 @@ import { ensureStageTexture } from '../art/stage'
 import { sfx } from '../audio/sfx'
 import { texts } from '../data/texts'
 import { GAME_WIDTH } from '../display'
-import { SHOW_LENGTH, planRound, roundHut, type Round, type ShowSlot } from '../math/show'
-import { checkAnswer, generateTask } from '../math/topics'
+import {
+  SHOW_LENGTH,
+  coinFactor,
+  planRound,
+  roundHut,
+  slotTask,
+  theaterRound,
+  type Round,
+  type ShowSlot,
+} from '../math/show'
+import { checkAnswer } from '../math/topics'
 import type { Answer, Task } from '../math/types'
 import { layoutWritten } from '../math/written'
 import { palette } from '../palette'
@@ -23,6 +33,8 @@ import { addCoins, getSave } from '../state/store'
 import { Caption } from '../ui/Caption'
 import { Hud } from '../ui/Hud'
 import { Key } from '../ui/Key'
+import { LabelPill } from '../ui/LabelPill'
+import { HUTS } from '../world/village'
 import { NumberPad } from '../ui/NumberPad'
 import { SpeechCard } from '../ui/SpeechCard'
 import { WrittenCalcGrid } from '../ui/WrittenCalcGrid'
@@ -39,7 +51,7 @@ const MAX_DIGITS = 7
 type Field = 'value' | 'rest'
 
 export class ShowScene extends PixelScene {
-  private round: Round = { kind: 'theater' }
+  private round: Round = theaterRound()
   private slots: ShowSlot[] = []
   private index = 0
   private task!: Task
@@ -60,7 +72,6 @@ export class ShowScene extends PixelScene {
   private choices: Key[] = []
   private progress!: Phaser.GameObjects.Graphics
   private caption!: Caption
-  private challengeMark!: Phaser.GameObjects.Container
   private grid?: WrittenCalcGrid
   /** Wrong digits in the current square of the written grid */
   private squareMistakes = 0
@@ -70,7 +81,7 @@ export class ShowScene extends PixelScene {
   }
 
   init(data: { round?: Round }) {
-    this.round = data.round ?? { kind: 'theater' }
+    this.round = data.round ?? theaterRound()
     this.grid = undefined
     this.index = 0
     this.results = []
@@ -91,10 +102,6 @@ export class ShowScene extends PixelScene {
 
     this.card = new SpeechCard(this, CARD.x, CARD.y, CARD.w, CARD.h, '')
     this.card.setTextY(30)
-    this.challengeMark = this.add.container(CARD.x + 4, CARD.y + 4, [
-      this.add.image(4, 4, icon(this, 'star'), 'icon'),
-      addText(this, 22, 4, texts.show.challenge, 'label', 5).setOrigin(0, 0.5),
-    ])
     this.answer = this.add.container(0, 0)
     this.hint = this.add.container(HINT.x, HINT.y).setVisible(false)
 
@@ -111,6 +118,12 @@ export class ShowScene extends PixelScene {
     })
 
     this.slots = planRound(this.round, Math.random)
+    // The Theater shows which hut's tasks it plays this week (on the stage edge, above the pad)
+    if (this.round.kind === 'theater') {
+      const hut = this.round.hut
+      const name = HUTS.find((h) => h.id === hut)?.name ?? hut
+      new LabelPill(this, GAME_WIDTH / 2, SHOW_FLOOR_Y + 7, texts.show.week(name), { size: 5 })
+    }
     this.nextTask()
   }
 
@@ -122,14 +135,13 @@ export class ShowScene extends PixelScene {
       return
     }
     const slot = this.slots[this.index]
-    this.task = generateTask(slot.topic, slot.level)
+    this.task = slotTask(slot, Math.random)
     this.attempt = 1
     this.typed = { value: '', rest: '' }
     this.field = 'value'
     this.busy = false
     this.squareMistakes = 0
     this.hint.setVisible(false)
-    this.challengeMark.setVisible(slot.challenge)
 
     this.grid?.destroy()
     this.grid = undefined
@@ -219,11 +231,11 @@ export class ShowScene extends PixelScene {
 
   private onCorrect() {
     this.busy = true
-    const challenge = this.slots[this.index].challenge
-    this.results.push({ attempts: this.attempt, challenge })
+    this.results.push({ attempts: this.attempt })
     this.streak = this.attempt === 1 ? this.streak + 1 : 0
-    const reward = answerReward(this.attempt, challenge)
-    const bonus = streakBonus(this.streak)
+    const factor = coinFactor(this.round)
+    const reward = answerReward(this.attempt, factor)
+    const bonus = streakBonus(this.streak, factor)
     addCoins(reward + bonus)
 
     sfx.pling()
@@ -437,6 +449,7 @@ export class ShowScene extends PixelScene {
       attempt: this.attempt,
       hintVisible: this.hint.visible,
       busy: this.busy,
+      round: this.round,
       /** Written grid: the digit expected in the active square */
       written: this.grid?.current
         ? { digit: this.grid.current.digit, carry: this.grid.current.carry }

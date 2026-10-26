@@ -118,14 +118,40 @@ test('play a whole show: hint, worked solution, coins, show end', async ({ page 
   await page.waitForTimeout(1000)
   await page.screenshot({ path: `test-results/show-end-${test.info().project.name}.png` })
 
-  // 1 (after solution) + 8 × 5 + 1 × 10 (challenge) + 1 streak bonus (tasks 2–6) + 10 show bonus
+  // Theater = double coins: 2 (after solution) + 9 × 10 + 1 streak bonus (tasks 2–6) 10 + show bonus 20
   const coins = await page.evaluate(() => {
     const { earned, spent } = JSON.parse(localStorage.getItem('mathe-buehne')!).coins
     const sum = (c: Record<string, number>) => Object.values(c).reduce((s, n) => s + n, 0)
     return sum(earned) - sum(spent)
   })
-  expect(coins).toBe(1 + 8 * 5 + 10 + 5 + 10)
+  expect(coins).toBe(2 + 9 * 10 + 10 + 20)
 
   await tapWorld(page, 127, 275) // Ins Dorf
   await waitForScene(page, 'Village')
+})
+
+test('every week of the Theater: harder tasks from that hut, double coins', async ({ page }) => {
+  test.setTimeout(120_000)
+  await startShow(page)
+  let balance = 0
+  for (const hut of ['maldojo', 'teildojo', 'zahlenturm', 'werkstatt', 'marktstand']) {
+    await openScene(page, 'Show', { round: { kind: 'theater', hut } })
+    const state = (await showState(page))!
+    expect(state.index).toBe(0)
+    await page.waitForTimeout(600)
+    await page.screenshot({ path: `test-results/show-week-${hut}-${test.info().project.name}.png` })
+    if (hut === 'teildojo') expect(state.format.remainder).toBe(true)
+    await answer(page, state)
+    // Right on the first try: 2 × 5 coins
+    balance += 10
+    await expect
+      .poll(() =>
+        page.evaluate(() => {
+          const { earned, spent } = JSON.parse(localStorage.getItem('mathe-buehne')!).coins
+          const sum = (c: Record<string, number>) => Object.values(c).reduce((s, n) => s + n, 0)
+          return sum(earned) - sum(spent)
+        }),
+      )
+      .toBe(balance)
+  }
 })
