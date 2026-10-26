@@ -9,6 +9,8 @@ import { HEART, PET_HEIGHT, petArt, sleepingMap } from './maps'
 
 const BOB_MS = 400
 
+export type PetTrick = 'hop' | 'doubleHop' | 'spin' | 'hearts' | 'nap'
+
 export function ensurePetTexture(scene: Phaser.Scene, species: SpeciesId): string {
   const key = `pet-${species}`
   if (scene.textures.exists(key)) return key
@@ -92,6 +94,45 @@ export class Pet extends Phaser.GameObjects.Container {
       heart.destroy()
       this.hopping = false
     })
+  }
+
+  /** A trick learned from a toy (GAME_DESIGN §4 "Futter & Spielzeug"). */
+  trick(kind: PetTrick): void {
+    if (this.hopping) return
+    const t = this.scene.time
+    switch (kind) {
+      case 'hop':
+        return this.hop()
+      case 'doubleHop':
+        this.hop()
+        t.delayedCall(450, () => this.hop())
+        return
+      case 'spin':
+        // Turns around twice (whole-pixel flips, no blur)
+        ;[0, 1, 2, 3, 4].forEach((i) =>
+          t.delayedCall(i * 110, () => this.sprite.setFlipX(i % 2 === 0)),
+        )
+        t.delayedCall(560, () => this.hop())
+        return
+      case 'hearts':
+        this.hop()
+        ;[-6, 6].forEach((dx, i) =>
+          t.delayedCall(120 + i * 120, () => {
+            const heart = this.scene.add.image(dx, -PET_HEIGHT - 2, 'pet-heart', 'heart')
+            heart.setOrigin(0.5, 1)
+            this.add(heart)
+            t.delayedCall(600, () => heart.destroy())
+          }),
+        )
+        return
+      case 'nap':
+        this.setSleeping(true)
+        t.delayedCall(1200, () => {
+          this.setSleeping(false)
+          this.hop()
+        })
+        return
+    }
   }
 
   tick(delta: number): void {

@@ -8,6 +8,7 @@ import { BootScene } from './scenes/BootScene'
 import { CharacterCreateScene } from './scenes/CharacterCreateScene'
 import { EinmaleinsDrillScene } from './scenes/EinmaleinsDrillScene'
 import { EinmaleinsMenuScene } from './scenes/EinmaleinsMenuScene'
+import { HarborScene } from './scenes/HarborScene'
 import { LearnHutScene } from './scenes/LearnHutScene'
 import { LibraryScene } from './scenes/LibraryScene'
 import { NameEntryScene } from './scenes/NameEntryScene'
@@ -86,6 +87,7 @@ const game = new Phaser.Game({
     EinmaleinsDrillScene,
     LearnHutScene,
     LibraryScene,
+    HarborScene,
   ],
 })
 

@@ -2,6 +2,7 @@
 // (plus its sprite). Starter items are owned by everyone from the start.
 import type { CharacterLook } from '../art/character/look'
 import type { DojoOp } from '../math/einmaleins'
+import type { PetTrick } from '../art/pets/Pet'
 import type { SpeciesId } from './creatures'
 
 export type ItemCategory = 'kleider' | 'frisuren' | 'accessoires' | 'spielzeug' | 'haustiere'
@@ -21,6 +22,10 @@ export type Item = {
   species?: SpeciesId
   /** Not sold: earned when every cell of that dojo's grid is gold (GAME_DESIGN §6a) */
   reward?: DojoOp
+  /** Picture for things that aren't worn (toys): an icon name from art/icons.ts */
+  icon?: string
+  /** Toys: the trick the pet does when she taps it in the village */
+  trick?: PetTrick
 }
 
 export const ITEMS: Item[] = [
@@ -120,6 +125,57 @@ export const ITEMS: Item[] = [
     wear: { outfit: 'hoodie', outfitColor: 'mint', outfitColor2: 'grau' },
   },
 
+  // Step 12 – more outfits (two-tone ones can be coloured top and bottom)
+  {
+    id: 'tutu',
+    category: 'kleider',
+    name: 'Tutu',
+    price: 80,
+    wear: { outfit: 'tutu', outfitColor: 'rosa', outfitColor2: 'flieder' },
+  },
+  {
+    id: 'matrose',
+    category: 'kleider',
+    name: 'Matrosenkleid',
+    price: 100,
+    wear: { outfit: 'matrose', outfitColor: 'himmel' },
+  },
+  {
+    id: 'trainingsanzug',
+    category: 'kleider',
+    name: 'Trainingsanzug',
+    price: 110,
+    wear: { outfit: 'trainingsanzug', outfitColor: 'terrakotta', outfitColor2: 'grau' },
+  },
+  {
+    id: 'lederhose',
+    category: 'kleider',
+    name: 'Lederhose',
+    price: 150,
+    wear: { outfit: 'lederhose', outfitColor: 'himmel', outfitColor2: 'braun' },
+  },
+  {
+    id: 'dirndl',
+    category: 'kleider',
+    name: 'Dirndl',
+    price: 160,
+    wear: { outfit: 'dirndl', outfitColor: 'mint', outfitColor2: 'rosa' },
+  },
+  {
+    id: 'prinzessin',
+    category: 'kleider',
+    name: 'Prinzessin',
+    price: 220,
+    wear: { outfit: 'prinzessin', outfitColor: 'flieder', outfitColor2: 'rosa' },
+  },
+  {
+    id: 'astronaut',
+    category: 'kleider',
+    name: 'Astronaut',
+    price: 240,
+    wear: { outfit: 'astronaut', outfitColor: 'grau' },
+  },
+
   // Frisuren
   { id: 'zoepfe', category: 'frisuren', name: 'Zöpfe', price: 60, wear: { hair: 'zoepfe' } },
   { id: 'dutts', category: 'frisuren', name: 'Dutts', price: 90, wear: { hair: 'dutts' } },
@@ -132,6 +188,23 @@ export const ITEMS: Item[] = [
     wear: { hair: 'stachelig' },
   },
   { id: 'lang', category: 'frisuren', name: 'Lange Haare', price: 120, wear: { hair: 'lang' } },
+  {
+    id: 'wuschel',
+    category: 'frisuren',
+    name: 'Wuschelkopf',
+    price: 50,
+    wear: { hair: 'wuschel' },
+  },
+  {
+    id: 'seitenzopf',
+    category: 'frisuren',
+    name: 'Seitenzopf',
+    price: 70,
+    wear: { hair: 'seitenzopf' },
+  },
+  { id: 'zopf', category: 'frisuren', name: 'Zopf', price: 80, wear: { hair: 'zopf' } },
+  { id: 'iro', category: 'frisuren', name: 'Irokese', price: 100, wear: { hair: 'iro' } },
+  { id: 'afro', category: 'frisuren', name: 'Afro', price: 130, wear: { hair: 'afro' } },
 
   // Accessoires (about one show each)
   {
@@ -165,6 +238,49 @@ export const ITEMS: Item[] = [
     name: 'Rucksack',
     price: 70,
     wear: { accessory: 'rucksack' },
+  },
+  {
+    id: 'stirnband',
+    category: 'accessoires',
+    name: 'Stirnband',
+    price: 25,
+    wear: { accessory: 'stirnband' },
+  },
+  {
+    id: 'fliege',
+    category: 'accessoires',
+    name: 'Fliege',
+    price: 30,
+    wear: { accessory: 'fliege' },
+  },
+  {
+    id: 'haarblume',
+    category: 'accessoires',
+    name: 'Haarblume',
+    price: 35,
+    wear: { accessory: 'haarblume' },
+  },
+  {
+    id: 'sonnenbrille',
+    category: 'accessoires',
+    name: 'Sonnenbrille',
+    price: 45,
+    wear: { accessory: 'sonnenbrille' },
+  },
+  { id: 'kette', category: 'accessoires', name: 'Kette', price: 60, wear: { accessory: 'kette' } },
+  {
+    id: 'piratenhut',
+    category: 'accessoires',
+    name: 'Piratenhut',
+    price: 75,
+    wear: { accessory: 'piratenhut' },
+  },
+  {
+    id: 'zauberhut',
+    category: 'accessoires',
+    name: 'Zauberhut',
+    price: 90,
+    wear: { accessory: 'zauberhut' },
   },
 
   // Star items: stars (for new levels) plus coins (GAME_DESIGN §4)
@@ -204,7 +320,57 @@ export const ITEMS: Item[] = [
   },
 
   // Futter & Spielzeug: pets do a trick
-  { id: 'ball', category: 'spielzeug', name: 'Ball', price: 15 },
+  { id: 'ball', category: 'spielzeug', name: 'Ball', price: 15, icon: 'ball', trick: 'doubleHop' },
+  {
+    id: 'leckerli',
+    category: 'spielzeug',
+    name: 'Leckerli',
+    price: 5,
+    icon: 'leckerli',
+    trick: 'hearts',
+  },
+  {
+    id: 'gloeckchen',
+    category: 'spielzeug',
+    name: 'Glöckchen',
+    price: 8,
+    icon: 'gloeckchen',
+    trick: 'hop',
+  },
+  {
+    id: 'ente',
+    category: 'spielzeug',
+    name: 'Quietsche-Ente',
+    price: 10,
+    icon: 'ente',
+    trick: 'hop',
+  },
+  {
+    id: 'wolle',
+    category: 'spielzeug',
+    name: 'Wollknäuel',
+    price: 12,
+    icon: 'wolle',
+    trick: 'spin',
+  },
+  { id: 'seil', category: 'spielzeug', name: 'Seil', price: 14, icon: 'seil', trick: 'spin' },
+  {
+    id: 'frisbee',
+    category: 'spielzeug',
+    name: 'Frisbee',
+    price: 16,
+    icon: 'frisbee',
+    trick: 'doubleHop',
+  },
+  { id: 'kissen', category: 'spielzeug', name: 'Kissen', price: 18, icon: 'kissen', trick: 'nap' },
+  {
+    id: 'teddy',
+    category: 'spielzeug',
+    name: 'Kuscheltier',
+    price: 20,
+    icon: 'teddy',
+    trick: 'hearts',
+  },
 
   // Haustiere (Tierheim)
   { id: 'katze', category: 'haustiere', name: 'Kätzchen', price: 400, species: 'katze' },

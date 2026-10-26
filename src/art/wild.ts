@@ -1,7 +1,7 @@
 // Wild island (STYLE_GUIDE §9a): sea with wave pixels, a sandy rim, a meadow full of
 // flowers, a pond, the jetty and the boat are baked into one ground texture. Trees, palms,
 // rocks, bushes and tall grass are separate sprites so she can walk behind them and
-// creatures can hide in the bushes.
+// creatures can hide in the bushes. Each island theme draws them in its own way.
 import type Phaser from 'phaser'
 import type { AreaId } from '../data/creatures'
 import { seededRng, zufall } from '../math/random'
@@ -18,8 +18,11 @@ import {
   area,
   type ObstacleKind,
   type SpotKind,
+  type Theme,
 } from '../world/wild'
-import { palmPixels } from './palm'
+import { PALM, palmPixels } from './palm'
+
+const palmMap = () => PALM
 import { addFrames, rasterize, type PixelMap } from './pixels'
 
 const GREEN = { a: palette.grassMid, b: palette.grassDark, c: palette.grassLight }
@@ -81,29 +84,230 @@ export function grassPatch(): PixelMap {
   })
 }
 
-const OBSTACLE_ART: Record<ObstacleKind, () => (number | null)[][]> = {
-  palm: palmPixels,
-  tree: () =>
-    rasterize(TREE, { ...GREEN, t: palette.woodMid, d: palette.woodDark }, palette.woodEdge),
-  rock: () =>
-    rasterize(ROCK, { a: palette.stone, b: palette.stoneDark, c: palette.cream }, palette.woodEdge),
+/** Fir for the forest (in the 12 × 16 palm slot): three tiers on a short trunk. */
+export const FIR: PixelMap = draw(12, 16, (x, y) => {
+  const tiers = [
+    [1, 5, 2],
+    [4, 9, 4],
+    [7, 13, 5],
+  ]
+  for (const [top, bottom, half] of tiers) {
+    if (y >= top && y <= bottom) {
+      const w = Math.round(((y - top + 1) / (bottom - top + 1)) * half)
+      if (Math.abs(x + 0.5 - 6) <= w) return x < 6 ? 'c' : y === bottom ? 'b' : 'a'
+    }
+  }
+  if (y === 0 && (x === 5 || x === 6)) return 'a'
+  if (y >= 14 && (x === 5 || x === 6)) return x === 6 ? 'd' : 't'
+  return '.'
+})
+
+/** Acacia for the savanna (in the 20 × 24 tree slot): a flat, wide crown on a thin trunk. */
+export const ACACIA: PixelMap = draw(20, 24, (x, y) => {
+  const dx = x + 0.5 - 10
+  const dy = y + 0.5 - 6
+  if ((dx / 9.5) ** 2 + (dy / 3.6) ** 2 <= 1) return dy < -1.5 ? 'c' : dy > 1.5 ? 'b' : 'a'
+  if (y >= 9 && y <= 22) {
+    if (x === 9 || x === 10) return x === 10 ? 'd' : 't'
+    if (y === 10 && (x === 7 || x === 12)) return 't'
+    if (y === 9 && (x === 6 || x === 13)) return 't'
+  }
+  return '.'
+})
+
+/** Stone pillar for the Wolkenberg (in the 12 × 16 palm slot). */
+export const PILLAR: PixelMap = draw(12, 16, (x, y) => {
+  if (y < 1 || y > 14 || x < 3 || x > 8) return '.'
+  if (y === 1 || y === 14) return 'b'
+  return x <= 4 ? 'c' : x >= 7 ? 'b' : 'a'
+})
+
+/** A puffy cloud for hiding on the Wolkenberg (in the 26 × 12 grass slot). */
+export const CLOUD_PATCH: PixelMap = draw(26, 12, (x, y) => {
+  const puffs = [
+    [6, 8, 5],
+    [13, 6, 6],
+    [20, 8, 5],
+  ]
+  const inside = puffs.some(([cx, cy, r]) => (x + 0.5 - cx) ** 2 + (y + 0.5 - cy) ** 2 <= r * r)
+  if (!inside || y > 11) return '.'
+  return y < 5 ? 'c' : y > 9 ? 'b' : 'a'
+})
+
+const C = palette
+
+/** How each island draws its ground and plants (STYLE_GUIDE §9a, palette only). */
+type ThemeLook = {
+  ground: number
+  tufts: [number, number]
+  flowers: number[]
+  flowerCount: number
+  rim: number
+  rimGrain: number
+  /** Sea around the island: water with waves, or open sky with little clouds */
+  sea: 'water' | 'sky'
+  /** Steam puffs above the pond (Urzeittal) */
+  steam?: boolean
+  obstacles: Record<ObstacleKind, () => (number | null)[][]>
+  spots: Record<SpotKind, () => (number | null)[][]>
 }
 
-export function ensureObstacleTexture(scene: Phaser.Scene, kind: ObstacleKind): string {
-  const key = `wild-${kind}`
+const outlined = (map: PixelMap, legend: Record<string, number>, outline: number = C.woodEdge) =>
+  rasterize(map, legend, outline)
+
+const grass = (a: number, b: number, c: number) => () => rasterize(grassPatch(), { a, b, c })
+
+const THEMES: Record<Theme, ThemeLook> = {
+  wiese: {
+    ground: C.grassMid,
+    tufts: [C.grassLight, C.grassDark],
+    flowers: [C.rose, C.cream, C.gold, C.lilac],
+    flowerCount: 520,
+    rim: C.pathLight,
+    rimGrain: C.pathDark,
+    sea: 'water',
+    obstacles: {
+      palm: palmPixels,
+      tree: () => outlined(TREE, { ...GREEN, t: C.woodMid, d: C.woodDark }),
+      rock: () => outlined(ROCK, { a: C.stone, b: C.stoneDark, c: C.cream }),
+    },
+    spots: {
+      bush: () => outlined(BUSH, { ...GREEN, p: C.rose }),
+      grass: grass(C.grassLight, C.grassDark, C.cream),
+    },
+  },
+  // Flüsterwald: dark forest floor with fallen leaves and little mushrooms, firs, ferns
+  wald: {
+    ground: C.grassDark,
+    tufts: [C.grassMid, C.woodDark],
+    flowers: [C.cream, C.rose],
+    flowerCount: 140,
+    rim: C.pathLight,
+    rimGrain: C.pathDark,
+    sea: 'water',
+    obstacles: {
+      palm: () =>
+        outlined(FIR, {
+          a: C.grassDark,
+          b: C.mintDark,
+          c: C.grassMid,
+          t: C.woodMid,
+          d: C.woodDark,
+        }),
+      tree: () =>
+        outlined(TREE, {
+          a: C.grassDark,
+          b: C.mintDark,
+          c: C.grassMid,
+          t: C.woodDark,
+          d: C.woodEdge,
+        }),
+      rock: () => outlined(ROCK, { a: C.stone, b: C.stoneDark, c: C.grassMid }),
+    },
+    spots: {
+      bush: () => outlined(BUSH, { a: C.grassMid, b: C.grassDark, c: C.grassLight, p: C.cream }),
+      grass: grass(C.mint, C.mintDark, C.grassLight),
+    },
+  },
+  // Sonnensavanne: dry grass, acacias, sandy rocks
+  savanne: {
+    ground: C.pathLight,
+    tufts: [C.hairBlond, C.pathDark],
+    flowers: [C.gold, C.hero],
+    flowerCount: 160,
+    rim: C.pathDark,
+    rimGrain: C.woodMid,
+    sea: 'water',
+    obstacles: {
+      palm: palmPixels,
+      tree: () =>
+        outlined(ACACIA, {
+          a: C.grassMid,
+          b: C.grassDark,
+          c: C.grassLight,
+          t: C.woodMid,
+          d: C.woodDark,
+        }),
+      rock: () => outlined(ROCK, { a: C.pathDark, b: C.woodMid, c: C.cream }),
+    },
+    spots: {
+      bush: () => outlined(BUSH, { a: C.grassLight, b: C.grassMid, c: C.cream, p: C.gold }),
+      grass: grass(C.hairBlond, C.goldDark, C.cream),
+    },
+  },
+  // Urzeittal: ferns, dark volcanic rocks, a steaming pond
+  urzeit: {
+    ground: C.mintDark,
+    tufts: [C.mint, C.grassDark],
+    flowers: [C.gold, C.heroDark],
+    flowerCount: 120,
+    rim: C.stoneDark,
+    rimGrain: C.stone,
+    sea: 'water',
+    steam: true,
+    obstacles: {
+      palm: () =>
+        outlined(
+          palmMap(),
+          { a: C.mintDark, b: C.grassDark, c: C.woodDark, t: C.woodMid },
+          C.woodEdge,
+        ),
+      tree: () =>
+        outlined(TREE, { a: C.mint, b: C.mintDark, c: C.grassLight, t: C.woodMid, d: C.woodDark }),
+      rock: () => outlined(ROCK, { a: C.stoneDark, b: C.ink, c: C.heroDark }),
+    },
+    spots: {
+      bush: () => outlined(BUSH, { a: C.grassLight, b: C.grassMid, c: C.cream, p: C.gold }),
+      grass: grass(C.grassLight, C.grassDark, C.cream),
+    },
+  },
+  // Wolkenberg: a floor of clouds with stone pillars, cloud trees, the sky all around
+  wolken: {
+    ground: C.cream,
+    tufts: [C.paperWhite, C.sky],
+    flowers: [C.sky, C.lilac, C.gold],
+    flowerCount: 220,
+    rim: C.paperWhite,
+    rimGrain: C.sky,
+    sea: 'sky',
+    obstacles: {
+      palm: () => outlined(PILLAR, { a: C.stone, b: C.stoneDark, c: C.cream }, C.stoneDark),
+      tree: () =>
+        outlined(
+          TREE,
+          { a: C.paperWhite, b: C.sky, c: C.paperWhite, t: C.stone, d: C.stoneDark },
+          C.accentBlue,
+        ),
+      rock: () => outlined(ROCK, { a: C.stone, b: C.stoneDark, c: C.paperWhite }, C.stoneDark),
+    },
+    spots: {
+      bush: () =>
+        outlined(BUSH, { a: C.paperWhite, b: C.sky, c: C.paperWhite, p: C.lilac }, C.accentBlue),
+      grass: () =>
+        rasterize(CLOUD_PATCH, { a: C.paperWhite, b: C.sky, c: C.paperWhite }, C.accentBlue),
+    },
+  },
+}
+
+export function ensureObstacleTexture(
+  scene: Phaser.Scene,
+  kind: ObstacleKind,
+  theme: Theme = 'wiese',
+): string {
+  const key = `wild-${theme}-${kind}`
   if (!scene.textures.exists(key))
-    addFrames(scene, key, [{ name: 'idle', pixels: OBSTACLE_ART[kind]() }])
+    addFrames(scene, key, [{ name: 'idle', pixels: THEMES[theme].obstacles[kind]() }])
   return key
 }
 
-export function ensureSpotTexture(scene: Phaser.Scene, kind: SpotKind): string {
-  const key = `wild-${kind}`
-  if (scene.textures.exists(key)) return key
-  const pixels =
-    kind === 'bush'
-      ? rasterize(BUSH, { ...GREEN, p: palette.rose }, palette.woodEdge)
-      : rasterize(grassPatch(), { a: palette.grassLight, b: palette.grassDark, c: palette.cream })
-  addFrames(scene, key, [{ name: 'idle', pixels }])
+export function ensureSpotTexture(
+  scene: Phaser.Scene,
+  kind: SpotKind,
+  theme: Theme = 'wiese',
+): string {
+  const key = `wild-${theme}-${kind}`
+  if (!scene.textures.exists(key))
+    addFrames(scene, key, [{ name: 'idle', pixels: THEMES[theme].spots[kind]() }])
   return key
 }
 
@@ -111,6 +315,7 @@ export function ensureWildTexture(scene: Phaser.Scene, id: AreaId): string {
   const key = `wild-ground-${id}`
   if (scene.textures.exists(key)) return key
   const a = area(id)
+  const look = THEMES[a.theme]
   const W = WILD_WIDTH
   const H = WILD_HEIGHT
   const px = new Uint32Array(W * H)
@@ -126,14 +331,16 @@ export function ensureWildTexture(scene: Phaser.Scene, id: AreaId): string {
     for (let x = 0; x < W; x++) {
       const d = ellipse(ISLAND, x, y)
       if (d > 1) {
+        // Water with wave pixels – or, around the Wolkenberg, sky with little cloud specks
         const wave = (x + y * 3) % 11 === 0 && y % 4 === 1
-        set(x, y, wave ? palette.accentBlue : palette.sky)
+        const sky = look.sea === 'sky'
+        set(x, y, wave ? (sky ? palette.paperWhite : palette.accentBlue) : palette.sky)
       } else if (d > 0.985) {
-        set(x, y, palette.cream) // surf line
+        set(x, y, look.sea === 'sky' ? palette.paperWhite : palette.cream) // surf line
       } else if (ellipse(MEADOW, x, y) > 1.06) {
-        set(x, y, palette.pathLight)
+        set(x, y, look.rim)
       } else {
-        set(x, y, palette.grassMid)
+        set(x, y, look.ground)
       }
     }
   }
@@ -154,26 +361,45 @@ export function ensureWildTexture(scene: Phaser.Scene, id: AreaId): string {
   ]) {
     for (let i = 0; i < 5; i++) set(x + i, y, palette.accentBlue)
   }
+  // Urzeittal: little puffs of steam over the warm pond
+  if (look.steam) {
+    for (const [x, y] of [
+      [pond.cx - 12, pond.cy - pond.ry - 5],
+      [pond.cx + 2, pond.cy - pond.ry - 8],
+      [pond.cx + 12, pond.cy - pond.ry - 4],
+    ]) {
+      for (const [dx, dy] of [
+        [0, 0],
+        [1, 0],
+        [0, -1],
+        [1, -1],
+        [2, -2],
+        [1, -3],
+      ]) {
+        set(x + dx, y + dy, palette.cream)
+      }
+    }
+  }
 
   // Sand grains, grass tufts and lots of flowers (a Blumenwiese)
   for (let i = 0; i < 300; i++) {
     const x = zufall(rng, 0, W - 1)
     const y = zufall(rng, 0, H - 1)
-    if (is(x, y, palette.pathLight)) set(x, y, palette.pathDark)
+    if (is(x, y, look.rim)) set(x, y, look.rimGrain)
   }
   for (let i = 0; i < 1500; i++) {
     const x = zufall(rng, 1, W - 2)
     const y = zufall(rng, 1, H - 1)
-    if (!is(x, y, palette.grassMid) || !is(x + 1, y - 1, palette.grassMid)) continue
-    const c = rng() < 0.6 ? palette.grassLight : palette.grassDark
+    if (!is(x, y, look.ground) || !is(x + 1, y - 1, look.ground)) continue
+    const c = rng() < 0.6 ? look.tufts[0] : look.tufts[1]
     set(x, y, c)
     set(x + 1, y - 1, c)
   }
-  const flowers = [palette.rose, palette.cream, palette.gold, palette.lilac]
-  for (let i = 0; i < 520; i++) {
+  const flowers = look.flowers
+  for (let i = 0; i < look.flowerCount; i++) {
     const x = zufall(rng, 2, W - 3)
     const y = zufall(rng, 2, H - 3)
-    if (!is(x, y, palette.grassMid) && !is(x, y, palette.grassLight)) continue
+    if (!is(x, y, look.ground) && !is(x, y, look.tufts[0])) continue
     if (ellipse(MEADOW, x, y) > 0.95 || ellipse(rim, x, y) < 1.4) continue
     const c = flowers[i % flowers.length]
     set(x - 1, y, c)
@@ -244,6 +470,10 @@ export function ensureWildTexture(scene: Phaser.Scene, id: AreaId): string {
 /** Sizes are part of the layout data; the sprites must match them. */
 export const ART_SIZES = {
   tree: { w: TREE[0].length, h: TREE.length, expected: OBSTACLE_SIZE.tree },
+  acacia: { w: ACACIA[0].length, h: ACACIA.length, expected: OBSTACLE_SIZE.tree },
+  fir: { w: FIR[0].length, h: FIR.length, expected: OBSTACLE_SIZE.palm },
+  pillar: { w: PILLAR[0].length, h: PILLAR.length, expected: OBSTACLE_SIZE.palm },
+  cloud: { w: CLOUD_PATCH[0].length, h: CLOUD_PATCH.length, expected: SPOT_SIZE.grass },
   rock: { w: ROCK[0].length, h: ROCK.length, expected: OBSTACLE_SIZE.rock },
   bush: { w: BUSH[0].length, h: BUSH.length, expected: SPOT_SIZE.bush },
   grass: { w: 26, h: 12, expected: SPOT_SIZE.grass },

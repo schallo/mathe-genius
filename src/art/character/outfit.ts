@@ -16,6 +16,13 @@ export type OutfitStyle =
   | 'schlafanzug'
   | 'latzhose'
   | 'hoodie'
+  | 'prinzessin'
+  | 'astronaut'
+  | 'trainingsanzug'
+  | 'tutu'
+  | 'matrose'
+  | 'lederhose'
+  | 'dirndl'
 
 type Maps = Record<'down' | 'up' | 'side', PixelMap>
 
@@ -171,6 +178,90 @@ const hoodieUp: PixelMap = [
   '.....cc..cc.....',
 ]
 
+// Princess dress: puffed sleeves, a sash and a wide skirt
+const prinzessin: PixelMap = [
+  ...top13,
+  '.....aaaaaa.....',
+  '....abaaaaba....',
+  '....aaaaaaaa....',
+  '......bbbb......',
+  '....cccccccc....',
+  '...cccccccccc...',
+  '.dddddddddddddd.',
+]
+
+// Astronaut suit with a chest panel, gloves and boots
+const astronaut: PixelMap = [
+  ...top13,
+  '.....aaaaaa.....',
+  '....aabbbbaa....',
+  '....abaaaaba....',
+  '....baaaaaab....',
+  '.....aaaaaa.....',
+  '.....aaaaaa.....',
+  '.....bb..bb.....',
+]
+
+// Tracksuit with stripes on the sleeves and trousers
+const trainingsanzug: PixelMap = [
+  ...top13,
+  '.....aaaaaa.....',
+  '....baaaaaab....',
+  '....baaaaaab....',
+  '....baaaaaab....',
+  '.....cccccc.....',
+  '.....cdccdc.....',
+  '.....cd..dc.....',
+]
+
+// Ballet leotard with a wide tutu
+const tutu: PixelMap = [
+  ...top13,
+  '.....aaaaaa.....',
+  '....aaaaaaaa....',
+  '....aaaaaaaa....',
+  '......aaaa......',
+  '..cccccccccccc..',
+  '...dddddddddd...',
+  '................',
+]
+
+// Sailor dress with collar and stripes
+const matrose: PixelMap = [
+  ...top13,
+  '....bbbbbbbb....',
+  '....abbaabba....',
+  '....aaaaaaaa....',
+  '......aaaa......',
+  '.....bbbbbb.....',
+  '....aaaaaaaa....',
+  '...bbbbbbbbbb...',
+]
+
+// Bavarian Lederhose with braces over a shirt
+const lederhose: PixelMap = [
+  ...top13,
+  '.....aaaaaa.....',
+  '....adaaaada....',
+  '....adaaaada....',
+  '.....dddddd.....',
+  '.....cccccc.....',
+  '.....cc..cc.....',
+  '................',
+]
+
+// Dirndl: laced bodice, skirt and apron
+const dirndl: PixelMap = [
+  ...top13,
+  '.....aaaaaa.....',
+  '....aabbbbaa....',
+  '....aaabbaaa....',
+  '......aaaa......',
+  '....cccbbccc....',
+  '...cccbbbbccc...',
+  '..dddddddddddd..',
+]
+
 const same = (map: PixelMap): Maps => ({ down: map, up: map, side: map })
 
 export const outfits: Record<OutfitStyle, OutfitDef> = {
@@ -187,4 +278,11 @@ export const outfits: Record<OutfitStyle, OutfitDef> = {
     twoTone: true,
     longLegs: true,
   },
+  prinzessin: { maps: same(prinzessin), twoTone: true, longLegs: false },
+  astronaut: { maps: same(astronaut), twoTone: false, longLegs: true },
+  trainingsanzug: { maps: same(trainingsanzug), twoTone: true, longLegs: true },
+  tutu: { maps: same(tutu), twoTone: true, longLegs: false },
+  matrose: { maps: same(matrose), twoTone: false, longLegs: false },
+  lederhose: { maps: same(lederhose), twoTone: true, longLegs: false },
+  dirndl: { maps: same(dirndl), twoTone: true, longLegs: false },
 }

@@ -7,6 +7,7 @@ import { addHutSign, ensureBarrierTexture, ensureHutTexture } from '../art/hut'
 import { icon } from '../art/icons'
 import { addFrames, rasterize } from '../art/pixels'
 import { ensureVillageTexture } from '../art/village'
+import { ITEMS } from '../data/items'
 import { texts } from '../data/texts'
 import { GAME_HEIGHT, GAME_WIDTH } from '../display'
 import { palette } from '../palette'
@@ -143,9 +144,11 @@ export class VillageScene extends PixelScene {
     const onBar = viewY >= 0 && viewY < 20
     if (onBar && (x < 44 || x > GAME_WIDTH - 54)) return
     if (this.pet && Math.abs(x - this.pet.x) < 10 && y < this.pet.y + 3 && y > this.pet.y - 16) {
-      this.pet.hop()
-      // With the ball from the Laden the pet does a second hop (a little trick)
-      if (getSave().owned.includes('ball')) this.time.delayedCall(450, () => this.pet?.hop())
+      // Toys from the Laden teach tricks; each tap shows one of them (or a hop)
+      const tricks = ITEMS.filter((i) => i.trick && getSave().owned.includes(i.id)).map(
+        (i) => i.trick!,
+      )
+      this.pet.trick(tricks.length ? tricks[Math.floor(Math.random() * tricks.length)] : 'hop')
       this.pet.showName(true)
       this.time.delayedCall(2000, () => this.pet?.showName(false))
       return
@@ -315,11 +318,11 @@ export class VillageScene extends PixelScene {
     this.onTap(x, y)
   }
 
-  /** The boat at the jetty goes to the wild island (GAME_DESIGN §6b). */
+  /** The jetty leads to the harbour, where the boat goes to the wild islands (GAME_DESIGN §6b). */
   private toWild() {
     if (this.leaving) return
     this.leaving = true
     this.waypoints = []
-    this.goTo('Wild')
+    this.goTo('Harbor')
   }
 }

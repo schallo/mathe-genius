@@ -87,8 +87,8 @@ test('a round gives the day sticker; the 5th sticker of the week opens the box',
   const s = await save(page)
   expect(Object.values(s.calendar.days).filter((n) => (n as number) > 0)).toHaveLength(5)
   expect(s.calendar.boxes).toHaveLength(1)
-  // The cheapest Schmuck she lacks (the ball was owned already): the Brille
-  expect(s.owned).toContain('brille')
+  // The cheapest Schmuck or Spielzeug she lacks: the Leckerli (5 coins)
+  expect(s.owned).toContain('leckerli')
 
   // Kalender in the Bibliothek
   await openScene(page, 'Library', { from: 'bibliothek' })
@@ -101,12 +101,23 @@ test('album: silhouettes, a full page gives a star; the Bibliothek door opens', 
   page,
 }) => {
   test.setTimeout(120_000)
-  await seedSave(page, start())
+  const toys = [
+    'ball',
+    'leckerli',
+    'gloeckchen',
+    'ente',
+    'wolle',
+    'seil',
+    'frisbee',
+    'kissen',
+    'teddy',
+  ]
+  await seedSave(page, start({ owned: toys }))
   await toVillage(page)
   // Walk to the Bibliothek at the top of the island (no longer a construction site)
   await page.evaluate(() => (window as any).__debug.villageTap(36, 50))
   await waitForScene(page, 'Library', 30_000)
-  // The ball was the only toy: Spielzeug is full → one bonus star
+  // All toys owned: Spielzeug is full → one bonus star
   await expect.poll(async () => (await save(page)).album?.claimed).toEqual(['spielzeug'])
   expect((await save(page)).stars).toBe(1)
   await page.waitForTimeout(300)

@@ -84,3 +84,24 @@ test('new clothes on page 2, a two-tone hoodie, cap and hair in the wardrobe', a
     outfit: 'hoodie',
   })
 })
+
+test('the new items in the shop (look check)', async ({ page }) => {
+  test.setTimeout(120_000)
+  await seedSave(page, START)
+  await toVillage(page)
+  await openScene(page, 'Shop', { from: 'laden' })
+  for (const [t, pages] of [
+    [0, 3],
+    [1, 2],
+    [2, 3],
+    [3, 2],
+  ] as const) {
+    await tapWorld(page, ...tab(t))
+    await page.waitForTimeout(300)
+    for (let p = 0; p < pages; p++) {
+      await shot(page, `items-${t}-${p}`)
+      await tapWorld(page, ...NEXT_PAGE)
+      await page.waitForTimeout(300)
+    }
+  }
+})

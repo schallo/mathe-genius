@@ -103,7 +103,7 @@ describe('save', () => {
       SAVE_KEY,
       JSON.stringify({
         ...emptySave(),
-        pets: [{ id: 'x', species: 'drache', name: 'X' }],
+        pets: [{ id: 'x', species: 'gespenst', name: 'X' }],
         activePetId: 'x',
       }),
     )

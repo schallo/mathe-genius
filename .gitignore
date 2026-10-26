@@ -28,3 +28,6 @@ test-results
 playwright-report
 coverage
 .claude/settings.local.json
+
+# Live log of the e2e runs (follow with Get-Content -Wait)
+test-results-e2e.log

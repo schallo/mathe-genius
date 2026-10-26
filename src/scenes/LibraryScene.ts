@@ -9,7 +9,7 @@ import { DEFAULT_LOOK, type CharacterLook } from '../art/character/look'
 import { hairstyles } from '../art/character/hair'
 import { outfits } from '../art/character/outfit'
 import { ensureCharacterTextures, textureKeys } from '../art/character/textures'
-import { icon } from '../art/icons'
+import { icon, type IconName } from '../art/icons'
 import { Pet } from '../art/pets/Pet'
 import type { PixelMap } from '../art/pixels'
 import { ensureStageTexture } from '../art/stage'
@@ -172,9 +172,7 @@ export class LibraryScene extends PixelScene {
     const layer = wornLayer(item)
     if (!layer) {
       return [
-        this.add
-          .image(cx, cy, icon(this, item.id === 'ball' ? 'ball' : 'star'), 'icon')
-          .setScale(2),
+        this.add.image(cx, cy, icon(this, (item.icon ?? 'star') as IconName), 'icon').setScale(2),
       ]
     }
     const worn = tryOn(look, item)

@@ -52,13 +52,7 @@ Done: steps 1–8, v0.8.1 (no +100 button, no door plates, faster e2e tests). Li
 2. ~~Theater with a weekly hut~~ done (v0.9.1).
 3. ~~Step 10 – Adaptive difficulty, mistakes coming back, stars~~ done (v0.10.0).
 4. ~~Step 11 – Album, daily calendar, full parent area~~ done (v0.11.0).
-5. **Step 12 – More open-world areas (wild islands) and animals**, 60–80 items. Each island is its own landscape with its own map, hiding places, colours and animals; the boat at the jetty gets an island picker, and an island unlocks when her strongest pet reaches its level (`Area.unlockLevel`):
-   - **Blumenwiese** (exists): meadow, bushes and tall grass – Igel, Eichhörnchen, Fuchs.
-   - **Flüsterwald**: dense forest with clearings, hollow trees and mushroom rings as hiding places – Fuchs, Eule, Waschbär.
-   - **Sonnensavanne**: dry grass, acacia trees, rocks and a water hole – Löwe, Elefant, Giraffe, Zebra.
-   - **Urzeittal**: ferns, volcano rocks, a steaming pond – T-Rex, Brachiosaurus, Triceratops, Flugsaurier.
-   - **Wolkenberg**: stone paths between clouds and rainbows (`stone` colours) – Einhorn, Pegasus, Drache.
-   - Stronger islands use higher topic levels, shorter timers and more HP (GAME_DESIGN §6b); befriending works the same everywhere.
+5. ~~Step 12 – More open-world areas (wild islands) and animals, 60 items~~ done (v0.12.0). Everyday pets and cat/dog variants come with item 10.
 6. ~~Coin icon~~ done (v0.9.2): round 9 × 9 coin with rim, shading and shine.
 7. ~~Village plants~~ done (v0.9.2): palms along both shores, then leafy trees, firs, bushes and flower bushes at random (fixed seed, `placePlants` in `src/world/village.ts`), never on huts, name boards, paths or the pond; only trunks/bases block walking.
 8. ~~Avatar options~~ done (v0.10.1).
@@ -74,6 +68,16 @@ Smaller follow-ups:
 - ~~Village: parent mailbox~~ done in step 11.
 - ~~iPhone: real-device test of the home-screen app~~ done 2026-10-25: screens work on PC and iPhone.
 - Sound: check the "−" glyph and sounds on the real iPhone.
+
+## More islands, animals and items (step 12, v0.12.0, 2026-10-27)
+
+- **Harbour** at the jetty (new scene): one card per island with its animals (befriended ones in colour, the others as dark shapes); an island opens when her strongest pet reaches its level, until then the card shows "Ab Lv N" as a goal.
+- **Islands** (each its own theme – ground, plants, sea – drawn from the same layout kinds): Blumenwiese (Lv 1: Igel, Eichhörnchen, Fuchs), **Flüsterwald** (Lv 3: Eule, Waschbär, Reh – firs, ferns, dark forest floor), **Sonnensavanne** (Lv 5: Zebra, Giraffe, Elefant, Löwe – dry grass, acacias), **Urzeittal** (Lv 7: Flugsaurier, Triceratops, Brachiosaurus, T-Rex – teal fern floor, volcanic rocks, steaming pond), **Wolkenberg** (Lv 9: Pegasus, Einhorn, Drache – cloud floor, stone pillars, cloud trees, sky instead of sea).
+- The new islands reuse the proven Blumenwiese layout, mirrored on every second island (the island, meadow and jetty are symmetric), so every hiding place stays reachable – the island tests run for all five.
+- The **Fuchs stays on the Blumenwiese** (first "big" opponent since step 7); the Flüsterwald gets a **Reh** as third animal instead (GAME_DESIGN lists Fuchs there).
+- Stronger islands: higher creature levels (5 → 18), more HP, a little less time, 18–30 coins. Battles ask Einmaleins up to level 4 and Kopfrechnen up to level 5 – never remainder tasks (the battle screen has no remainder field). Befriending (3 wins) works everywhere; dinosaurs bring the Urzeitkraft, fantasy animals the Zauber-Joker.
+- **Items 33 → 60**: Kleider Tutu, Matrosenkleid, Trainingsanzug, Lederhose, Dirndl, Prinzessin, Astronaut; Frisuren Wuschelkopf, Seitenzopf, Zopf, Irokese, Afro; Schmuck Stirnband, Fliege, Haarblume, Sonnenbrille, Kette, Piratenhut, Zauberhut; Spielzeug Leckerli, Glöckchen, Quietsche-Ente, Wollknäuel, Seil, Frisbee, Kissen, Kuscheltier. Each toy teaches the pet a trick (double hop, spin, hearts, nap); tapping the pet in the village shows one of her toys' tricks.
+- Idea for later: a battle background per island (now always the meadow).
 
 ## Album, calendar, parent area (step 11, v0.11.0, 2026-10-27)
 

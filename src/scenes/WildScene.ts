@@ -9,7 +9,7 @@ import { Pet } from '../art/pets/Pet'
 import { ensureObstacleTexture, ensureSpotTexture, ensureWildTexture } from '../art/wild'
 import { sfx } from '../audio/sfx'
 import { awakePets, ensureAwakeActive } from '../battle/progress'
-import { SPECIES, type SpeciesId } from '../data/creatures'
+import { SPECIES, type AreaId, type SpeciesId } from '../data/creatures'
 import { texts } from '../data/texts'
 import { GAME_HEIGHT, GAME_WIDTH } from '../display'
 import { zufall } from '../math/random'
@@ -21,8 +21,8 @@ import { LabelPill } from '../ui/LabelPill'
 import type { Grid } from '../world/path'
 import {
   ARRIVAL,
-  AREAS,
   BOAT,
+  area as areaById,
   FIND_RADIUS,
   OBSTACLE_SIZE,
   SPOT_SIZE,
@@ -70,6 +70,7 @@ type Target =
  * where she stood. A new boat trip starts a new game of hide-and-seek.
  */
 type Visit = {
+  area: AreaId
   spots: Map<SpeciesId, HidingSpot>
   found: Set<SpeciesId>
   returnPos: { x: number; y: number } | null
@@ -95,17 +96,20 @@ export class WildScene extends PixelScene {
   private calmUntil = 0
   private leaving = false
   private fromBattle = false
+  private areaId: AreaId = 'blumenwiese'
 
   constructor() {
     super('Wild')
   }
 
-  init(data: { from?: string; beaten?: SpeciesId }) {
+  init(data: { from?: string; beaten?: SpeciesId; area?: AreaId }) {
     this.fromBattle = data.from === 'battle' && visit !== null
+    // Back from a battle: the same island; from the harbour: the island she picked
+    this.areaId = (this.fromBattle ? visit?.area : data.area) ?? data.area ?? 'blumenwiese'
     // A beaten creature runs off and hides again at once, somewhere else
     if (data.beaten && visit) {
       const from = visit.returnPos ?? ARRIVAL
-      visit.spots = rehide(AREAS[0], visit.spots, data.beaten, from, Math.random)
+      visit.spots = rehide(areaById(visit.area), visit.spots, data.beaten, from, Math.random)
       visit.found.delete(data.beaten)
     }
     this.waypoints = []
@@ -116,11 +120,16 @@ export class WildScene extends PixelScene {
   }
 
   create() {
-    this.area = AREAS[0]
+    this.area = areaById(this.areaId)
     this.setupCamera(WILD_WIDTH, WILD_HEIGHT)
     this.grid = buildWildGrid(this.area)
     if (!this.fromBattle) {
-      visit = { spots: hideCreatures(this.area, Math.random), found: new Set(), returnPos: null }
+      visit = {
+        area: this.area.id,
+        spots: hideCreatures(this.area, Math.random),
+        found: new Set(),
+        returnPos: null,
+      }
     }
     this.pos = this.fromBattle && visit?.returnPos ? { ...visit.returnPos } : { ...ARRIVAL }
     this.add.image(0, 0, ensureWildTexture(this, this.area.id)).setOrigin(0)
@@ -128,13 +137,13 @@ export class WildScene extends PixelScene {
 
     for (const o of this.area.obstacles) {
       this.add
-        .image(o.x, o.y, ensureObstacleTexture(this, o.kind), 'idle')
+        .image(o.x, o.y, ensureObstacleTexture(this, o.kind, this.area.theme), 'idle')
         .setOrigin(0)
         .setDepth(o.y + OBSTACLE_SIZE[o.kind].h - 2)
     }
     for (const spot of this.area.spots) {
       const image = this.add
-        .image(spot.x, spot.y, ensureSpotTexture(this, spot.kind), 'idle')
+        .image(spot.x, spot.y, ensureSpotTexture(this, spot.kind, this.area.theme), 'idle')
         .setOrigin(0.5, 1)
         .setDepth(spot.y + 1)
       this.spotSprites.set(spot, image)
@@ -487,6 +496,7 @@ export class WildScene extends PixelScene {
 
   debugState() {
     return {
+      area: this.area.id,
       hero: { ...this.pos },
       creatures: this.creatures.map((c) => ({
         species: c.species,

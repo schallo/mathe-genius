@@ -82,6 +82,54 @@ const ICONS: Record<string, Icon> = {
     map: ['......a', '.....aa', 'a...aa.', 'aa.aa..', '.aaa...', '..a....'],
     legend: { a: palette.mintDark },
   },
+  /** Treat (a little bone) (Spielzeug) */
+  leckerli: {
+    map: ['.......', 'aa...aa', 'aaaaaaa', '.aaaaa.', 'aaaaaaa', 'aa...aa', '.......'],
+    legend: { a: palette.woodLight },
+    outline: palette.woodDark,
+  },
+  /** Cushion (Spielzeug) */
+  kissen: {
+    map: ['.......', 'aaaaaaa', 'abbbbba', 'abbabba', 'abbbbba', 'aaaaaaa', '.......'],
+    legend: { a: palette.rose, b: palette.cream },
+    outline: palette.roseDark,
+  },
+  /** Squeaky duck (Spielzeug) */
+  ente: {
+    map: ['..aa...', '.aeab..', '..aa...', 'aaaaaa.', 'aaaaaa.', '.aaaa..', '.......'],
+    legend: { a: palette.gold, b: palette.hero, e: palette.ink },
+    outline: palette.goldDark,
+  },
+  /** Ball of wool (Spielzeug) */
+  wolle: {
+    map: ['..aaa..', '.ababa.', 'aabaaba', 'abaabaa', 'aabaaba', '.ababa.', '..aaa..'],
+    legend: { a: palette.lilac, b: palette.curtainLight },
+    outline: palette.curtainLight,
+  },
+  /** Frisbee (Spielzeug) */
+  frisbee: {
+    map: ['.......', '..aaa..', '.abbba.', 'aabbbaa', '.aaaaa.', '.......', '.......'],
+    legend: { a: palette.sky, b: palette.paperWhite },
+    outline: palette.accentBlue,
+  },
+  /** Tug rope (Spielzeug) */
+  seil: {
+    map: ['aa.....', '.ab....', '..ba...', '...ab..', '....ba.', '.....aa', '.......'],
+    legend: { a: palette.hero, b: palette.cream },
+    outline: palette.heroDark,
+  },
+  /** Little bell (Spielzeug) */
+  gloeckchen: {
+    map: ['...a...', '..aaa..', '.aaaaa.', '.aaaaa.', 'aaaaaaa', '...b...', '.......'],
+    legend: { a: palette.gold, b: palette.goldDark },
+    outline: palette.goldDark,
+  },
+  /** Cuddly bear (Spielzeug) */
+  teddy: {
+    map: ['a.....a', 'aaaaaaa', 'aeaaaea', 'aabbbaa', '.aaaaa.', 'aa...aa', '.......'],
+    legend: { a: palette.woodMid, b: palette.cream, e: palette.ink },
+    outline: palette.woodDark,
+  },
   /** Week box of the calendar (closed / opened) */
   box: {
     map: ['aaaaaaa', 'abbcbba', 'aaacaaa', 'abbcbba', 'abbcbba', 'aaaaaaa'],

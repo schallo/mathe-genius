@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { SPECIES } from '../data/creatures'
+import { SPECIES, wildSpecies } from '../data/creatures'
+import { petArt } from '../art/pets/maps'
+import { topic } from '../math/topics'
 import { seededRng } from '../math/random'
 import { isBlocked } from './path'
 import {
@@ -13,6 +15,7 @@ import {
   RESPAWN_DISTANCE,
   hideCreatures,
   rehide,
+  isUnlocked,
   isWalkable,
   route,
   toWildCell,
@@ -97,3 +100,48 @@ for (const a of AREAS) {
     })
   })
 }
+
+describe('the five wild islands (step 12)', () => {
+  it('opens one island after the other, each animal on exactly one island', () => {
+    expect(AREAS.map((a) => a.id)).toEqual([
+      'blumenwiese',
+      'fluesterwald',
+      'sonnensavanne',
+      'urzeittal',
+      'wolkenberg',
+    ])
+    const levels = AREAS.map((a) => a.unlockLevel)
+    expect(levels).toEqual([...levels].sort((x, y) => x - y))
+    expect(isUnlocked(AREAS[0], 1)).toBe(true)
+    expect(isUnlocked(AREAS[1], 2)).toBe(false)
+    expect(isUnlocked(AREAS[1], 3)).toBe(true)
+    for (const a of AREAS) {
+      expect(a.species.sort()).toEqual(
+        wildSpecies(a.id)
+          .map((s) => s.id)
+          .sort(),
+      )
+    }
+    expect(new Set(AREAS.map((a) => a.theme)).size).toBe(AREAS.length)
+  })
+
+  it('gets harder island by island; battles never ask tasks with a remainder', () => {
+    let previousMax = 0
+    for (const a of AREAS) {
+      const forms = a.species.map((s) => SPECIES[s].wild!)
+      const min = Math.min(...forms.map((f) => f.level))
+      expect(min, a.id).toBeGreaterThanOrEqual(previousMax)
+      previousMax = Math.max(...forms.map((f) => f.level))
+      for (const f of forms) {
+        expect(f.coins).toBeGreaterThanOrEqual(10)
+        expect(f.coins).toBeLessThanOrEqual(30)
+        expect(topic(f.topic).levels[f.taskLevel].remainder).toBeFalsy()
+      }
+    }
+  })
+
+  it('has a pet sprite for every animal (befriended animals become pets)', () => {
+    for (const id of Object.keys(SPECIES))
+      expect(petArt[id as keyof typeof petArt], id).toBeDefined()
+  })
+})

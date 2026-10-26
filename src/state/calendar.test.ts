@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { item } from '../data/items'
+import { ITEMS, item } from '../data/items'
 import { allFacts, factId, missedFacts, recordAnswer, slowestFacts } from '../math/einmaleins'
 import { claimAlbumStars, albumCount, albumEntries, categoryComplete } from './album'
 import {
@@ -57,11 +57,11 @@ describe('daily calendar', () => {
   it('the 5th sticker of a week opens the box: the cheapest Schmuck/Spielzeug she lacks', () => {
     let s = emptySave()
     const prize = boxPrize(s)!
-    expect(prize.id).toBe('ball')
+    expect(prize.id).toBe('leckerli') // the cheapest toy
     for (const d of [26, 27, 28, 29]) s = recordRound(s, day(d), dev).save
     const r = recordRound(s, day(31), dev)
     expect(r.box).toEqual({ item: prize, coins: 0 })
-    expect(r.save.owned).toContain('ball')
+    expect(r.save.owned).toContain('leckerli')
     // Only one box per week; skipped days cost nothing
     expect(recordRound(r.save, day(31, 19), dev).box).toBeUndefined()
     const next = recordRound(
@@ -73,20 +73,8 @@ describe('daily calendar', () => {
   })
 
   it('with everything owned the box holds coins', () => {
-    let s = {
-      ...emptySave(),
-      owned: [
-        'ball',
-        'brille',
-        'hut',
-        'blumenkranz',
-        'krone',
-        'muetze',
-        'cap',
-        'schal',
-        'rucksack',
-      ],
-    }
+    const all = ITEMS.filter((i) => i.category === 'accessoires' || i.category === 'spielzeug')
+    let s = { ...emptySave(), owned: all.map((i) => i.id) }
     expect(boxPrize(s)).toBeNull()
     for (const d of [26, 27, 28, 29, 30]) s = recordRound(s, day(d), dev).save
     expect(coinBalance(s)).toBe(BOX_COINS)

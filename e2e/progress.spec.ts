@@ -106,9 +106,12 @@ test('3 right in a row: next level and a star, then a star item in the shop', as
   await openScene(page, 'Shop', { from: 'laden' })
   await tapWorld(page, 110, 138) // tab Schmuck
   await page.waitForTimeout(300)
-  await tapWorld(page, 159, 331) // ▶ page 2 (Schmuck has more than 6 items)
+  // Schmuck has three pages; the Sternspange is the 4th card on page 3
+  await tapWorld(page, 159, 331) // ▶
   await page.waitForTimeout(300)
-  await tapWorld(page, 148, 180) // Sternspange (page 2, third card)
+  await tapWorld(page, 159, 331) // ▶
+  await page.waitForTimeout(300)
+  await tapWorld(page, 32, 244) // Sternspange
   await page.waitForTimeout(300)
   await shot(page, 'progress-star-item')
   await tapWorld(page, 51, 298) // Kaufen

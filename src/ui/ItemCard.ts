@@ -4,7 +4,7 @@
 import type Phaser from 'phaser'
 import { Character } from '../art/character/Character'
 import type { CharacterLook } from '../art/character/look'
-import { icon } from '../art/icons'
+import { icon, type IconName } from '../art/icons'
 import { Pet } from '../art/pets/Pet'
 import type { Item } from '../data/items'
 import { tryOn } from '../state/shop'
@@ -75,6 +75,6 @@ export function itemPreview(
   if (item.species) return new Pet(scene, CARD_W / 2, 32, item.species).setScale(2)
   if (item.wear) return new Character(scene, CARD_W / 2, 33, tryOn(look, item))
   return scene.add
-    .image(CARD_W / 2, 20, icon(scene, item.id === 'ball' ? 'ball' : 'star'), 'icon')
+    .image(CARD_W / 2, 20, icon(scene, (item.icon ?? 'star') as IconName), 'icon')
     .setScale(2)
 }

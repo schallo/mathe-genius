@@ -76,6 +76,13 @@ export const texts = {
     nobody: 'Hier versteckt sich niemand.',
     nowAlong: (name: string) => `${name} kommt jetzt mit!`,
   },
+  harbor: {
+    title: 'Wohin fährt das Boot?',
+    go: 'Los!',
+    locked: 'Ab',
+    lockedHint: (island: string, level: number) =>
+      `${island}: Wenn ein Tier Level ${level} hat, fährt das Boot dorthin.`,
+  },
   battle: {
     appears: (foe: string) => `${foe} will rechnen!`,
     go: (pet: string) => `Los, ${pet}!`,

@@ -1,6 +1,8 @@
 // Wild islands (GAME_DESIGN §6b) as data. Pure logic, no Phaser.
 // A big oval island (scrolls in both directions) with trees, palms, rocks and a pond.
 // Wild creatures hide in bushes and tall grass – she has to search for them.
+// Every island has its own theme (art/wild.ts draws the same layout kinds differently:
+// a "tree" is a fir in the forest, an acacia in the savanna, a cloud on the Wolkenberg).
 import type { AreaId, SpeciesId } from '../data/creatures'
 import { findPath, isBlocked, nearestFree, type Cell, type Grid } from './path'
 
@@ -41,9 +43,13 @@ export const SPOT_SIZE: Record<SpotKind, { w: number; h: number }> = {
 /** Bottom centre of the bush or grass patch (where a hiding creature stands). */
 export type HidingSpot = { kind: SpotKind; x: number; y: number }
 
+/** Look of an island: ground, plants and sea (see art/wild.ts) */
+export type Theme = 'wiese' | 'wald' | 'savanne' | 'urzeit' | 'wolken'
+
 export type Area = {
   id: AreaId
   name: string
+  theme: Theme
   /** Level her strongest pet needs (GAME_DESIGN §6b) */
   unlockLevel: number
   species: SpeciesId[]
@@ -65,47 +71,103 @@ function rimPalms(step: number): Obstacle[] {
   return palms
 }
 
+const BLUMENWIESE: Area = {
+  id: 'blumenwiese',
+  name: 'Blumenwiese',
+  theme: 'wiese',
+  unlockLevel: 1,
+  species: ['igel', 'eichhoernchen', 'fuchs'],
+  obstacles: [
+    ...rimPalms(24),
+    { kind: 'tree', x: 44, y: 116 },
+    { kind: 'tree', x: 62, y: 128 },
+    { kind: 'tree', x: 226, y: 136 },
+    { kind: 'tree', x: 176, y: 236 },
+    { kind: 'tree', x: 30, y: 362 },
+    { kind: 'tree', x: 118, y: 374 },
+    { kind: 'tree', x: 136, y: 386 },
+    { kind: 'tree', x: 250, y: 330 },
+    { kind: 'tree', x: 204, y: 408 },
+    { kind: 'tree', x: 64, y: 462 },
+    { kind: 'rock', x: 128, y: 108 },
+    { kind: 'rock', x: 98, y: 170 },
+    { kind: 'rock', x: 256, y: 250 },
+    { kind: 'rock', x: 150, y: 296 },
+    { kind: 'rock', x: 222, y: 478 },
+  ],
+  spots: [
+    { kind: 'bush', x: 96, y: 88 },
+    { kind: 'grass', x: 206, y: 96 },
+    { kind: 'bush', x: 160, y: 162 },
+    { kind: 'grass', x: 60, y: 206 },
+    { kind: 'bush', x: 246, y: 206 },
+    { kind: 'bush', x: 104, y: 262 },
+    { kind: 'grass', x: 58, y: 322 },
+    { kind: 'bush', x: 160, y: 344 },
+    { kind: 'grass', x: 244, y: 386 },
+    { kind: 'bush', x: 96, y: 432 },
+    { kind: 'grass', x: 176, y: 462 },
+    { kind: 'bush', x: 112, y: 504 },
+  ],
+  pond: { cx: 206, cy: 300, rx: 24, ry: 13 },
+}
+
+/**
+ * The same proven layout mirrored left ↔ right (the island, the meadow and the jetty are
+ * symmetric, so every hiding place stays reachable – the tests check it for every island).
+ */
+function mirrored(a: Area): Pick<Area, 'obstacles' | 'spots' | 'pond'> {
+  return {
+    obstacles: a.obstacles.map((o) => ({ ...o, x: WILD_WIDTH - o.x - OBSTACLE_SIZE[o.kind].w })),
+    spots: a.spots.map((s) => ({ ...s, x: WILD_WIDTH - s.x })),
+    pond: { ...a.pond, cx: WILD_WIDTH - a.pond.cx },
+  }
+}
+
+const layout = (mirror: boolean) =>
+  mirror
+    ? mirrored(BLUMENWIESE)
+    : { obstacles: BLUMENWIESE.obstacles, spots: BLUMENWIESE.spots, pond: BLUMENWIESE.pond }
+
+/** In order of difficulty; an island opens when her strongest pet reaches its level. */
 export const AREAS: Area[] = [
+  BLUMENWIESE,
   {
-    id: 'blumenwiese',
-    name: 'Blumenwiese',
-    unlockLevel: 1,
-    species: ['igel', 'eichhoernchen', 'fuchs'],
-    obstacles: [
-      ...rimPalms(24),
-      { kind: 'tree', x: 44, y: 116 },
-      { kind: 'tree', x: 62, y: 128 },
-      { kind: 'tree', x: 226, y: 136 },
-      { kind: 'tree', x: 176, y: 236 },
-      { kind: 'tree', x: 30, y: 362 },
-      { kind: 'tree', x: 118, y: 374 },
-      { kind: 'tree', x: 136, y: 386 },
-      { kind: 'tree', x: 250, y: 330 },
-      { kind: 'tree', x: 204, y: 408 },
-      { kind: 'tree', x: 64, y: 462 },
-      { kind: 'rock', x: 128, y: 108 },
-      { kind: 'rock', x: 98, y: 170 },
-      { kind: 'rock', x: 256, y: 250 },
-      { kind: 'rock', x: 150, y: 296 },
-      { kind: 'rock', x: 222, y: 478 },
-    ],
-    spots: [
-      { kind: 'bush', x: 96, y: 88 },
-      { kind: 'grass', x: 206, y: 96 },
-      { kind: 'bush', x: 160, y: 162 },
-      { kind: 'grass', x: 60, y: 206 },
-      { kind: 'bush', x: 246, y: 206 },
-      { kind: 'bush', x: 104, y: 262 },
-      { kind: 'grass', x: 58, y: 322 },
-      { kind: 'bush', x: 160, y: 344 },
-      { kind: 'grass', x: 244, y: 386 },
-      { kind: 'bush', x: 96, y: 432 },
-      { kind: 'grass', x: 176, y: 462 },
-      { kind: 'bush', x: 112, y: 504 },
-    ],
-    pond: { cx: 206, cy: 300, rx: 24, ry: 13 },
+    id: 'fluesterwald',
+    name: 'Flüsterwald',
+    theme: 'wald',
+    unlockLevel: 3,
+    species: ['eule', 'waschbaer', 'reh'],
+    ...layout(true),
+  },
+  {
+    id: 'sonnensavanne',
+    name: 'Sonnensavanne',
+    theme: 'savanne',
+    unlockLevel: 5,
+    species: ['zebra', 'giraffe', 'elefant', 'loewe'],
+    ...layout(false),
+  },
+  {
+    id: 'urzeittal',
+    name: 'Urzeittal',
+    theme: 'urzeit',
+    unlockLevel: 7,
+    species: ['flugsaurier', 'triceratops', 'brachiosaurus', 'trex'],
+    ...layout(true),
+  },
+  {
+    id: 'wolkenberg',
+    name: 'Wolkenberg',
+    theme: 'wolken',
+    unlockLevel: 9,
+    species: ['pegasus', 'einhorn', 'drache'],
+    ...layout(false),
   },
 ]
+
+/** Islands she may visit: her strongest pet has reached the island's level. */
+export const isUnlocked = (a: Area, strongestLevel: number) => strongestLevel >= a.unlockLevel
 
 /** She finds a hiding creature when she comes this close to its spot. */
 export const FIND_RADIUS = 22
