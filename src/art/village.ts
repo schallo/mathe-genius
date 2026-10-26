@@ -10,13 +10,14 @@ import {
   BEACH_Y,
   SEA,
   SPAWN,
-  TREES,
+  PLANTS,
+  PLANT_KINDS,
   VILLAGE_HEIGHT,
   VILLAGE_WIDTH,
   WILD_EXIT,
   branchPath,
 } from '../world/village'
-import { palmPixels } from './palm'
+import { plantPixels } from './plants'
 
 type Rect = { x: number; y: number; width: number; height: number }
 
@@ -133,12 +134,15 @@ export function ensureVillageTexture(scene: Phaser.Scene): string {
     for (let y = 0; y < SEA.top; y++) set(x, y, palette.woodEdge)
   }
 
-  // Palm trees with a soft oval ground shadow
-  const tree = palmPixels()
-  for (const t of TREES) {
-    for (let x = 2; x < 10; x++) shadeMask[(t.y + 14) * W + t.x + x] = 1
-    for (let x = 3; x < 9; x++) shadeMask[(t.y + 15) * W + t.x + x] = 1
-    tree.forEach((row, y) => row.forEach((c, x) => c !== null && set(t.x + x, t.y + y, c)))
+  // Plants (back to front), each with a soft oval ground shadow under its foot
+  for (const p of PLANTS) {
+    const { foot } = PLANT_KINDS[p.kind]
+    const sy = p.y + foot.y + foot.h - 1
+    for (let x = foot.x - 1; x < foot.x + foot.w + 1; x++) shadeMask[sy * W + p.x + x] = 1
+    for (let x = foot.x; x < foot.x + foot.w; x++) shadeMask[(sy + 1) * W + p.x + x] = 1
+    plantPixels(p.kind).forEach((row, y) =>
+      row.forEach((c, x) => c !== null && set(p.x + x, p.y + y, c)),
+    )
   }
 
   const texture = scene.textures.createCanvas(key, W, H)!

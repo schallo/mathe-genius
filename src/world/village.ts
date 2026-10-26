@@ -1,4 +1,5 @@
 // Village layout as data (GAME_DESIGN §3a). Pure logic, no Phaser.
+import { seededRng, zufall } from '../math/random'
 import type { PaletteToken } from '../palette'
 import type { Grid } from './path'
 
@@ -129,13 +130,6 @@ export const HUTS: Hut[] = [
 
 export const POND = { x: 132, y: 326, width: 28, height: 18 }
 
-export const TREE_WIDTH = 12
-export const TREE_HEIGHT = 16
-/** Decorative trees along the left and right edge, between the hut rows. */
-export const TREES = [4, 164].flatMap((x) =>
-  [16, 84, 154, 224, 294, 366, 436].map((y) => ({ x, y })),
-)
-
 /** The village is an island: sea above `top` and below `bottom`, beach above the lower sea. */
 export const SEA = { top: 12, bottom: 484 }
 export const BEACH_Y = 466
@@ -145,6 +139,121 @@ export const SPAWN = { x: 90, y: 470 }
 
 /** Top end of the main path: the jetty with the boat to the wild islands. */
 export const WILD_EXIT = { x: MAIN_PATH.x, y: 0, width: MAIN_PATH.width, height: 10 }
+
+// ---------- Plants ----------
+
+export type PlantKind = 'palm' | 'smallPalm' | 'tree' | 'fir' | 'bush' | 'flowerBush'
+
+type Rect = { x: number; y: number; w: number; h: number }
+
+/** Size of each plant sprite and its foot (the part that blocks walking), relative to x/y. */
+export const PLANT_KINDS: Record<PlantKind, { w: number; h: number; foot: Rect }> = {
+  palm: { w: 12, h: 16, foot: { x: 4, y: 11, w: 5, h: 4 } },
+  smallPalm: { w: 10, h: 12, foot: { x: 3, y: 8, w: 4, h: 3 } },
+  tree: { w: 14, h: 16, foot: { x: 4, y: 10, w: 6, h: 5 } },
+  fir: { w: 10, h: 16, foot: { x: 3, y: 10, w: 4, h: 4 } },
+  bush: { w: 10, h: 8, foot: { x: 1, y: 2, w: 8, h: 4 } },
+  flowerBush: { w: 10, h: 8, foot: { x: 1, y: 2, w: 8, h: 4 } },
+}
+
+/** How often each kind is picked in the open spots (the shores get palms first) */
+const PLANT_MIX: PlantKind[] = [
+  'palm',
+  'smallPalm',
+  'tree',
+  'tree',
+  'tree',
+  'fir',
+  'fir',
+  'bush',
+  'bush',
+  'flowerBush',
+  'flowerBush',
+]
+
+export type Plant = { kind: PlantKind; x: number; y: number }
+
+const PLANT_COUNT = 40
+/** Half the width of the widest name board ("Marktstand") plus a margin */
+const SIGN_HALF_WIDTH = 32
+const PLANT_SEED = 11
+
+const overlaps = (a: Rect, b: Rect) =>
+  a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h
+
+const grow = (r: Rect, m: number): Rect => ({
+  x: r.x - m,
+  y: r.y - m,
+  w: r.w + 2 * m,
+  h: r.h + 2 * m,
+})
+
+export const plantRect = (p: Plant): Rect => ({
+  x: p.x,
+  y: p.y,
+  w: PLANT_KINDS[p.kind].w,
+  h: PLANT_KINDS[p.kind].h,
+})
+
+/** Places that stay free of plants: huts with their name boards, paths, pond, spawn, jetty. */
+export function plantKeepOut(): Rect[] {
+  return [
+    ...HUTS.map((h) => grow({ x: h.x, y: h.y, w: HUT_WIDTH, h: HUT_HEIGHT }, 2)),
+    // Name boards are wider than the huts (up to 10 letters)
+    ...HUTS.map((h) => ({
+      x: h.x + HUT_WIDTH / 2 - SIGN_HALF_WIDTH,
+      y: h.y - SIGN_HEIGHT - 2,
+      w: 2 * SIGN_HALF_WIDTH,
+      h: SIGN_HEIGHT + 4,
+    })),
+    ...HUTS.map(branchPath).map((r) => grow({ x: r.x, y: r.y, w: r.width, h: r.height }, 2)),
+    { x: MAIN_PATH.x - 3, y: 0, w: MAIN_PATH.width + 6, h: VILLAGE_HEIGHT },
+    grow({ x: POND.x, y: POND.y, w: POND.width, h: POND.height }, 4),
+    { x: SPAWN.x - 22, y: SPAWN.y - 14, w: 44, h: 30 },
+  ]
+}
+
+/**
+ * Plants scattered at random, but always the same (fixed seed): no plant on a hut, its
+ * name board, a path, the pond or another plant. Palms may stand on the beach.
+ */
+function placePlants(): Plant[] {
+  const rng = seededRng(PLANT_SEED)
+  const keepOut = plantKeepOut()
+  const plants: Plant[] = []
+  /** Only the shore palms may stand on the beach */
+  const tryPlace = (plant: Plant, beach = false) => {
+    const rect = plantRect(plant)
+    const bottom = beach ? SEA.bottom - 3 : BEACH_Y - 1
+    if (rect.x < 1 || rect.x + rect.w > VILLAGE_WIDTH - 1) return
+    if (rect.y < SEA.top + 2 || rect.y + rect.h > bottom) return
+    if (keepOut.some((r) => overlaps(rect, r))) return
+    if (plants.some((p) => overlaps(rect, grow(plantRect(p), 2)))) return
+    plants.push(plant)
+  }
+  // First a loose row of palms along both shores (jittered, so it doesn't look planted)
+  for (let y = SEA.top + 4; y < SEA.bottom - 16; y += 44) {
+    for (const side of [0, 1]) {
+      if (rng() < 0.25) continue
+      const kind: PlantKind = rng() < 0.7 ? 'palm' : 'smallPalm'
+      const x =
+        side === 0 ? zufall(rng, 1, 4) : VILLAGE_WIDTH - PLANT_KINDS[kind].w - zufall(rng, 1, 4)
+      tryPlace({ kind, x, y: y + zufall(rng, -6, 6) }, true)
+    }
+  }
+  // Then all kinds at random in the free spots
+  for (let tries = 0; tries < 6000 && plants.length < PLANT_COUNT; tries++) {
+    const kind = PLANT_MIX[Math.floor(rng() * PLANT_MIX.length)]
+    const { w, h } = PLANT_KINDS[kind]
+    tryPlace({
+      kind,
+      x: zufall(rng, 1, VILLAGE_WIDTH - w - 1),
+      y: zufall(rng, SEA.top + 2, BEACH_Y - h),
+    })
+  }
+  // Drawn back to front
+  return plants.sort((a, b) => a.y + PLANT_KINDS[a.kind].h - (b.y + PLANT_KINDS[b.kind].h))
+}
 
 /** Point just below the door where the character stands to enter. */
 export function doorEntry(hut: Hut) {
@@ -170,7 +279,9 @@ export function hutAt(x: number, y: number): Hut | undefined {
   )
 }
 
-/** Walk grid: huts, pond, palms, the sea and the side borders are blocked. Feet may touch the door row. */
+export const PLANTS: Plant[] = placePlants()
+
+/** Walk grid: huts, pond, plants, the sea and the side borders are blocked. Feet may touch the door row. */
 export function buildWalkGrid(): Grid {
   const cols = VILLAGE_WIDTH / CELL
   const rows = VILLAGE_HEIGHT / CELL
@@ -184,7 +295,10 @@ export function buildWalkGrid(): Grid {
   }
   for (const hut of HUTS) block(hut.x - 2, hut.y + 6, HUT_WIDTH + 4, HUT_HEIGHT - 6)
   block(POND.x - 2, POND.y - 2, POND.width + 4, POND.height + 4)
-  for (const t of TREES) block(t.x, t.y + 6, TREE_WIDTH, TREE_HEIGHT - 6)
+  for (const p of PLANTS) {
+    const f = PLANT_KINDS[p.kind].foot
+    block(p.x + f.x, p.y + f.y, f.w, f.h)
+  }
   // Keep a 4 px margin at the map edges, except where the main path leaves the village
   block(0, 0, VILLAGE_WIDTH, SEA.top)
   block(0, SEA.bottom - 2, VILLAGE_WIDTH, VILLAGE_HEIGHT - SEA.bottom + 2)

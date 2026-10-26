@@ -187,7 +187,7 @@ Look and feel of a classic **2D handheld monster-RPG** (top-down village, separa
 
 ### Village & wild area
 
-- The village lies on an **island**: sea (`sky` with `accent-blue` wave pixels) and a sandy beach (`path-light` / `path-dark`, `cream` surf line) at the bottom, a wooden jetty (`wood-mid` planks, `wood-dark` posts) at the top, **palm trees** (fronds in grass greens, trunk `wood-mid`, coconuts `wood-dark`) instead of round trees.
+- The village lies on an **island**: sea (`sky` with `accent-blue` wave pixels) and a sandy beach (`path-light` / `path-dark`, `cream` surf line) at the bottom, a wooden jetty (`wood-mid` planks, `wood-dark` posts) at the top, **palm trees** (fronds in grass greens, trunk `wood-mid`, coconuts `wood-dark`) as the main tree, plus a few leafy trees, firs and bushes (some with `rose`/`cream` flowers) scattered at random but fixed per map (decided 2026-10-26).
 - The title screen is a beach: `sky` above, a band of sea, sand below where her character stands.
 
 - **Top-down 3/4 view** on a **16 × 16 px tile grid** (180 px = 11¼ tiles wide; the map may scroll vertically).

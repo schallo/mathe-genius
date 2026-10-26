@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest'
+import { plantMap } from '../art/plants'
+import { mapSize } from '../art/pixels'
 import { findPath, isBlocked } from './path'
 import {
   HUTS,
@@ -6,10 +8,11 @@ import {
   HUT_WIDTH,
   MAIN_PATH,
   POND,
-  TREES,
-  TREE_HEIGHT,
-  TREE_WIDTH,
-  branchPath,
+  PLANTS,
+  PLANT_KINDS,
+  SEA,
+  plantKeepOut,
+  plantRect,
   SPAWN,
   VILLAGE_HEIGHT,
   VILLAGE_WIDTH,
@@ -45,16 +48,30 @@ describe('village layout', () => {
     })
   })
 
-  it('keeps trees off huts and paths', () => {
-    const rects = [
-      ...HUTS.map(hutRect),
-      ...HUTS.map(branchPath).map((p) => ({ x: p.x, y: p.y, w: p.width, h: p.height })),
-      { x: MAIN_PATH.x, y: 0, w: MAIN_PATH.width, h: VILLAGE_HEIGHT },
-    ]
-    for (const t of TREES) {
-      const tree = { x: t.x, y: t.y, w: TREE_WIDTH, h: TREE_HEIGHT }
-      expect(tree.x + tree.w).toBeLessThanOrEqual(VILLAGE_WIDTH)
-      for (const r of rects) expect(overlaps(tree, r), `${t.x},${t.y}`).toBe(false)
+  it('scatters many kinds of plants, off huts, name boards, paths and the pond', () => {
+    expect(PLANTS.length).toBeGreaterThanOrEqual(20)
+    expect(new Set(PLANTS.map((p) => p.kind)).size).toBe(Object.keys(PLANT_KINDS).length)
+    const keepOut = plantKeepOut()
+    PLANTS.forEach((p, i) => {
+      const r = plantRect(p)
+      expect(r.x).toBeGreaterThanOrEqual(0)
+      expect(r.x + r.w).toBeLessThanOrEqual(VILLAGE_WIDTH)
+      expect(r.y).toBeGreaterThan(SEA.top)
+      expect(r.y + r.h).toBeLessThan(SEA.bottom)
+      for (const k of keepOut) expect(overlaps(r, k), `${p.kind} ${p.x},${p.y}`).toBe(false)
+      for (const q of PLANTS.slice(i + 1)) expect(overlaps(r, plantRect(q))).toBe(false)
+    })
+    // Same layout every time (fixed seed): drawn back to front
+    const bottoms = PLANTS.map((p) => p.y + PLANT_KINDS[p.kind].h)
+    expect(bottoms).toEqual([...bottoms].sort((a, b) => a - b))
+  })
+
+  it('has a sprite of the right size for every kind of plant, feet inside', () => {
+    for (const [kind, size] of Object.entries(PLANT_KINDS)) {
+      const map = plantMap(kind as keyof typeof PLANT_KINDS)
+      expect(mapSize(map), kind).toEqual({ width: size.w, height: size.h })
+      expect(size.foot.x + size.foot.w).toBeLessThanOrEqual(size.w)
+      expect(size.foot.y + size.foot.h).toBeLessThanOrEqual(size.h)
     }
   })
 

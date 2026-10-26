@@ -26,10 +26,10 @@ const ICONS: Record<string, Icon> = {
   /** Empty place on the trophy shelf */
   medalSlot: { map: MEDAL, legend: { a: palette.woodEdge, b: palette.woodDark } },
   heart: { map: HEART, legend: { a: palette.rose }, outline: palette.roseDark },
-  // Gold coin with horizontal stripes (STYLE_GUIDE §6)
+  // Round gold coin (9 × 9 with the rim): light from the top left, shading bottom right
   coin: {
-    map: ['.aaaaa.', 'abbbbba', 'aaaaaaa', 'abbbbba', 'aaaaaaa', 'abbbbba', '.aaaaa.'],
-    legend: { a: palette.gold, b: palette.goldDark },
+    map: ['..aaa..', '.acaaa.', 'acaaaba', 'aaaaaba', 'aaaaaba', '.abbba.', '..aaa..'],
+    legend: { a: palette.gold, b: palette.goldDark, c: palette.paperWhite },
     outline: palette.goldDark,
   },
   soundOn: {

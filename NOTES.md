@@ -53,9 +53,10 @@ Done: steps 1–8, v0.8.1 (no +100 button, no door plates, faster e2e tests). Li
 3. **Step 10 – Adaptive difficulty**, mistakes coming back, stars per level (spending stars).
 4. **Step 11 – Album, daily calendar, full parent area** (settings incl. "auswendig" time, progress overview, bonus coins, shows per day).
 5. **Step 12 – More areas and animals**, 60–80 items.
-6. **Coin icon** (wish 2026-10-26): the coin looks like a rectangle – make it clearly round (HUD, flying coins, prices).
-7. **Village plants** (wish 2026-10-26): several kinds of trees, palms and bushes, placed randomly (but fixed per map, off paths and huts) to make the layout livelier.
-8. **Check with school** the open assumptions in "Math engine assumptions" below (subtraction method etc.).
+6. ~~Coin icon~~ done (v0.9.2): round 9 × 9 coin with rim, shading and shine.
+7. ~~Village plants~~ done (v0.9.2): palms along both shores, then leafy trees, firs, bushes and flower bushes at random (fixed seed, `placePlants` in `src/world/village.ts`), never on huts, name boards, paths or the pond; only trunks/bases block walking.
+8. **Avatar options** (wish 2026-10-26): a male version of the avatar (boy body/face, boy hair styles), more clothes, hair styles and accessories, and multi-colour outfits (e.g. trousers and shirt in different colours – outfit layer with separate top/bottom colours).
+9. **Check with school** the open assumptions in "Math engine assumptions" below (subtraction method etc.).
 
 Smaller follow-ups:
 
