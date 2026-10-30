@@ -8,6 +8,7 @@ import { BootScene } from './scenes/BootScene'
 import { CharacterCreateScene } from './scenes/CharacterCreateScene'
 import { EinmaleinsDrillScene } from './scenes/EinmaleinsDrillScene'
 import { EinmaleinsMenuScene } from './scenes/EinmaleinsMenuScene'
+import { FishingScene } from './scenes/FishingScene'
 import { HarborScene } from './scenes/HarborScene'
 import { LearnHutScene } from './scenes/LearnHutScene'
 import { LibraryScene } from './scenes/LibraryScene'
@@ -88,6 +89,7 @@ const game = new Phaser.Game({
     LearnHutScene,
     LibraryScene,
     HarborScene,
+    FishingScene,
   ],
 })
 
@@ -104,6 +106,7 @@ declare global {
       battle(): ReturnType<BattleScene['debugState']> | undefined
       drill(): ReturnType<EinmaleinsDrillScene['debugState']> | undefined
       wild(): ReturnType<WildScene['debugState']> | undefined
+      fishing(): ReturnType<FishingScene['debugState']> | undefined
       /** Starts a scene directly, e.g. a hut without walking there */
       start(key: string, data?: object): void
       /** Taps a world point on the wild island, even outside the view */
@@ -131,6 +134,10 @@ window.__debug = {
   wild: () =>
     game.scene.isActive('Wild')
       ? (game.scene.getScene('Wild') as WildScene).debugState()
+      : undefined,
+  fishing: () =>
+    game.scene.isActive('Fishing')
+      ? (game.scene.getScene('Fishing') as FishingScene).debugState()
       : undefined,
   start: (key, data) => game.scene.getScenes(true)[0]?.scene.start(key, data),
   wildTap: (x, y) => (game.scene.getScene('Wild') as WildScene).debugTap(x, y),

@@ -31,6 +31,7 @@ import { tryOn } from '../state/shop'
 import { deviceId, getSave, updateSave } from '../state/store'
 import { Caption } from '../ui/Caption'
 import { Hud } from '../ui/Hud'
+import { Pager } from '../ui/Pager'
 import { Tabs } from '../ui/Tabs'
 import { addText } from '../ui/text'
 import { PixelScene } from './PixelScene'
@@ -38,6 +39,8 @@ import { PixelScene } from './PixelScene'
 type View = 'album' | 'kalender'
 
 const CELL = { x: 10, y: 96, w: 38, h: 44, gap: 3 }
+/** Four rows of four; more items (and the many animals) go on further pages */
+const ALBUM_PAGE = 16
 const MONTH = { x: 8, y: 62, w: 164, cell: 22 }
 
 export class LibraryScene extends PixelScene {
@@ -45,6 +48,7 @@ export class LibraryScene extends PixelScene {
   private category: AlbumCategory = 'kleider'
   private content: Phaser.GameObjects.GameObject[] = []
   private categoryTabs?: Tabs<AlbumCategory>
+  private pager!: Pager
   private caption!: Caption
 
   constructor() {
@@ -74,9 +78,11 @@ export class LibraryScene extends PixelScene {
       ],
       (id) => {
         this.view = id
+        this.pager.reset()
         this.render()
       },
     ).select(this.view)
+    this.pager = new Pager(this, 300, () => this.render(), ALBUM_PAGE)
 
     if (claimed.categories.length) {
       sfx.fanfare()
@@ -91,7 +97,10 @@ export class LibraryScene extends PixelScene {
     this.categoryTabs?.destroy()
     this.categoryTabs = undefined
     if (this.view === 'album') this.renderAlbum()
-    else this.renderCalendar()
+    else {
+      this.pager.setCount(0)
+      this.renderCalendar()
+    }
   }
 
   // ---------- Album ----------
@@ -103,6 +112,7 @@ export class LibraryScene extends PixelScene {
       ALBUM_CATEGORIES.map((id) => ({ id, label: texts.library.categories[id] })),
       (id) => {
         this.category = id
+        this.pager.reset()
         this.render()
       },
     ).select(this.category)
@@ -124,7 +134,7 @@ export class LibraryScene extends PixelScene {
     if (done) this.content.push(this.add.image(GAME_WIDTH / 2 + 46, 87, icon(this, 'star'), 'icon'))
 
     const look = save.character?.look ?? DEFAULT_LOOK
-    albumEntries(save, this.category).forEach((entry, i) => {
+    this.pager.slice(albumEntries(save, this.category)).forEach((entry, i) => {
       const x = CELL.x + (i % 4) * (CELL.w + CELL.gap)
       const y = CELL.y + Math.floor(i / 4) * (CELL.h + CELL.gap)
       this.content.push(this.cell(entry, x, y, look))

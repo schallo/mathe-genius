@@ -111,6 +111,7 @@ test('album: silhouettes, a full page gives a star; the Bibliothek door opens', 
     'frisbee',
     'kissen',
     'teddy',
+    'angel',
   ]
   await seedSave(page, start({ owned: toys }))
   await toVillage(page)

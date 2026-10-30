@@ -1,17 +1,25 @@
 // Pet sprites (STYLE_GUIDE §9 "Pets"): 14 × 12 px, round, front-facing, dot eyes.
 // Roles: a = fur, b = darker fur (ears, paws), c = light fur (muzzle, belly),
-// e = ink (eyes, nose), p = rose (nose, blush). Outline = darker shade.
+// e = ink (eyes, nose), p = rose (nose, blush), d / f / g = extra colours (spots, hats,
+// crowns, stars). Outline = darker shade.
 import type { PaletteToken } from '../../palette'
 import type { SpeciesId } from '../../data/creatures'
 import type { PixelMap } from '../pixels'
 
-export const PET_ROLES = 'abcep'
+export const PET_ROLES = 'abcdefgp'
 export const PET_WIDTH = 14
 export const PET_HEIGHT = 12
 
 export type PetArt = {
   map: PixelMap
-  colors: { a: PaletteToken; b: PaletteToken; c: PaletteToken }
+  colors: {
+    a: PaletteToken
+    b: PaletteToken
+    c: PaletteToken
+    d?: PaletteToken
+    f?: PaletteToken
+    g?: PaletteToken
+  }
   outline: PaletteToken
 }
 
@@ -72,6 +80,273 @@ export const petArt: Record<SpeciesId, PetArt> = {
     ],
     colors: { a: 'woodLight', b: 'woodMid', c: 'cream' },
     outline: 'woodDark',
+  },
+  // Tierheim pets, special animals and Goldi from the pond (d, f, g = extra colours)
+  // Long ears with pink inside
+  kaninchen: {
+    map: [
+      '...aa....aa...',
+      '...ap....pa...',
+      '...ap....pa...',
+      '..aaaaaaaaaa..',
+      '.aaaaaaaaaaaa.',
+      '.aaeaaaaaaeaa.',
+      '.apaaappaaapa.',
+      '..aaaaaaaaaa..',
+      '..aaaccccaaa..',
+      '..aaaccccaaa..',
+      '..bbb....bbb..',
+      '..............',
+    ],
+    colors: { a: 'cream', b: 'stone', c: 'paperWhite' },
+    outline: 'stoneDark',
+  },
+  // Head peeking over a round shell
+  schildkroete: {
+    map: [
+      '..............',
+      '.....aaaa.....',
+      '....aaaaaa....',
+      '....aeaaea....',
+      '....apaapa....',
+      '..bbbbbbbbbb..',
+      '.bbdbbddbbdbb.',
+      '.bbbbbbbbbbbb.',
+      '.bbdbbbbbbdbb.',
+      '..cccccccccc..',
+      '.aa........aa.',
+      '..............',
+    ],
+    colors: { a: 'mint', b: 'grassMid', c: 'pathLight', d: 'grassDark' },
+    outline: 'mintDark',
+  },
+  // Yellow face, green wings, small beak
+  wellensittich: {
+    map: [
+      '..............',
+      '....cccccc....',
+      '...cccccccc...',
+      '..cceccccecc..',
+      '..cccpddpccc..',
+      '..aaacddcaaa..',
+      '.baaaaaaaaaab.',
+      '.bbaaaaaaaabb.',
+      '.bbaaaaaaaabb.',
+      '..baaaaaaaab..',
+      '....d....d....',
+      '..............',
+    ],
+    colors: { a: 'mint', b: 'mintDark', c: 'hairBlond', d: 'goldDark' },
+    outline: 'mintDark',
+  },
+  // Wide and fluffy with ginger patches
+  meerschweinchen: {
+    map: [
+      '..............',
+      '..............',
+      '...b......b...',
+      '..ddddaaaaaa..',
+      '.dddeaaaaeaaa.',
+      '.ddpaaappaapa.',
+      '.aaaaaaaaddda.',
+      '.acccccccddda.',
+      '.aaccccccaaaa.',
+      '..aaaaaaaaaa..',
+      '...bb....bb...',
+      '..............',
+    ],
+    colors: { a: 'cream', b: 'woodMid', c: 'paperWhite', d: 'hairGinger' },
+    outline: 'woodDark',
+  },
+  // Big round ears
+  maus: {
+    map: [
+      '.bbb......bbb.',
+      '.bpb......bpb.',
+      '.bbbaaaaaabbb.',
+      '...aaaaaaaa...',
+      '..aaeaaaaeaa..',
+      '..paaappaaap..',
+      '...aaaaaaaa...',
+      '...aaccccaa...',
+      '...aaccccaa...',
+      '....aaaaaa....',
+      '....bb..bb....',
+      '..............',
+    ],
+    colors: { a: 'stone', b: 'stoneDark', c: 'paperWhite' },
+    outline: 'stoneDark',
+  },
+  // White with black spots and ears
+  dalmatiner: {
+    map: [
+      '....aadaaa....',
+      '..baaaaaaaab..',
+      '.bbaaaaaadabb.',
+      '.bbaeaaaaeabb.',
+      '.bbaaaccaaabb.',
+      '..baaceecaab..',
+      '...aaaccaaa...',
+      '..adaaaaaada..',
+      '..aaaccccaaa..',
+      '..aaaccccada..',
+      '..bbb....bbb..',
+      '..............',
+    ],
+    colors: { a: 'paperWhite', b: 'hairBlack', c: 'cream', d: 'hairBlack' },
+    outline: 'stone',
+  },
+  // Ginger with tabby stripes
+  rotekatze: {
+    map: [
+      '..a........a..',
+      '..aa......aa..',
+      '..aaaaaaaaaa..',
+      '.aaddaaaaddaa.',
+      '.aaaeaaaaeaaa.',
+      '.apaaappaaapa.',
+      '..aaaaaaaaaa..',
+      '...adaaaada...',
+      '..aaaccccaaa..',
+      '..aaaccccaaa..',
+      '..bbb....bbb..',
+      '..............',
+    ],
+    colors: { a: 'hairGinger', b: 'hairRed', c: 'cream', d: 'hairRed' },
+    outline: 'hairRed',
+  },
+  // Golden hamster with a top hat
+  mrwriggles: {
+    map: [
+      '....dddddd....',
+      '....dddddd....',
+      '....dffffd....',
+      '..dddddddddd..',
+      '.aaaaaaaaaaaa.',
+      '.aaeaaaaaaeaa.',
+      '.apaaappaaapa.',
+      '.acccccccccca.',
+      '.acccccccccca.',
+      '..aaccccccaa..',
+      '...bb....bb...',
+      '..............',
+    ],
+    colors: { a: 'gold', b: 'goldDark', c: 'cream', d: 'hairBlack', f: 'rose' },
+    outline: 'goldDark',
+  },
+  // White cat with a golden crown
+  pfoetchen: {
+    map: [
+      '..a..f..f..a..',
+      '..aa.fddf.aa..',
+      '..aaaaaaaaaa..',
+      '.aaaaaaaaaaaa.',
+      '.aaaeaaaaeaaa.',
+      '.apaaappaaapa.',
+      '..aaaaaaaaaa..',
+      '...aaaaaaaa...',
+      '..aaaccccaaa..',
+      '..aaaccccaaa..',
+      '..bbb....bbb..',
+      '..............',
+    ],
+    colors: { a: 'paperWhite', b: 'stone', c: 'cream', d: 'rose', f: 'gold' },
+    outline: 'stone',
+  },
+  // Bow tie and a golden monocle
+  sirbello: {
+    map: [
+      '....aaaaaa....',
+      '..baaaaaaaab..',
+      '.bbaaaaaafabb.',
+      '.bbaeaaafefbb.',
+      '.bbaaaccafabb.',
+      '..baaceecaab..',
+      '...aaaccaaa...',
+      '..aaddfddaaa..',
+      '..aaaccccaaa..',
+      '..aaaccccaaa..',
+      '..bbb....bbb..',
+      '..............',
+    ],
+    colors: { a: 'cream', b: 'woodDark', c: 'paperWhite', d: 'curtainMid', f: 'gold' },
+    outline: 'woodDark',
+  },
+  // Lilac cat with golden stars in the fur
+  sternenkatze: {
+    map: [
+      '..a........a..',
+      '..aa......aa..',
+      '..aafaaaaaaa..',
+      '.aaaaaaaaaaaa.',
+      '.aaaeaaaaeaaa.',
+      '.apaaappaaapa.',
+      '..aaaaaaaafa..',
+      '...aaaafaaa...',
+      '..aaaccccaaa..',
+      '..faaccccaaa..',
+      '..bbb....bbb..',
+      '..............',
+    ],
+    colors: { a: 'lilac', b: 'beam', c: 'cream', f: 'gold' },
+    outline: 'beam',
+  },
+  // Turtle with a sailor hat
+  kapitaen: {
+    map: [
+      '....ffffff....',
+      '....dddddd....',
+      '....aaaaaa....',
+      '....aeaaea....',
+      '....apaapa....',
+      '..bbbbbbbbbb..',
+      '.bbdbbddbbdbb.',
+      '.bbbbbbbbbbbb.',
+      '.bbdbbbbbbdbb.',
+      '..cccccccccc..',
+      '.aa........aa.',
+      '..............',
+    ],
+    colors: { a: 'mint', b: 'woodMid', c: 'woodLight', d: 'accentBlue', f: 'paperWhite' },
+    outline: 'mintDark',
+  },
+  // White bunny with rainbow stripes
+  regenbogenhase: {
+    map: [
+      '...aa....aa...',
+      '...ap....pa...',
+      '...ap....pa...',
+      '..aaaaaaaaaa..',
+      '.aaaaaaaaaaaa.',
+      '.aaeaaaaaaeaa.',
+      '.apaaappaaapa.',
+      '..dddddddddd..',
+      '..fffccccfff..',
+      '..gggccccggg..',
+      '..bbb....bbb..',
+      '..............',
+    ],
+    colors: { a: 'paperWhite', b: 'lilac', c: 'cream', d: 'rose', f: 'gold', g: 'mint' },
+    outline: 'lilac',
+  },
+  // A goldfish in a water bubble
+  goldi: {
+    map: [
+      '....aaaaaa....',
+      '..aaaaaaaaca..',
+      '.aaaaaaaaaaca.',
+      '.aaaddddddaaa.',
+      '.aaddeddddfaa.',
+      '.aadddddddffa.',
+      '.aaaddddddfaa.',
+      '.aaaaaaaaaaaa.',
+      '..aaaaaaaaaa..',
+      '....aaaaaa....',
+      '..............',
+      '..............',
+    ],
+    colors: { a: 'sky', b: 'accentBlue', c: 'paperWhite', d: 'gold', f: 'goldDark' },
+    outline: 'accentBlue',
   },
   // Wildtiere (GAME_DESIGN §6b): round and friendly, also in their wild form.
   // Spiky crown around a cream face

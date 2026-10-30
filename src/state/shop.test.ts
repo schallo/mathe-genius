@@ -5,7 +5,16 @@ import { hairstyles } from '../art/character/hair'
 import { outfits } from '../art/character/outfit'
 import { ITEMS, SHOP_CATEGORIES, item } from '../data/items'
 import { SPECIES } from '../data/creatures'
-import { coinBalance, earnCoins, emptySave, mergeSaves, parseSave, type SaveData } from './save'
+import {
+  coinBalance,
+  earnCoins,
+  earnStars,
+  emptySave,
+  mergeSaves,
+  parseSave,
+  starBalance,
+  type SaveData,
+} from './save'
 import {
   adopt,
   adoptablePets,
@@ -39,7 +48,9 @@ describe('item data', () => {
   it('has dresses, haircuts and pets for sale in every category', () => {
     expect(shopItems('kleider').length).toBeGreaterThanOrEqual(7)
     expect(shopItems('frisuren').length).toBeGreaterThanOrEqual(5)
-    expect(adoptablePets()).toHaveLength(2)
+    expect(adoptablePets().length).toBeGreaterThanOrEqual(16)
+    // Goldi is caught at the pond, never adopted
+    expect(adoptablePets().some((i) => i.species === 'goldi')).toBe(false)
     const forSale = ITEMS.filter((i) => !i.starter)
     expect(forSale.length).toBeGreaterThanOrEqual(12)
     for (const c of SHOP_CATEGORIES) expect(shopItems(c).length).toBeGreaterThan(0)
@@ -114,6 +125,36 @@ describe('adopting', () => {
     })
     expect(adopt(withCoins(999), get('hut'), 'X', 'pc')).toEqual({ ok: false, reason: 'pet' })
     expect(buy(withCoins(999), get('katze'), 'pc')).toEqual({ ok: false, reason: 'pet' })
+  })
+})
+
+describe('special animals', () => {
+  const withStars = (coins: number, stars: number) => earnStars(withCoins(coins), stars, 'pc')
+
+  it('cost stars and coins and arrive with their own name', () => {
+    const wriggles = get('mrwriggles')
+    expect(wriggles.starCost).toBe(3)
+    expect(adopt(withStars(500, 2), wriggles, 'X', 'pc')).toEqual({ ok: false, reason: 'coins' })
+    const result = adopt(withStars(500, 3), wriggles, 'Egal', 'pc')
+    if (!result.ok) throw new Error('adopt failed')
+    expect(result.save.pets).toMatchObject([{ species: 'mrwriggles', name: 'Mr Wriggles' }])
+    expect(coinBalance(result.save)).toBe(200)
+    expect(starBalance(result.save)).toBe(0)
+  })
+
+  it('exist only once: they leave the Tierheim and stay one animal after a merge', () => {
+    const base = withStars(2000, 20)
+    const pc = adopt({ ...base, updatedAt: 1 }, get('sirbello'), '', 'pc')
+    const phone = adopt({ ...base, updatedAt: 2 }, get('sirbello'), '', 'phone')
+    if (!pc.ok || !phone.ok) throw new Error('adopt failed')
+    expect(adopt(pc.save, get('sirbello'), '', 'pc')).toEqual({ ok: false, reason: 'owned' })
+    expect(adoptablePets(pc.save).some((i) => i.id === 'sirbello')).toBe(false)
+    expect(adoptablePets(pc.save).some((i) => i.id === 'katze')).toBe(true)
+    const merged = mergeSaves(pc.save, phone.save)
+    expect(merged.pets.filter((p) => p.species === 'sirbello')).toHaveLength(1)
+    // Everyday pets can be adopted again
+    const cat = adopt(pc.save, get('katze'), 'Mimi', 'pc')
+    expect(cat.ok && adopt(cat.save, get('katze'), 'Momo', 'pc').ok).toBe(true)
   })
 })
 

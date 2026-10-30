@@ -55,12 +55,21 @@ describe('names', () => {
 })
 
 describe('creatures', () => {
-  it('offers the three starters, cats and dogs without a trait', () => {
+  it('offers the three starters, each with its own trait', () => {
     expect(STARTERS).toEqual(['hund', 'katze', 'hamster'])
-    expect(traitOf('hund')).toBeNull()
-    expect(traitOf('katze')).toBeNull()
-    expect(traitOf('hamster')).toEqual(FAMILY_TRAITS.kleintiere)
+    expect(traitOf('hund')?.name).toBe('Treuer Freund')
+    expect(traitOf('katze')?.name).toBe('Glückspfote')
+    expect(traitOf('hamster')?.effects).toEqual(FAMILY_TRAITS.kleintiere!.effects)
     for (const id of STARTERS) expect(SPECIES[id].id).toBe(id)
+  })
+
+  it('gives every pet a trait; wild animals keep their family trait', () => {
+    for (const s of Object.values(SPECIES)) {
+      if (s.wild) expect(traitOf(s.id)).toBe(FAMILY_TRAITS[s.family])
+      else expect(traitOf(s.id)).not.toBeNull()
+    }
+    expect(SPECIES.mrwriggles.uniqueName).toBe('Mr Wriggles')
+    expect(SPECIES.goldi.uniqueName).toBe('Goldi')
   })
 })
 

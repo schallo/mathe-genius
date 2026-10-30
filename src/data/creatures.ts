@@ -8,6 +8,20 @@ export type SpeciesId =
   | 'hund'
   | 'katze'
   | 'hamster'
+  | 'kaninchen'
+  | 'schildkroete'
+  | 'wellensittich'
+  | 'meerschweinchen'
+  | 'maus'
+  | 'dalmatiner'
+  | 'rotekatze'
+  | 'mrwriggles'
+  | 'pfoetchen'
+  | 'sirbello'
+  | 'sternenkatze'
+  | 'kapitaen'
+  | 'regenbogenhase'
+  | 'goldi'
   | 'igel'
   | 'eichhoernchen'
   | 'fuchs'
@@ -51,12 +65,151 @@ export type Species = {
   /** German name, e.g. on the starter card and in battles */
   name: string
   wild?: WildForm
+  /** Its own trait; without one the animal has its family's trait */
+  trait?: Trait
+  /** Special animals: only one of them, arriving with this name */
+  uniqueName?: string
 }
 
+/**
+ * What a pet does for her (GAME_DESIGN §4 "Pet traits"). Traits never solve a task: in shows
+ * and huts they only protect coins and streaks, in battles they help her pet. Her levels,
+ * dojo times and the mistake queue always count her real answers.
+ */
+export type TraitEffects = {
+  /** Battles: extra time per task (ms) */
+  extraMs: number
+  /** Battles: method tips per battle */
+  tips: number
+  /** Battles: wrong answers that become a second try */
+  jokers: number
+  /** Battles: Volltreffer damage multiplier */
+  fullHitFactor: number
+  /** Mistakes per round that cost nothing: coins and streak as on the first try, no hit in battles */
+  freeMistakes: number
+  /** The streak bonus comes after this many first tries in a row (instead of 5) */
+  streakLength: number
+  /** Extra coins for each task right on the first try (shows and huts) */
+  bonusCoins: number
+  /** Extra stars for each new level (shows and huts) */
+  bonusStars: number
+}
+
+export type Trait = { name: string; effects: Partial<TraitEffects> } | null
+
 export const SPECIES: Record<SpeciesId, Species> = {
-  hund: { id: 'hund', family: 'katzenHunde', name: 'Hündchen' },
-  katze: { id: 'katze', family: 'katzenHunde', name: 'Kätzchen' },
-  hamster: { id: 'hamster', family: 'kleintiere', name: 'Hamster' },
+  hund: {
+    id: 'hund',
+    family: 'katzenHunde',
+    name: 'Hündchen',
+    trait: { name: 'Treuer Freund', effects: { freeMistakes: 1 } },
+  },
+  katze: {
+    id: 'katze',
+    family: 'katzenHunde',
+    name: 'Kätzchen',
+    trait: { name: 'Glückspfote', effects: { streakLength: 4 } },
+  },
+  hamster: {
+    id: 'hamster',
+    family: 'kleintiere',
+    name: 'Hamster',
+    trait: { name: 'Mehr Zeit', effects: { extraMs: 2000 } },
+  },
+  // Everyday pets from the Tierheim, each with its own trait
+  kaninchen: {
+    id: 'kaninchen',
+    family: 'kleintiere',
+    name: 'Kaninchen',
+    trait: { name: 'Hoppel-Hilfe', effects: { freeMistakes: 1 } },
+  },
+  schildkroete: {
+    id: 'schildkroete',
+    family: 'kleintiere',
+    name: 'Schildkröte',
+    trait: { name: 'Ruhige Pfote', effects: { extraMs: 3000 } },
+  },
+  wellensittich: {
+    id: 'wellensittich',
+    family: 'kleintiere',
+    name: 'Wellensittich',
+    trait: { name: 'Sternenvogel', effects: { bonusStars: 1 } },
+  },
+  meerschweinchen: {
+    id: 'meerschweinchen',
+    family: 'kleintiere',
+    name: 'Meerschweinchen',
+    trait: { name: 'Münzschatz', effects: { bonusCoins: 1 } },
+  },
+  maus: {
+    id: 'maus',
+    family: 'kleintiere',
+    name: 'Maus',
+    trait: { name: 'Flinke Maus', effects: { streakLength: 4 } },
+  },
+  dalmatiner: {
+    id: 'dalmatiner',
+    family: 'katzenHunde',
+    name: 'Dalmatiner',
+    trait: { name: 'Treuer Freund', effects: { freeMistakes: 1 } },
+  },
+  rotekatze: {
+    id: 'rotekatze',
+    family: 'katzenHunde',
+    name: 'Rote Katze',
+    trait: { name: 'Glückspfote', effects: { streakLength: 4 } },
+  },
+  // Special animals: one of each, arriving with their own name, for stars + coins
+  mrwriggles: {
+    id: 'mrwriggles',
+    family: 'kleintiere',
+    name: 'Goldhamster',
+    uniqueName: 'Mr Wriggles',
+    trait: { name: 'Goldglück', effects: { bonusCoins: 1, extraMs: 2000 } },
+  },
+  pfoetchen: {
+    id: 'pfoetchen',
+    family: 'katzenHunde',
+    name: 'Kronen-Katze',
+    uniqueName: 'Prinzessin Pfötchen',
+    trait: { name: 'Königspfote', effects: { streakLength: 3 } },
+  },
+  sirbello: {
+    id: 'sirbello',
+    family: 'katzenHunde',
+    name: 'Feiner Hund',
+    uniqueName: 'Sir Bello',
+    trait: { name: 'Ritterschutz', effects: { freeMistakes: 2 } },
+  },
+  sternenkatze: {
+    id: 'sternenkatze',
+    family: 'katzenHunde',
+    name: 'Sternen-Katze',
+    uniqueName: 'Sternen-Katze',
+    trait: { name: 'Sternenstaub', effects: { bonusStars: 1 } },
+  },
+  kapitaen: {
+    id: 'kapitaen',
+    family: 'kleintiere',
+    name: 'Matrosen-Kröte',
+    uniqueName: 'Kapitän Panzer',
+    trait: { name: 'Ruhe an Bord', effects: { extraMs: 4000 } },
+  },
+  regenbogenhase: {
+    id: 'regenbogenhase',
+    family: 'kleintiere',
+    name: 'Regenbogen-Hase',
+    uniqueName: 'Regenbogen-Hase',
+    trait: { name: 'Regenbogen', effects: { freeMistakes: 1, bonusCoins: 1, bonusStars: 1 } },
+  },
+  // Caught at the village pond with the Angel (never sold)
+  goldi: {
+    id: 'goldi',
+    family: 'kleintiere',
+    name: 'Goldfisch',
+    uniqueName: 'Goldi',
+    trait: { name: 'Glücksblase', effects: { bonusCoins: 1 } },
+  },
   igel: {
     id: 'igel',
     family: 'wildtiere',
@@ -320,21 +473,17 @@ export const SPECIES: Record<SpeciesId, Species> = {
 /** Starter choice at character creation, in the order shown. */
 export const STARTERS: SpeciesId[] = ['hund', 'katze', 'hamster']
 
-export type Trait = {
-  id: 'mehrZeit' | 'rechentipp' | 'urzeitkraft' | 'zauberJoker'
-  label: string
-} | null
-
-/** Traits belong to the family (GAME_DESIGN §4 "Pet traits"); cats and dogs have none. */
+/** Family traits, for animals without their own (the befriended wild animals). */
 export const FAMILY_TRAITS: Record<Family, Trait> = {
   katzenHunde: null,
-  kleintiere: { id: 'mehrZeit', label: '+2 Sekunden' },
-  wildtiere: { id: 'rechentipp', label: 'Rechentipp' },
-  urzeittiere: { id: 'urzeitkraft', label: 'Volltreffer ×2' },
-  fabeltiere: { id: 'zauberJoker', label: 'Zauber-Joker' },
+  kleintiere: { name: 'Mehr Zeit', effects: { extraMs: 2000 } },
+  wildtiere: { name: 'Rechentipp', effects: { tips: 1 } },
+  urzeittiere: { name: 'Urzeitkraft', effects: { fullHitFactor: 2 } },
+  fabeltiere: { name: 'Zauber-Joker', effects: { jokers: 1 } },
 }
 
-export const traitOf = (species: SpeciesId): Trait => FAMILY_TRAITS[SPECIES[species].family]
+export const traitOf = (species: SpeciesId): Trait =>
+  SPECIES[species].trait ?? FAMILY_TRAITS[SPECIES[species].family]
 
 export const wildSpecies = (area: AreaId): Species[] =>
   Object.values(SPECIES).filter((s) => s.wild?.area === area)

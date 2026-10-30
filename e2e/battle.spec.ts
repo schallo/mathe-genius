@@ -28,7 +28,8 @@ function start(wins: Record<string, number> = {}) {
         accessoryColor: 'rosa',
       },
     },
-    pets: [{ id: 'hund-a', species: 'hund', name: 'Bello', xp: 0 }],
+    // The kitten's trait only works in shows, so battles follow the plain rules
+    pets: [{ id: 'hund-a', species: 'katze', name: 'Bello', xp: 0 }],
     activePetId: 'hund-a',
     coins: { earned: {}, spent: {} },
     owned: [],

@@ -240,10 +240,16 @@ export class BattleScene extends PixelScene {
     this.typed = String(this.task.answer.value)
     this.drawTaskBox(true)
     this.renderTask()
-    this.time.delayedCall(250, () => {
-      this.attack(this.foe, this.pet, -1, 'bubble')
-      this.drainHp(this.petBox, this.state.pet.hp)
-    })
+    if (result.shield) {
+      // A free mistake (pet trait): no hit, just the next task
+      this.caption.show(texts.battle.shield(this.petSave.name), 1000)
+      this.pet.hop()
+    } else {
+      this.time.delayedCall(250, () => {
+        this.attack(this.foe, this.pet, -1, 'bubble')
+        this.drainHp(this.petBox, this.state.pet.hp)
+      })
+    }
     this.time.delayedCall(SHOW_ANSWER_MS, () => {
       if (this.state.outcome === 'lose') this.end(false)
       else this.nextTask()

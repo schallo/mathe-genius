@@ -372,9 +372,93 @@ export const ITEMS: Item[] = [
     trick: 'hearts',
   },
 
-  // Haustiere (Tierheim)
+  // Opens the fishing game at the village pond (NOTES "Fishing mini game")
+  { id: 'angel', category: 'spielzeug', name: 'Angel', price: 120, icon: 'angel' },
+
+  // Haustiere (Tierheim): everyday pets for coins …
+  { id: 'hund', category: 'haustiere', name: 'Hündchen', price: 300, species: 'hund' },
   { id: 'katze', category: 'haustiere', name: 'Kätzchen', price: 400, species: 'katze' },
   { id: 'hamster', category: 'haustiere', name: 'Hamster', price: 300, species: 'hamster' },
+  { id: 'maus', category: 'haustiere', name: 'Maus', price: 250, species: 'maus' },
+  {
+    id: 'schildkroete',
+    category: 'haustiere',
+    name: 'Schildkröte',
+    price: 300,
+    species: 'schildkroete',
+  },
+  { id: 'kaninchen', category: 'haustiere', name: 'Kaninchen', price: 350, species: 'kaninchen' },
+  {
+    id: 'meerschweinchen',
+    category: 'haustiere',
+    name: 'Meerschweinchen',
+    price: 350,
+    species: 'meerschweinchen',
+  },
+  {
+    id: 'wellensittich',
+    category: 'haustiere',
+    name: 'Wellensittich',
+    price: 450,
+    species: 'wellensittich',
+  },
+  {
+    id: 'dalmatiner',
+    category: 'haustiere',
+    name: 'Dalmatiner',
+    price: 500,
+    species: 'dalmatiner',
+  },
+  { id: 'rotekatze', category: 'haustiere', name: 'Rote Katze', price: 500, species: 'rotekatze' },
+  // … and special animals (one of each, with their own name) for stars + coins
+  {
+    id: 'mrwriggles',
+    category: 'haustiere',
+    name: 'Mr Wriggles',
+    price: 300,
+    starCost: 3,
+    species: 'mrwriggles',
+  },
+  {
+    id: 'kapitaen',
+    category: 'haustiere',
+    name: 'Kapitän Panzer',
+    price: 350,
+    starCost: 4,
+    species: 'kapitaen',
+  },
+  {
+    id: 'pfoetchen',
+    category: 'haustiere',
+    name: 'Prinzessin Pfötchen',
+    price: 500,
+    starCost: 5,
+    species: 'pfoetchen',
+  },
+  {
+    id: 'sirbello',
+    category: 'haustiere',
+    name: 'Sir Bello',
+    price: 500,
+    starCost: 5,
+    species: 'sirbello',
+  },
+  {
+    id: 'sternenkatze',
+    category: 'haustiere',
+    name: 'Sternen-Katze',
+    price: 400,
+    starCost: 6,
+    species: 'sternenkatze',
+  },
+  {
+    id: 'regenbogenhase',
+    category: 'haustiere',
+    name: 'Regenbogen-Hase',
+    price: 600,
+    starCost: 8,
+    species: 'regenbogenhase',
+  },
 ]
 
 export function item(id: string): Item | undefined {

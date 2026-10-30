@@ -15,12 +15,17 @@ export function ensurePetTexture(scene: Phaser.Scene, species: SpeciesId): strin
   const key = `pet-${species}`
   if (scene.textures.exists(key)) return key
   const art = petArt[species]
+  const extra = (['d', 'f', 'g'] as const).flatMap((role) => {
+    const token = art.colors[role]
+    return token ? [[role, palette[token]] as const] : []
+  })
   const legend = {
     a: palette[art.colors.a],
     b: palette[art.colors.b],
     c: palette[art.colors.c],
     e: palette.ink,
     p: palette.rose,
+    ...Object.fromEntries(extra),
   }
   addFrames(scene, key, [
     { name: 'idle', pixels: rasterize(art.map, legend, palette[art.outline]) },

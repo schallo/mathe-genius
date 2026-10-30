@@ -24,7 +24,8 @@ const START = {
       accessoryColor: 'rosa',
     },
   },
-  pets: [{ id: 'hund-a', species: 'hund', name: 'Bello', xp: 0 }],
+  // The hamster's trait only works in battles, so coins here follow the plain rules
+  pets: [{ id: 'hund-a', species: 'hamster', name: 'Bello', xp: 0 }],
   activePetId: 'hund-a',
   coins: { earned: {}, spent: {} },
   owned: [],

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { FAMILY_TRAITS, SPECIES, wildSpecies } from '../data/creatures'
+import { FAMILY_TRAITS, SPECIES, traitOf, wildSpecies } from '../data/creatures'
 import { generateTask } from '../math/topics'
 import { seededRng } from '../math/random'
 import { DEFAULT_LOOK } from '../art/character/look'
@@ -154,8 +154,8 @@ describe('battle flow', () => {
 })
 
 describe('traits', () => {
-  it('cats and dogs have none', () => {
-    const state = startBattle('hund', 9, igel)
+  it('the cat and dog family has none of its own', () => {
+    const state = startBattle('katze', 9, igel)
     expect(state).toMatchObject({ tipsLeft: 0, jokersLeft: 0, extraMs: 0, fullHitFactor: 1 })
     expect(traitLabel(FAMILY_TRAITS.katzenHunde, 9)).toBeNull()
   })
@@ -183,6 +183,34 @@ describe('traits', () => {
     expect(joker.state.pet.hp).toBe(state.pet.hp)
     expect(answerWrong(joker.state, false).joker).toBe(false)
     expect(answerWrong(state, true).joker).toBe(false)
+  })
+})
+
+describe('pet traits', () => {
+  it('every pet has a short label that grows at level 5', () => {
+    expect(traitLabel(traitOf('hund'), 1)).toBe('1 Fehler frei')
+    expect(traitLabel(traitOf('hund'), 5)).toBe('2 Fehler frei')
+    expect(traitLabel(traitOf('katze'), 9)).toBe('Serie ab 4')
+    expect(traitLabel(traitOf('schildkroete'), 1)).toBe('+3 Sekunden')
+    expect(traitLabel(traitOf('wellensittich'), 1)).toBe('+1 Stern')
+    expect(traitLabel(traitOf('mrwriggles'), 1)).toBe('+2 Sekunden · +1 Münze')
+    expect(traitLabel(traitOf('regenbogenhase'), 1)).toBe('1 Fehler frei · +1 Münze · +1 Stern')
+    expect(traitLabel(traitOf('trex'), 1)).toBe('Volltreffer ×2')
+    expect(traitPower(traitOf('pfoetchen'), 1).streakLength).toBe(3)
+    expect(traitPower(null, 9)).toMatchObject({ streakLength: 5, bonusCoins: 0, freeMistakes: 0 })
+  })
+
+  it('a free mistake stops one attack, also after a timeout', () => {
+    const state = startBattle('hund', 1, igel)
+    expect(state.shieldsLeft).toBe(1)
+    const saved = answerWrong(state, true)
+    expect(saved).toMatchObject({ shield: true, joker: false, damage: 0 })
+    expect(saved.state.pet.hp).toBe(state.pet.hp)
+    const hit = answerWrong(saved.state, false)
+    expect(hit.shield).toBe(false)
+    expect(hit.state.pet.hp).toBeLessThan(state.pet.hp)
+    expect(startBattle('sirbello', 5, igel).shieldsLeft).toBe(3)
+    expect(startBattle('kapitaen', 1, igel).extraMs).toBe(4000)
   })
 })
 

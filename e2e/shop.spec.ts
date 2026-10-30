@@ -61,9 +61,11 @@ test('shop, Tierheim and wardrobe: buy, wish, adopt, take along, change hair', a
   await tapWorld(page, ...HOME)
   await waitForScene(page, 'Village')
   await openScene(page, 'Shelter', { from: 'tierheim' })
-  await tapWorld(page, ...card(1, 222)) // Hamster
+  await tapWorld(page, 133, 138) // tab "Suchen ein Zuhause"
+  await page.waitForTimeout(300)
+  await tapWorld(page, ...card(2)) // Hamster
   await page.waitForTimeout(300) // the buttons appear after selecting
-  await tapWorld(page, 51, 304) // Adoptieren
+  await tapWorld(page, 51, 298) // Adoptieren
   await waitForScene(page, 'NameEntry')
   await tapWorld(page, 29, 324) // Zufall
   await tapWorld(page, 151, 324) // Fertig
@@ -71,9 +73,9 @@ test('shop, Tierheim and wardrobe: buy, wish, adopt, take along, change hair', a
   s = await save(page)
   expect(s.balance).toBe(120)
   expect(s.pets.map((p: { species: string }) => p.species)).toEqual(['hund', 'hamster'])
-  await tapWorld(page, ...card(1, 142)) // her hamster
+  await tapWorld(page, ...card(1)) // her hamster (tab "Deine Tiere")
   await page.waitForTimeout(300) // the buttons appear after selecting
-  await tapWorld(page, 51, 304) // Mitnehmen
+  await tapWorld(page, 51, 298) // Mitnehmen
   await expect.poll(async () => (await save(page)).activePetId).toBe(s.pets[1].id)
   await page.waitForTimeout(500)
   await shot(page, 'shelter')

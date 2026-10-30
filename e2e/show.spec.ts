@@ -35,7 +35,8 @@ const SAVED = {
       accessoryColor: 'rosa',
     },
   },
-  pets: [{ id: 'hund-1', species: 'hund', name: 'Bello' }],
+  // The hamster's trait only works in battles, so coins here follow the plain rules
+  pets: [{ id: 'hund-1', species: 'hamster', name: 'Bello' }],
   activePetId: 'hund-1',
   coins: 0,
   settings: { muted: true },

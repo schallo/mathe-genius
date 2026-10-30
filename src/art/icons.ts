@@ -130,6 +130,12 @@ const ICONS: Record<string, Icon> = {
     legend: { a: palette.woodMid, b: palette.cream, e: palette.ink },
     outline: palette.woodDark,
   },
+  /** Angel (fishing rod): rod, line and a rose float */
+  angel: {
+    map: ['.....aa', '....a.c', '...a..c', '..a...c', '.b....d', 'bb....d', '.......'],
+    legend: { a: palette.woodMid, b: palette.woodDark, c: palette.stone, d: palette.rose },
+    outline: palette.woodEdge,
+  },
   /** Week box of the calendar (closed / opened) */
   box: {
     map: ['aaaaaaa', 'abbcbba', 'aaacaaa', 'abbcbba', 'abbcbba', 'aaaaaaa'],

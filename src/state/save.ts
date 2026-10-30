@@ -20,6 +20,7 @@ import {
   parseCalendar,
   type CalendarSave,
 } from './calendar'
+import { emptyFishing, mergeFishing, parseFishing, type FishingSave } from './fishing'
 import { TOPICS } from '../math/topics'
 import { LEVELS, type Level, type Task, type TopicId } from '../math/types'
 
@@ -100,6 +101,8 @@ export type SaveData = {
   album: { claimed: string[] }
   /** Stars earned, counted per device like coins (GAME_DESIGN §4) */
   stars: Counter
+  /** Fish caught at the pond and stars from fishing per day */
+  fishing: FishingSave
   settings: {
     muted: boolean
     /** An Einmaleins fact is "auswendig" after 3 correct answers faster than this */
@@ -138,6 +141,7 @@ export function emptySave(): SaveData {
     calendar: emptyCalendar(),
     album: { claimed: [] },
     stars: {},
+    fishing: emptyFishing(),
     settings: { muted: false, knownMs: DEFAULT_KNOWN_MS, roundsPerDay: DEFAULT_ROUNDS_PER_DAY },
   }
 }
@@ -252,6 +256,7 @@ export function parseSave(input: unknown): SaveData | null {
         : [],
     },
     stars: counter(data.stars),
+    fishing: parseFishing(data.fishing),
     settings: {
       muted: settings?.muted === true,
       knownMs:
@@ -469,7 +474,14 @@ export function mergeSaves(a: SaveData, b: SaveData): SaveData {
     // XP only grows, so the bigger value is the newer one
     byId.set(pet.id, { ...pet, xp: Math.max(pet.xp, byId.get(pet.id)?.xp ?? 0) })
   }
-  const pets = [...byId.values()]
+  // A special animal adopted on two devices before they synced stays one animal
+  const unique = new Set<SpeciesId>()
+  const pets = [...byId.values()].filter((p) => {
+    if (!SPECIES[p.species].uniqueName) return true
+    if (unique.has(p.species)) return false
+    unique.add(p.species)
+    return true
+  })
   const activePetId =
     [newer.activePetId, older.activePetId].find((id) => pets.some((p) => p.id === id)) ?? null
   return {
@@ -505,6 +517,7 @@ export function mergeSaves(a: SaveData, b: SaveData): SaveData {
     calendar: mergeCalendar(a.calendar, b.calendar),
     album: { claimed: [...new Set([...a.album.claimed, ...b.album.claimed])] },
     stars: mergeCounters(a.stars, b.stars),
+    fishing: mergeFishing(a.fishing, b.fishing),
     settings: newer.settings,
   }
 }

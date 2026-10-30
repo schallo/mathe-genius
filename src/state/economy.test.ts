@@ -12,7 +12,41 @@ import {
 } from '../math/show'
 import { topic } from '../math/topics'
 import { seededRng } from '../math/random'
-import { REWARD, answerReward, streakBonus, summarizeShow } from './economy'
+import {
+  NO_BOOST,
+  REWARD,
+  answerReward,
+  coinAttempt,
+  streakBonus,
+  summarizeShow,
+  taskCoins,
+} from './economy'
+
+describe('pet traits in rounds', () => {
+  it('a forgiven mistake counts as one try earlier for coins and the streak', () => {
+    expect(coinAttempt({ attempts: 2, free: true })).toBe(1)
+    expect(coinAttempt({ attempts: 3, free: true })).toBe(2)
+    expect(coinAttempt({ attempts: 2 })).toBe(2)
+    const results = [1, 1, 2, 1, 1].map((attempts, i) => ({ attempts, free: i === 2 }))
+    // 5 × 5 coins + the streak bonus + the round bonus
+    expect(summarizeShow(results).coins).toBe(25 + 5 + 10)
+    // Her real answers still count as solved after the hint
+    expect(summarizeShow(results).solved).toBe(5)
+  })
+
+  it('an earlier streak bonus and extra coins for first tries', () => {
+    const four = { streakLength: 4, bonusCoins: 0 }
+    expect([3, 4, 5, 8].map((n) => streakBonus(n, 1, 4))).toEqual([0, 5, 0, 5])
+    const perfect = Array.from({ length: 10 }, () => ({ attempts: 1 }))
+    expect(summarizeShow(perfect, 1, four).coins).toBe(50 + 2 * 5 + 10)
+    const coins = { streakLength: 5, bonusCoins: 1 }
+    expect(taskCoins(1, 1, coins)).toBe(6)
+    expect(taskCoins(2, 1, coins)).toBe(3)
+    expect(taskCoins(1, 2, coins)).toBe(12)
+    expect(summarizeShow(perfect, 1, coins).coins).toBe(60 + 10 + 10)
+    expect(summarizeShow(perfect, 1, NO_BOOST)).toEqual(summarizeShow(perfect))
+  })
+})
 
 describe('rewards', () => {
   it('pays 5 / 3 / 1 coins by attempt, double in the Theater', () => {

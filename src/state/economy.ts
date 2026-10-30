@@ -19,12 +19,34 @@ export function answerReward(attempt: number, factor = 1): number {
   return base * factor
 }
 
-/** Bonus after every 5 first-try answers in a row. */
-export function streakBonus(streak: number, factor = 1): number {
-  return streak > 0 && streak % REWARD.streakLength === 0 ? REWARD.streakBonus * factor : 0
+/** Bonus after every 5 first-try answers in a row (fewer with some pets). */
+export function streakBonus(
+  streak: number,
+  factor = 1,
+  length: number = REWARD.streakLength,
+): number {
+  return streak > 0 && streak % length === 0 ? REWARD.streakBonus * factor : 0
 }
 
-export type TaskResult = { attempts: number }
+/**
+ * What her active pet's trait adds to a round (GAME_DESIGN §4 "Pet traits"): an earlier
+ * streak bonus and extra coins for first tries. Free mistakes are marked on the task result.
+ */
+export type RoundBoost = { streakLength: number; bonusCoins: number }
+
+export const NO_BOOST: RoundBoost = { streakLength: REWARD.streakLength, bonusCoins: 0 }
+
+/** `free`: one mistake on this task was forgiven by her pet (coins and streak as one try earlier). */
+export type TaskResult = { attempts: number; free?: boolean }
+
+/** The try that counts for coins and the streak (her levels always use the real one). */
+export const coinAttempt = (r: TaskResult): number =>
+  r.free ? Math.max(1, r.attempts - 1) : r.attempts
+
+/** Coins for one solved task, with the pet's extra coin for a first try. */
+export function taskCoins(attempt: number, factor = 1, boost: RoundBoost = NO_BOOST): number {
+  return answerReward(attempt, factor) + (attempt <= 1 ? boost.bonusCoins * factor : 0)
+}
 
 export type ShowSummary = {
   /** Tasks solved on the first or second try */
@@ -34,13 +56,18 @@ export type ShowSummary = {
 }
 
 /** Coins for a whole round, including streak bonuses and the round bonus. */
-export function summarizeShow(results: TaskResult[], factor = 1): ShowSummary {
+export function summarizeShow(
+  results: TaskResult[],
+  factor = 1,
+  boost: RoundBoost = NO_BOOST,
+): ShowSummary {
   let coins = 0
   let streak = 0
   for (const r of results) {
-    coins += answerReward(r.attempts, factor)
-    streak = r.attempts === 1 ? streak + 1 : 0
-    coins += streakBonus(streak, factor)
+    const attempt = coinAttempt(r)
+    coins += taskCoins(attempt, factor, boost)
+    streak = attempt === 1 ? streak + 1 : 0
+    coins += streakBonus(streak, factor, boost.streakLength)
   }
   return {
     solved: results.filter((r) => r.attempts <= 2).length,

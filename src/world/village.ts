@@ -131,6 +131,12 @@ export const HUTS: Hut[] = [
 ]
 
 export const POND = { x: 22, y: 48, width: 28, height: 18 }
+/** Where she stands to fish: on the grass below the pond */
+export const FISHING_SPOT = { x: POND.x + POND.width / 2, y: POND.y + POND.height + 6 }
+
+/** A tap on the pond (or right at its shore) walks her to the fishing spot. */
+export const isPondTap = (x: number, y: number): boolean =>
+  x >= POND.x - 3 && x < POND.x + POND.width + 3 && y >= POND.y - 3 && y < POND.y + POND.height + 4
 
 /** The village is an island: sea above `top` and below `bottom`, beach above the lower sea. */
 export const SEA = { top: 12, bottom: 484 }

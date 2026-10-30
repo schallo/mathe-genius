@@ -42,19 +42,20 @@ Calm practice (huts, theatre) teaches; battles test speed. Both earn coins. Pets
 
 A small top-down pixel village on an **island** that fits on **one or two screens** (portrait): sea and a sandy beach at the bottom (where she arrives), a wooden **jetty (Steg)** at the top, palm trees along the sides. Her character walks around with **tap to walk** (tap a spot or a hut; arrow keys/WASD on the PC). Her active pet follows her. Entering a hut door opens that hut's scene.
 
-| Hut                                                | Purpose                                                                                                                            |
-| -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| **Bonuswoche** (the stage hut, formerly "Theater") | The shows from section 3: 10 tasks from the hut of the week (weekly rotation), one level harder, no timer, hints, double coins.    |
-| **Lernhütten** (learning huts, one per field)      | Focus training of one math field, she picks the topic and level. Calm, no timer, hints and worked solutions, same coins as a show. |
-| – **Mal-Dojo** / **Teil-Dojo**                     | The Einmaleins-Training from section 6a, one hut for multiplication, one for division, each with its own grid and row badges.      |
-| – **Rechenwerkstatt**                              | Halbschriftlich and schriftlich ·, :, +, − (written calculation grid).                                                             |
-| – **Zahlenturm**                                   | Zahlenraum bis 1 Million, Kopfrechnen Plus/Minus, rounding.                                                                        |
-| – **Marktstand**                                   | Größen and Sachaufgaben (money first).                                                                                             |
-| **Laden**                                          | Shop (section 4).                                                                                                                  |
-| **Mein Haus**                                      | Garderobe: wardrobe, hairstyles, renaming.                                                                                         |
-| **Tierheim** (pet shelter)                         | Adopt pets, name them, play with them, see their level, choose the active battle pet. Tired pets nap here.                         |
-| **Bibliothek**                                     | Sammelalbum and daily calendar.                                                                                                    |
-| **Steg** (jetty at the top of the island)          | Boat to the wild islands with the battle areas (section 6b).                                                                       |
+| Hut                                                | Purpose                                                                                                                                                                                                                                                                       |
+| -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Bonuswoche** (the stage hut, formerly "Theater") | The shows from section 3: 10 tasks from the hut of the week (weekly rotation), one level harder, no timer, hints, double coins.                                                                                                                                               |
+| **Lernhütten** (learning huts, one per field)      | Focus training of one math field, she picks the topic and level. Calm, no timer, hints and worked solutions, same coins as a show.                                                                                                                                            |
+| – **Mal-Dojo** / **Teil-Dojo**                     | The Einmaleins-Training from section 6a, one hut for multiplication, one for division, each with its own grid and row badges.                                                                                                                                                 |
+| – **Rechenwerkstatt**                              | Halbschriftlich and schriftlich ·, :, +, − (written calculation grid).                                                                                                                                                                                                        |
+| – **Zahlenturm**                                   | Zahlenraum bis 1 Million, Kopfrechnen Plus/Minus, rounding.                                                                                                                                                                                                                   |
+| – **Marktstand**                                   | Größen and Sachaufgaben (money first).                                                                                                                                                                                                                                        |
+| **Laden**                                          | Shop (section 4).                                                                                                                                                                                                                                                             |
+| **Mein Haus**                                      | Garderobe: wardrobe, hairstyles, renaming.                                                                                                                                                                                                                                    |
+| **Tierheim** (pet shelter)                         | Adopt pets, name them, play with them, see their level, choose the active battle pet. Tired pets nap here.                                                                                                                                                                    |
+| **Bibliothek**                                     | Sammelalbum and daily calendar.                                                                                                                                                                                                                                               |
+| **Teich** (pond, top left)                         | Fishing mini game with the Angel from the Laden: cast, wait for the bite, reel in against a changing pull with limited power. Goldi jumps in the pond until she bites (growing chance, at the 50th catch at the latest); after that 1 star per catch, max. 3 a day. No coins. |
+| **Steg** (jetty at the top of the island)          | Boat to the wild islands with the battle areas (section 6b).                                                                                                                                                                                                                  |
 
 - Huts that aren't built yet are shown as a cute construction site ("Hier wird gebaut!"), so the village feels alive from the start.
 - The parent area is opened from a small locked mailbox, not a hut.
@@ -105,34 +106,38 @@ She can mark **one item as her wish**. A progress bar on the stage shows "Noch 8
 
 Her favourites are **cats and dogs**; they get the most variety (several fur colours/breeds as separate pets). All animals are cute, round and friendly – also the dinosaurs and lions, never scary (`STYLE_GUIDE.md` §11).
 
-| Family                      | Animals                                                                   | How she gets them                                                                      |
-| --------------------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| **Katzen & Hunde**          | Katze, Hund – many colours and breeds                                     | **Starter** (Kätzchen or Hündchen) or **adopt with coins** in the Tierheim             |
-| **Kleintiere**              | Hamster, Maus, Schildkröte, Kaninchen, Meerschweinchen, Wellensittich     | **Starter** (Hamster) or **adopt with coins** in the Tierheim                          |
-| **Wildtiere** (wildlife)    | Igel, Eichhörnchen, Fuchs, Eule, Waschbär · Löwe, Elefant, Giraffe, Zebra | **Befriend** in the wild area (3 wins against the species)                             |
-| **Urzeittiere** (dinosaurs) | T-Rex, Brachiosaurus, Triceratops, Flugsaurier                            | **Befriend** in a later area                                                           |
-| **Fabeltiere** (fantasy)    | Einhorn, Pegasus, Drache                                                  | **Befriend** in the last area                                                          |
-| **Besondere Varianten**     | e.g. Regenbogen-Einhorn, Goldener T-Rex, Sternen-Katze                    | **Stars + coins** in the Tierheim (star items); same family trait as their base animal |
+| Family                      | Animals                                                                                                                | How she gets them                                                                                        |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| **Katzen & Hunde**          | Katze, Hund – many colours and breeds                                                                                  | **Starter** (Kätzchen or Hündchen) or **adopt with coins** in the Tierheim                               |
+| **Kleintiere**              | Hamster, Maus, Schildkröte, Kaninchen, Meerschweinchen, Wellensittich                                                  | **Starter** (Hamster) or **adopt with coins** in the Tierheim                                            |
+| **Wildtiere** (wildlife)    | Igel, Eichhörnchen, Fuchs, Eule, Waschbär · Löwe, Elefant, Giraffe, Zebra                                              | **Befriend** in the wild area (3 wins against the species)                                               |
+| **Urzeittiere** (dinosaurs) | T-Rex, Brachiosaurus, Triceratops, Flugsaurier                                                                         | **Befriend** in a later area                                                                             |
+| **Fabeltiere** (fantasy)    | Einhorn, Pegasus, Drache                                                                                               | **Befriend** in the last area                                                                            |
+| **Besondere Tiere**         | Mr Wriggles (Goldhamster mit Zylinder), Prinzessin Pfötchen, Sir Bello, Sternen-Katze, Kapitän Panzer, Regenbogen-Hase | **Stars + coins** in the Tierheim; one of each, they arrive with their own name and have their own trait |
+| **Goldi**                   | goldfish in a water bubble                                                                                             | **Fishing** at the village pond (§3a)                                                                    |
 
 - Rule of thumb: everyday pets are bought, wild and fancy pets are **earned in battles** – that's the reason to keep going into the wild area.
 - Wild creatures in battle are these animals in their wild form (e.g. a wild fox); once befriended, the same animal becomes her pet and can be named.
 - New animals only need a data entry in `data/creatures.ts` (and `items.ts` for shop pets) plus a sprite.
 
-### Pet traits (by family)
+### Pet traits (decided 2026-10-30: per pet)
 
-Traits belong to the **family**, not to the single animal: every animal of a family has the same trait. This keeps it simple for her ("Wildtiere geben Tipps") and makes choosing the active pet a small decision before a battle. Traits **support learning, they never solve the task**: tips show the method from `hints.ts`, not the answer.
+Every pet of the Tierheim has **its own trait** (data in `data/creatures.ts`); befriended wild animals keep their **family trait**. Traits work wherever her active pet is along: in **battles** and in **shows and learning huts**. Traits **support learning, they never solve the task**: tips show the method from `hints.ts`, not the answer; in shows they only protect coins and streaks.
 
-| Family             | Trait                                                                                                                                                                  |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Katzen & Hunde** | **No trait.** The basic pets; her favourites, with the most colours and breeds to collect.                                                                             |
-| **Kleintiere**     | **Mehr Zeit:** +2 s per task in battles.                                                                                                                               |
-| **Wildtiere**      | **Rechentipp:** once per battle a method tip for the current task – division (`56 : 8` → "Denk an 8 · ? = 56"), splitting (`6 · 47 = 6 · 40 + 6 · 7`), Zehnerübergang. |
-| **Urzeittiere**    | **Urzeitkraft:** Volltreffer do double damage.                                                                                                                         |
-| **Fabeltiere**     | **Zauber-Joker:** once per battle a wrong answer becomes a second try instead of an opponent attack.                                                                   |
+| Effect                          | Where          | What it does                                                                                                              | Pets                                                            |
+| ------------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| **Fehler frei** (free mistake)  | shows, battles | The first mistake(s) of a round cost nothing: coins and streak as on the first try; in battles no hit                     | Hündchen, Dalmatiner, Kaninchen, Sir Bello (2), Regenbogen-Hase |
+| **Serie ab 4** (earlier streak) | shows          | The streak bonus comes after 4 (Prinzessin Pfötchen: 3) first tries in a row instead of 5                                 | Kätzchen, Rote Katze, Maus, Prinzessin Pfötchen                 |
+| **+1 Münze**                    | shows          | One extra coin for every task right on the first try                                                                      | Meerschweinchen, Mr Wriggles, Regenbogen-Hase, Goldi            |
+| **+1 Stern**                    | shows          | One extra star with every new star level                                                                                  | Wellensittich, Sternen-Katze, Regenbogen-Hase                   |
+| **Mehr Zeit**                   | battles        | +2 s per task (Schildkröte +3 s, Kapitän Panzer +4 s)                                                                     | Hamster, Schildkröte, Mr Wriggles, Kapitän Panzer               |
+| **Rechentipp** (Wildtiere)      | battles        | Once per battle a method tip for the current task – division (`56 : 8` → "Denk an 8 · ? = 56"), splitting, Zehnerübergang | befriended wild animals                                         |
+| **Urzeitkraft** (Urzeittiere)   | battles        | Volltreffer do double damage                                                                                              | dinosaurs                                                       |
+| **Zauber-Joker** (Fabeltiere)   | battles        | Once per battle a wrong answer becomes a second try instead of an opponent attack                                         | Einhorn, Pegasus, Drache                                        |
 
-- Traits **grow with the pet's level** in small steps (e.g. Kleintiere +2 s at level 1, +3 s at level 5; Rechentipp and Zauber-Joker twice per battle from level 5).
-- Shown on the pet's card in the Tierheim and in the battle info box as a **small icon + 2–3 words** ("+2 Sekunden", "Rechentipp").
-- Traits only modify battles; the adaptive timer, mastery and Einmaleins tracking always measure **her own** performance (time bonuses are not counted into her response-time statistics).
+- Traits **grow at pet level 5**: +1 s, one more tip, joker or free mistake.
+- Shown on the pet's card in the Tierheim, on the starter cards and in the battle info box as **2–3 words** ("1 Fehler frei", "Serie ab 4").
+- The adaptive timer, mastery, the mistake queue and Einmaleins tracking always measure **her own** answers (a forgiven mistake still counts as a mistake there; time bonuses are not counted into her response-time statistics).
 
 ### Sammelalbum (collection book)
 

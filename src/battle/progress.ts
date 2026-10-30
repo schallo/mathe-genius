@@ -1,8 +1,9 @@
 // Battle results in the save (GAME_DESIGN §4 "Pets", §6b "Win and defeat"). Pure logic.
 // Nothing is ever lost: a defeat only sends the pet for a short nap.
-import { SPECIES, type SpeciesId } from '../data/creatures'
-import { addPet, earnCoins, type PetSave, type SaveData } from '../state/save'
-import { levelFromXp, recordTime, winXp } from './battle'
+import { SPECIES, traitOf, type SpeciesId } from '../data/creatures'
+import type { RoundBoost } from '../state/economy'
+import { activePet, addPet, earnCoins, type PetSave, type SaveData } from '../state/save'
+import { levelFromXp, recordTime, traitPower, winXp, type TraitPower } from './battle'
 
 /** A tired pet naps for 2 minutes – or until she finishes a show. */
 export const NAP_MS = 2 * 60 * 1000
@@ -10,6 +11,17 @@ export const NAP_MS = 2 * 60 * 1000
 export const BEFRIEND_WINS = 3
 
 export const petLevel = (pet: PetSave): number => levelFromXp(pet.xp)
+
+/** Her active pet's trait at its level; shows and huts use it too (GAME_DESIGN §4). */
+export function activePower(save: SaveData): TraitPower {
+  const pet = activePet(save)
+  return traitPower(pet ? traitOf(pet.species) : null, pet ? petLevel(pet) : 1)
+}
+
+export const roundBoost = (power: TraitPower): RoundBoost => ({
+  streakLength: power.streakLength,
+  bonusCoins: power.bonusCoins,
+})
 
 export function isNapping(save: SaveData, petId: string, now: number): boolean {
   return (save.battle.naps[petId] ?? 0) > now

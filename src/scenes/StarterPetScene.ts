@@ -3,6 +3,7 @@ import { Character } from '../art/character/Character'
 import { DEFAULT_LOOK } from '../art/character/look'
 import { Pet } from '../art/pets/Pet'
 import { ensureStageTexture } from '../art/stage'
+import { traitLabel } from '../battle/battle'
 import { SPECIES, STARTERS, traitOf, type SpeciesId } from '../data/creatures'
 import { texts } from '../data/texts'
 import { GAME_WIDTH } from '../display'
@@ -50,8 +51,8 @@ export class StarterPetScene extends PixelScene {
       const pet = new Pet(this, CARD_W / 2, 44, species).setScale(3)
       key.add(pet)
       key.add(addText(this, CARD_W / 2, 56, SPECIES[species].name, 'label', 5))
-      const trait = traitOf(species)
-      if (trait) key.add(addText(this, CARD_W / 2, 66, trait.label, 'label', 4))
+      const trait = traitLabel(traitOf(species), 1)
+      if (trait) key.add(addText(this, CARD_W / 2, 66, trait, 'label', 4))
       this.cards.push({ species, key, pet })
     })
 

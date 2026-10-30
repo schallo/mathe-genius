@@ -13,6 +13,7 @@ import { GAME_HEIGHT, GAME_WIDTH } from '../display'
 import { palette } from '../palette'
 import { isNapping } from '../battle/progress'
 import { activePet } from '../state/save'
+import { ROD_ITEM } from '../state/fishing'
 import { getSave } from '../state/store'
 import { Caption } from '../ui/Caption'
 import { Hud } from '../ui/Hud'
@@ -20,6 +21,7 @@ import { LabelPill } from '../ui/LabelPill'
 import { findPath, isBlocked, nearestFree, type Grid } from '../world/path'
 import {
   CELL,
+  FISHING_SPOT,
   HUTS,
   HUT_HEIGHT,
   MAILBOX,
@@ -31,6 +33,7 @@ import {
   cellCenter,
   doorEntry,
   hutAt,
+  isPondTap,
   toCell,
   type Hut,
 } from '../world/village'
@@ -43,7 +46,7 @@ const WILD_Y = 12
 /** How far the pet walks behind her, along her trail. */
 const PET_DISTANCE = 14
 
-type Target = { kind: 'hut'; hut: Hut } | { kind: 'wild' } | { kind: 'spot' }
+type Target = { kind: 'hut'; hut: Hut } | { kind: 'wild' } | { kind: 'pond' } | { kind: 'spot' }
 
 export class VillageScene extends PixelScene {
   private hero!: Character
@@ -104,7 +107,9 @@ export class VillageScene extends PixelScene {
       ? doorEntry(fromHut)
       : this.from === 'steg'
         ? { x: MAIN_PATH.x + MAIN_PATH.width / 2, y: WILD_Y + 10 }
-        : { ...SPAWN }
+        : this.from === 'teich'
+          ? { x: FISHING_SPOT.x, y: FISHING_SPOT.y + 4 }
+          : { ...SPAWN }
     const save = getSave()
     this.hero = new Character(this, this.pos.x, this.pos.y, save.character?.look ?? DEFAULT_LOOK)
     this.hero.face('down').setName(save.character?.name ?? null)
@@ -167,6 +172,10 @@ export class VillageScene extends PixelScene {
     if (hut) {
       this.target = { kind: 'hut', hut }
       goal = doorEntry(hut)
+    } else if (isPondTap(x, y)) {
+      // The pond: fishing with the Angel from the Laden
+      this.target = { kind: 'pond' }
+      goal = { ...FISHING_SPOT }
     } else if (y < WILD_Y + 16 && x > MAIN_PATH.x - 10 && x < MAIN_PATH.x + MAIN_PATH.width + 46) {
       this.target = { kind: 'wild' }
       goal = { x: MAIN_PATH.x + MAIN_PATH.width / 2, y: CELL / 2 }
@@ -292,9 +301,26 @@ export class VillageScene extends PixelScene {
     const target = this.target
     this.target = null
     if (target?.kind === 'hut') this.enter(target.hut)
+    if (target?.kind === 'pond') this.fish()
+  }
+
+  /** At the pond: with the Angel the fishing game opens, without it a hint. */
+  private fish() {
+    this.hero.face('up')
+    if (getSave().owned.includes(ROD_ITEM)) {
+      this.leaving = true
+      this.goTo('Fishing')
+      return
+    }
+    this.caption.show(texts.fishing.needRod)
+    // Step back so walking up with the keyboard doesn't repeat the hint at once
+    this.pos.y += DOOR_RADIUS
   }
 
   private checkKeyboardDoor() {
+    if (Math.hypot(FISHING_SPOT.x - this.pos.x, FISHING_SPOT.y - this.pos.y) < DOOR_RADIUS + 2) {
+      return this.fish()
+    }
     for (const hut of HUTS) {
       const door = doorEntry(hut)
       if (Math.hypot(door.x - this.pos.x, door.y - this.pos.y) < DOOR_RADIUS) return this.enter(hut)

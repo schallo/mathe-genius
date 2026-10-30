@@ -35,7 +35,8 @@ export class ItemCard extends Key {
     super(scene, x, y, CARD_W, CARD_H, '', onPress)
     this.item = item
     this.add(itemPreview(scene, item, look))
-    this.add(addText(scene, CARD_W / 2, 41, item.name, 'label', 4.5))
+    // Long names (special animals like "Prinzessin Pfötchen") get a smaller font to fit
+    this.add(addText(scene, CARD_W / 2, 41, item.name, 'label', item.name.length > 16 ? 3.5 : 4.5))
   }
 
   setPrice(price: CardPrice): this {

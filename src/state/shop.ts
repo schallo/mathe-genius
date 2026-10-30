@@ -1,5 +1,6 @@
 // Buying, wearing, adopting and the wish goal (GAME_DESIGN §4). Pure logic.
 import type { CharacterLook } from '../art/character/look'
+import { SPECIES, type SpeciesId } from '../data/creatures'
 import { ITEMS, item as findItem, type Item } from '../data/items'
 import { addPet, coinBalance, spendCoins, spendStars, starBalance, type SaveData } from './save'
 
@@ -55,11 +56,21 @@ export function buy(save: SaveData, item: Item, device: string): BuyResult {
   return { ok: true, save: next }
 }
 
-/** Adopts a pet from the Tierheim and gives it its name. */
+/** Special animals (and Goldi) exist once; she has this one already. */
+export const hasUnique = (save: SaveData, species: SpeciesId): boolean =>
+  !!SPECIES[species].uniqueName && save.pets.some((p) => p.species === species)
+
+/**
+ * Adopts a pet from the Tierheim and gives it its name. Special animals cost stars too
+ * and keep their own name.
+ */
 export function adopt(save: SaveData, item: Item, name: string, device: string): BuyResult {
   if (!item.species) return { ok: false, reason: 'pet' }
+  if (hasUnique(save, item.species)) return { ok: false, reason: 'owned' }
   if (!canAfford(save, item)) return { ok: false, reason: 'coins' }
-  const next = addPet(spendCoins(save, item.price, device), item.species, name)
+  let next = spendCoins(save, item.price, device)
+  if (item.starCost) next = spendStars(next, item.starCost, device)
+  next = addPet(next, item.species, SPECIES[item.species].uniqueName ?? name)
   return { ok: true, save: { ...next, wish: next.wish === item.id ? null : next.wish } }
 }
 
@@ -85,4 +96,6 @@ export function ownedItems(save: SaveData, category: Item['category']): Item[] {
   return ITEMS.filter((i) => i.category === category && !i.species && isOwned(save, i))
 }
 
-export const adoptablePets = (): Item[] => ITEMS.filter((i) => i.species)
+/** Pets in the Tierheim looking for a home (a special animal leaves once it is hers). */
+export const adoptablePets = (save?: SaveData): Item[] =>
+  ITEMS.filter((i) => i.species && !(save && hasUnique(save, i.species)))

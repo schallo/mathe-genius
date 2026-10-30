@@ -8,7 +8,7 @@ import { texts } from '../data/texts'
 import { GAME_WIDTH } from '../display'
 import { REWARD, summarizeShow, type TaskResult } from '../state/economy'
 import { activePet, coinBalance } from '../state/save'
-import { wakeAll } from '../battle/progress'
+import { activePower, roundBoost, wakeAll } from '../battle/progress'
 import { finishTheaterShow } from '../state/learning'
 import { recordRound } from '../state/calendar'
 import { Caption } from '../ui/Caption'
@@ -68,7 +68,7 @@ export class ShowEndScene extends PixelScene {
       ...(day?.suggestBreak ? [texts.library.rest] : []),
     ]
     const hud = new Hud(this)
-    const summary = summarizeShow(this.results, factor)
+    const summary = summarizeShow(this.results, factor, roundBoost(activePower(getSave())))
 
     const save = getSave()
     this.hero = new Character(this, 112, SHOW_FLOOR_Y, save.character?.look ?? DEFAULT_LOOK)

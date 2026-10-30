@@ -27,8 +27,10 @@ import { checkAnswer } from '../math/topics'
 import type { Answer, Task } from '../math/types'
 import { layoutWritten } from '../math/written'
 import { palette } from '../palette'
-import { answerReward, streakBonus, type TaskResult } from '../state/economy'
-import { activePet } from '../state/save'
+import { activePower } from '../battle/progress'
+import type { TraitPower } from '../battle/battle'
+import { coinAttempt, streakBonus, taskCoins, type TaskResult } from '../state/economy'
+import { activePet, earnStars, type PetSave } from '../state/save'
 import { currentLevels } from '../math/adaptive'
 import { dueReviews } from '../math/review'
 import { topic as topicOf } from '../math/topics'
@@ -64,6 +66,12 @@ export class ShowScene extends PixelScene {
   private field: Field = 'value'
   private results: TaskResult[] = []
   private streak = 0
+  /** Her active pet and its trait (free mistakes, earlier streak, extra coins and stars) */
+  private petSave?: PetSave
+  private power!: TraitPower
+  private freeLeft = 0
+  /** A mistake on the current task was forgiven by her pet */
+  private free = false
   private busy = false
 
   private hero!: Character
@@ -105,6 +113,9 @@ export class ShowScene extends PixelScene {
     this.hero.setName(save.character?.name ?? null)
     const pet = activePet(save)
     if (pet) this.pet = new Pet(this, 170, SHOW_FLOOR_Y, pet.species)
+    this.petSave = pet
+    this.power = activePower(save)
+    this.freeLeft = this.power.freeMistakes
 
     this.card = new SpeechCard(this, CARD.x, CARD.y, CARD.w, CARD.h, '')
     this.card.setTextY(30)
@@ -151,6 +162,7 @@ export class ShowScene extends PixelScene {
     this.task = slotTask(slot, Math.random)
     this.reviewMark.setVisible(!!slot.review)
     this.attempt = 1
+    this.free = false
     this.typed = { value: '', rest: '' }
     this.field = 'value'
     this.busy = false
@@ -229,6 +241,7 @@ export class ShowScene extends PixelScene {
     this.squareMistakes++
     const hint = grid.current.hint
     if (this.squareMistakes === 1) {
+      if (this.attempt === 1) this.forgive()
       this.attempt = Math.max(this.attempt, 2)
       this.showHint(texts.show.hint, [hint], this.belowGrid())
     } else {
@@ -245,21 +258,27 @@ export class ShowScene extends PixelScene {
 
   private onCorrect() {
     this.busy = true
-    this.results.push({ attempts: this.attempt })
-    this.streak = this.attempt === 1 ? this.streak + 1 : 0
+    const result: TaskResult = { attempts: this.attempt, ...(this.free ? { free: true } : {}) }
+    this.results.push(result)
+    // Coins and the streak count a forgiven mistake as one try earlier; her level counts the real try
+    const attempt = coinAttempt(result)
+    this.streak = attempt === 1 ? this.streak + 1 : 0
     const factor = coinFactor(this.round)
-    const reward = answerReward(this.attempt, factor)
-    const bonus = streakBonus(this.streak, factor)
+    const reward = taskCoins(attempt, factor, this.power)
+    const bonus = streakBonus(this.streak, factor, this.power.streakLength)
     addCoins(reward + bonus)
     // Her level for this topic, stars for a new level, mistakes for later shows
     const review = !!this.slots[this.index].review
     let levelUp: { level: number; stars: number } | undefined
     updateSave((s) => {
       const result = recordShowTask(s, this.task, this.attempt, review, deviceId())
+      // Some pets bring an extra star with every new star level
+      const extra = result.stars ? this.power.bonusStars : 0
       if (result.change === 'up' || result.stars) {
-        levelUp = { level: result.save.mastery[this.task.topic]!.level, stars: result.stars }
+        const stars = result.stars + extra
+        levelUp = { level: result.save.mastery[this.task.topic]!.level, stars }
       }
-      return result.save
+      return extra ? earnStars(result.save, extra, deviceId()) : result.save
     })
 
     sfx.pling()
@@ -267,18 +286,23 @@ export class ShowScene extends PixelScene {
     this.pet?.hop()
     this.risingHearts()
     this.flyCoins(reward + bonus)
+    // Shown now, not at the mistake, so the hint card stays readable
+    const forgiven = this.free ? [texts.show.freeMistake(this.petSave?.name ?? '')] : []
     if (bonus) {
       sfx.fanfare()
-      this.caption.show(`${texts.show.streak} +${bonus}`, 1500)
+      const streak = `${texts.show.streak(this.power.streakLength)} +${bonus}`
+      this.caption.show([...forgiven, streak].join(' '), 1800)
+    } else if (forgiven.length) {
+      this.caption.show(forgiven[0], 1500)
     }
-    if (this.grid) this.caption.show(this.praise(), 1300)
+    if (this.grid && !bonus && !this.free) this.caption.show(this.praise(), 1300)
     else this.card.setText(this.praise(), 20)
     this.hint.setVisible(false)
     if (levelUp) {
       const name = topicOf(this.task.topic).short
       const text = [
         texts.show.levelUp(name, levelUp.level),
-        ...(levelUp.stars ? [texts.show.star] : []),
+        ...(levelUp.stars ? [texts.show.stars(levelUp.stars)] : []),
       ]
       this.time.delayedCall(bonus ? 700 : 0, () => {
         sfx.fanfare()
@@ -295,6 +319,7 @@ export class ShowScene extends PixelScene {
   private onWrong() {
     sfx.boop()
     this.wiggleCard()
+    if (this.attempt === 1) this.forgive()
     this.attempt++
     this.typed = { value: '', rest: '' }
     this.field = 'value'
@@ -304,6 +329,17 @@ export class ShowScene extends PixelScene {
     } else {
       this.showHint(texts.show.solution, [...this.task.solutionSteps, texts.show.retype])
     }
+  }
+
+  /**
+   * First mistake on a task: a pet with free mistakes left forgives it (the hint is still
+   * shown; the pet hops now and the message comes with the right answer).
+   */
+  private forgive() {
+    if (this.freeLeft <= 0) return
+    this.freeLeft--
+    this.free = true
+    this.pet?.hop()
   }
 
   // ---------- Rendering ----------

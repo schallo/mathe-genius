@@ -1,7 +1,14 @@
 // Battle rules (GAME_DESIGN §6b, §4 "Pet traits"). Pure logic, no Phaser.
 // Correct in time → her pet attacks (faster = stronger, very fast = Volltreffer);
 // wrong or too slow → the wild creature attacks. The battle ends when one side's HP is empty.
-import { traitOf, type SpeciesId, type Trait, type WildForm } from '../data/creatures'
+import {
+  traitOf,
+  type SpeciesId,
+  type Trait,
+  type TraitEffects,
+  type WildForm,
+} from '../data/creatures'
+import { REWARD } from '../state/economy'
 
 // ---------- Pet levels ----------
 
@@ -26,36 +33,43 @@ export const winXp = (creatureLevel: number): number => XP.winBase + XP.winPerLe
 
 // ---------- Traits ----------
 
-/** What a pet's family trait does at its level (traits grow in small steps). */
-export type TraitPower = {
-  /** Extra time per task (Kleintiere) */
-  extraMs: number
-  /** Method tips per battle (Wildtiere) */
-  tips: number
-  /** Wrong answers that become a second try (Fabeltiere) */
-  jokers: number
-  /** Volltreffer damage multiplier (Urzeittiere) */
-  fullHitFactor: number
-}
+/** What a pet's trait does at its level. */
+export type TraitPower = TraitEffects
+
+/** From this pet level on, traits grow a little (one more second, tip, joker or free mistake). */
+export const STRONG_TRAIT_LEVEL = 5
 
 export function traitPower(trait: Trait, level: number): TraitPower {
-  const strong = level >= 5
+  const e = trait?.effects ?? {}
+  const grow = (n = 0, step = 1) => (n > 0 && level >= STRONG_TRAIT_LEVEL ? n + step : n)
   return {
-    extraMs: trait?.id === 'mehrZeit' ? (strong ? 3000 : 2000) : 0,
-    tips: trait?.id === 'rechentipp' ? (strong ? 2 : 1) : 0,
-    jokers: trait?.id === 'zauberJoker' ? (strong ? 2 : 1) : 0,
-    fullHitFactor: trait?.id === 'urzeitkraft' ? 2 : 1,
+    extraMs: grow(e.extraMs, 1000),
+    tips: grow(e.tips),
+    jokers: grow(e.jokers),
+    fullHitFactor: e.fullHitFactor ?? 1,
+    freeMistakes: grow(e.freeMistakes),
+    streakLength: e.streakLength ?? REWARD.streakLength,
+    bonusCoins: e.bonusCoins ?? 0,
+    bonusStars: e.bonusStars ?? 0,
   }
 }
 
-/** Two or three words for the card in the Tierheim and the battle info box. */
+/** Two or three words per effect, for the Tierheim card, the starter card and the battle info box. */
 export function traitLabel(trait: Trait, level: number): string | null {
   if (!trait) return null
-  const power = traitPower(trait, level)
-  if (trait.id === 'mehrZeit') return `+${power.extraMs / 1000} Sekunden`
-  if (trait.id === 'rechentipp' && power.tips > 1) return `${power.tips}× Rechentipp`
-  if (trait.id === 'zauberJoker' && power.jokers > 1) return `${power.jokers}× Zauber-Joker`
-  return trait.label
+  const p = traitPower(trait, level)
+  const times = (n: number, word: string) => (n > 1 ? `${n}× ${word}` : word)
+  const parts = [
+    p.extraMs && `+${p.extraMs / 1000} Sekunden`,
+    p.tips && times(p.tips, 'Rechentipp'),
+    p.jokers && times(p.jokers, 'Zauber-Joker'),
+    p.fullHitFactor > 1 && `Volltreffer ×${p.fullHitFactor}`,
+    p.freeMistakes && `${p.freeMistakes} Fehler frei`,
+    p.streakLength !== REWARD.streakLength && `Serie ab ${p.streakLength}`,
+    p.bonusCoins && `+${p.bonusCoins} Münze`,
+    p.bonusStars && `+${p.bonusStars} Stern`,
+  ].filter((x): x is string => !!x)
+  return parts.join(' · ')
 }
 
 // ---------- Adaptive timer ----------
@@ -123,6 +137,8 @@ export type BattleState = {
   foe: Side
   tipsLeft: number
   jokersLeft: number
+  /** Mistakes that cost nothing (no hit, the next task comes) */
+  shieldsLeft: number
   fullHitFactor: number
   extraMs: number
   /** XP earned so far (kept even after a defeat) */
@@ -139,6 +155,7 @@ export function startBattle(species: SpeciesId, petLevel: number, foe: WildForm)
     foe: { hp: foe.hp, maxHp: foe.hp, attack: foe.attack },
     tipsLeft: power.tips,
     jokersLeft: power.jokers,
+    shieldsLeft: power.freeMistakes,
     fullHitFactor: power.fullHitFactor,
     extraMs: power.extraMs,
     xp: 0,
@@ -169,20 +186,26 @@ export function answerCorrect(
 
 /**
  * Wrong answer or time over. A Zauber-Joker turns a wrong answer (not a timeout) into a
- * second try; otherwise the creature attacks.
+ * second try; a free mistake (shield) keeps the creature from attacking; otherwise it attacks.
  */
 export function answerWrong(
   state: BattleState,
   timeout: boolean,
-): { state: BattleState; damage: number; joker: boolean } {
+): { state: BattleState; damage: number; joker: boolean; shield: boolean } {
   if (!timeout && state.jokersLeft > 0) {
-    return { state: { ...state, jokersLeft: state.jokersLeft - 1 }, damage: 0, joker: true }
+    const next = { ...state, jokersLeft: state.jokersLeft - 1 }
+    return { state: next, damage: 0, joker: true, shield: false }
+  }
+  if (state.shieldsLeft > 0) {
+    const next = { ...state, shieldsLeft: state.shieldsLeft - 1 }
+    return { state: next, damage: 0, joker: false, shield: true }
   }
   const damage = state.foe.attack
   const hp = Math.max(0, state.pet.hp - damage)
   return {
     damage,
     joker: false,
+    shield: false,
     state: { ...state, pet: { ...state.pet, hp }, outcome: hp === 0 ? 'lose' : null },
   }
 }

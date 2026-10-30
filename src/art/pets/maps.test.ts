@@ -8,6 +8,11 @@ describe('pet sprites', () => {
     it(`${species} is ${PET_WIDTH} × ${PET_HEIGHT} with known pixels and room for the outline`, () => {
       const { map } = petArt[species]
       expect(() => validateMap(map, PET_ROLES)).not.toThrow()
+      // Extra roles need a colour
+      const { colors } = petArt[species]
+      for (const role of ['d', 'f', 'g'] as const) {
+        if (map.some((r) => r.includes(role))) expect(colors[role]).toBeDefined()
+      }
       expect(mapSize(map)).toEqual({ width: PET_WIDTH, height: PET_HEIGHT })
       for (const row of map) expect(row[0] + row.at(-1)).toBe('..')
     })

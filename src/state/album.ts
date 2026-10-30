@@ -24,7 +24,7 @@ export function albumEntries(save: SaveData, category: AlbumCategory): AlbumEntr
     return (Object.keys(SPECIES) as SpeciesId[]).map((species) => ({
       kind: 'pet',
       species,
-      name: SPECIES[species].name,
+      name: SPECIES[species].uniqueName ?? SPECIES[species].name,
       collected: save.pets.some((p) => p.species === species),
     }))
   }

@@ -7,7 +7,9 @@ import {
   HUT_HEIGHT,
   HUT_WIDTH,
   MAIN_PATH,
+  FISHING_SPOT,
   POND,
+  isPondTap,
   PLANTS,
   PLANT_KINDS,
   SEA,
@@ -95,6 +97,16 @@ describe('village layout', () => {
       const door = doorEntry(hut)
       expect(findPath(grid, start, toCell(door.x, door.y)), hut.id).not.toBeNull()
     }
+  })
+
+  it('has a free fishing spot below the pond that a pond tap leads to', () => {
+    const grid = buildWalkGrid()
+    const spot = toCell(FISHING_SPOT.x, FISHING_SPOT.y)
+    expect(isBlocked(grid, spot.cx, spot.cy)).toBe(false)
+    expect(findPath(grid, toCell(SPAWN.x, SPAWN.y), spot)).not.toBeNull()
+    expect(isPondTap(POND.x + 10, POND.y + 5)).toBe(true)
+    expect(isPondTap(POND.x + 10, POND.y + 40)).toBe(false)
+    expect(hutAt(POND.x + 10, POND.y + 5)).toBeUndefined()
   })
 })
 
