@@ -20,6 +20,9 @@ export const JETTY = { x: 142, y: 536, width: 16, height: 54 }
 export const BOAT = { x: 158, y: 572, width: 22, height: 10 }
 export const ARRIVAL = { x: 150, y: 580 }
 
+/** She finds a hiding creature when she comes this close to its spot. */
+export const FIND_RADIUS = 22
+
 export type ObstacleKind = 'palm' | 'tree' | 'rock'
 
 /** Sprite size and the part of it that blocks walking (feet can pass behind the top). */
@@ -129,58 +132,21 @@ const layout = (mirror: boolean) =>
     ? mirrored(BLUMENWIESE)
     : { obstacles: BLUMENWIESE.obstacles, spots: BLUMENWIESE.spots, pond: BLUMENWIESE.pond }
 
-/** In order of difficulty; an island opens when her strongest pet reaches its level. */
-export const AREAS: Area[] = [
-  BLUMENWIESE,
-  {
-    id: 'fluesterwald',
-    name: 'Flüsterwald',
-    theme: 'wald',
-    unlockLevel: 3,
-    species: ['eule', 'waschbaer', 'reh'],
-    ...layout(true),
-  },
-  {
-    id: 'sonnensavanne',
-    name: 'Sonnensavanne',
-    theme: 'savanne',
-    unlockLevel: 5,
-    species: ['zebra', 'giraffe', 'elefant', 'loewe'],
-    ...layout(false),
-  },
-  {
-    id: 'urzeittal',
-    name: 'Urzeittal',
-    theme: 'urzeit',
-    unlockLevel: 7,
-    species: ['flugsaurier', 'triceratops', 'brachiosaurus', 'trex'],
-    ...layout(true),
-  },
-  {
-    id: 'wolkenberg',
-    name: 'Wolkenberg',
-    theme: 'wolken',
-    unlockLevel: 9,
-    species: ['pegasus', 'einhorn', 'drache'],
-    ...layout(false),
-  },
-]
-
 /** Islands she may visit: her strongest pet has reached the island's level. */
 export const isUnlocked = (a: Area, strongestLevel: number) => strongestLevel >= a.unlockLevel
 
-/** She finds a hiding creature when she comes this close to its spot. */
-export const FIND_RADIUS = 22
 /** How far a found creature strolls around its spot. */
 export const WANDER_RADIUS = 16
 
 export const area = (id: AreaId): Area => AREAS.find((a) => a.id === id)!
 
-const inEllipse = (e: typeof MEADOW, x: number, y: number) =>
-  ((x - e.cx) / e.rx) ** 2 + ((y - e.cy) / e.ry) ** 2 <= 1
+function inEllipse(e: typeof MEADOW, x: number, y: number): boolean {
+  return ((x - e.cx) / e.rx) ** 2 + ((y - e.cy) / e.ry) ** 2 <= 1
+}
 
-const onJetty = (x: number, y: number) =>
-  x >= JETTY.x && x < JETTY.x + JETTY.width && y >= JETTY.y && y < JETTY.y + JETTY.height
+function onJetty(x: number, y: number): boolean {
+  return x >= JETTY.x && x < JETTY.x + JETTY.width && y >= JETTY.y && y < JETTY.y + JETTY.height
+}
 
 /** Walk grid: the meadow and the jetty are free; trees, palms, rocks and the pond block. */
 export function buildWildGrid(a: Area): Grid {
@@ -276,3 +242,82 @@ export function hideCreatures(a: Area, rng: () => number): Map<SpeciesId, Hiding
   }
   return hidden
 }
+
+// The islands come last: the forest layout needs the walk grid and routes defined above.
+/**
+ * A denser forest on top of a layout: extra trees on a fixed, staggered grid, wherever they
+ * leave room – away from other plants, rocks, the pond, the hiding places (and the space
+ * creatures stroll in) and the jetty. A tree that would cut a hiding place off from the boat
+ * is left out, so every creature stays reachable.
+ */
+function withForest(
+  base: Pick<Area, 'obstacles' | 'spots' | 'pond'>,
+): Pick<Area, 'obstacles' | 'spots' | 'pond'> {
+  const T = OBSTACLE_SIZE.tree
+  const obstacles = [...base.obstacles]
+  const free = (x: number, y: number) => {
+    const cx = x + T.w / 2
+    const foot = y + T.h
+    if (!inEllipse({ ...MEADOW, rx: MEADOW.rx - 14, ry: MEADOW.ry - 14 }, cx, foot)) return false
+    if (cx > JETTY.x - 30 && cx < JETTY.x + JETTY.width + 30 && foot > 470) return false
+    const p = base.pond
+    if (Math.abs(cx - p.cx) < p.rx + 16 && Math.abs(foot - 6 - p.cy) < p.ry + 20) return false
+    if (base.spots.some((s) => Math.hypot(cx - s.x, foot - 6 - s.y) < FIND_RADIUS + 14)) {
+      return false
+    }
+    return obstacles.every((o) => {
+      const s = OBSTACLE_SIZE[o.kind]
+      return Math.abs(cx - (o.x + s.w / 2)) >= 26 || Math.abs(foot - (o.y + s.h)) >= 22
+    })
+  }
+  const reachable = (a: Pick<Area, 'obstacles' | 'spots' | 'pond'>) => {
+    const grid = buildWildGrid(a as Area)
+    return a.spots.every((s) => route(grid, ARRIVAL, s) !== null)
+  }
+  for (let row = 0, y = 40; y < WILD_HEIGHT - 80; row++, y += 26) {
+    for (let x = 12 + (row % 2) * 14; x < WILD_WIDTH - 30; x += 28) {
+      if (!free(x, y)) continue
+      const tree: Obstacle = { kind: 'tree', x, y }
+      if (reachable({ ...base, obstacles: [...obstacles, tree] })) obstacles.push(tree)
+    }
+  }
+  return { ...base, obstacles }
+}
+
+/** In order of difficulty; an island opens when her strongest pet reaches its level. */
+export const AREAS: Area[] = [
+  BLUMENWIESE,
+  {
+    id: 'fluesterwald',
+    name: 'Flüsterwald',
+    theme: 'wald',
+    unlockLevel: 3,
+    species: ['eule', 'waschbaer', 'reh'],
+    // A real forest: the mirrored meadow layout plus many more firs
+    ...withForest(layout(true)),
+  },
+  {
+    id: 'sonnensavanne',
+    name: 'Sonnensavanne',
+    theme: 'savanne',
+    unlockLevel: 5,
+    species: ['zebra', 'giraffe', 'elefant', 'loewe'],
+    ...layout(false),
+  },
+  {
+    id: 'urzeittal',
+    name: 'Urzeittal',
+    theme: 'urzeit',
+    unlockLevel: 7,
+    species: ['flugsaurier', 'triceratops', 'brachiosaurus', 'trex'],
+    ...layout(true),
+  },
+  {
+    id: 'wolkenberg',
+    name: 'Wolkenberg',
+    theme: 'wolken',
+    unlockLevel: 9,
+    species: ['pegasus', 'einhorn', 'drache'],
+    ...layout(false),
+  },
+]

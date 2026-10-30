@@ -102,6 +102,12 @@ for (const a of AREAS) {
 }
 
 describe('the five wild islands (step 12)', () => {
+  it('the Flüsterwald is a real forest: many more trees than the meadow', () => {
+    const trees = (id: string) =>
+      AREAS.find((x) => x.id === id)!.obstacles.filter((o) => o.kind === 'tree').length
+    expect(trees('fluesterwald')).toBeGreaterThanOrEqual(trees('blumenwiese') * 2)
+  })
+
   it('opens one island after the other, each animal on exactly one island', () => {
     expect(AREAS.map((a) => a.id)).toEqual([
       'blumenwiese',

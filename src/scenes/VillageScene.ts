@@ -98,7 +98,8 @@ export class VillageScene extends PixelScene {
       .image(MAILBOX.x, MAILBOX.y, icon(this, 'mailbox'), 'icon')
       .setOrigin(0)
       .setDepth(MAILBOX.y + MAILBOX.height)
-    new LabelPill(this, MAIN_PATH.x + MAIN_PATH.width + 22, 10, `↑ ${texts.village.wildSign}`, {
+    // Left of the jetty: on the right the coin counter would cover it
+    new LabelPill(this, MAIN_PATH.x - 22, 10, `↑ ${texts.village.wildSign}`, {
       size: 6,
     }).setDepth(10)
 
