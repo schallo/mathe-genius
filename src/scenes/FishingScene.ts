@@ -36,7 +36,10 @@ const FLOAT_Y = 160
 const NEAR_X = 74
 const FAR_X = 168
 const PANEL = { x: 8, y: 256, w: 164, h: 40 }
-const BAR = { x: 50, y: 264, w: 114, h: 8 }
+const BAR = { x: 50, y: 261, w: 114, h: 7 }
+/** Reel-in indicator: the fish swims along the water strip towards the rod (left) */
+const LINE_BAR = { x: 50, y: 271, w: 114, h: 7 }
+const PULL_Y = 281
 const BUTTON = { x: 20, y: 304, w: 140, h: 40 }
 
 const GOLDI_JUMP_MS = 900
@@ -55,6 +58,8 @@ export class FishingScene extends PixelScene {
   private fish!: Phaser.GameObjects.Image
   private bars!: Phaser.GameObjects.Graphics
   private barLabel!: Phaser.GameObjects.Text
+  private lineLabel!: Phaser.GameObjects.Text
+  private lineFish!: Phaser.GameObjects.Image
   private pullPill!: Key
   private button!: Key
   private caption!: Caption
@@ -119,7 +124,19 @@ export class FishingScene extends PixelScene {
     panel.lineStyle(2, palette.ink).strokeRoundedRect(PANEL.x, PANEL.y, PANEL.w, PANEL.h, 3)
     this.barLabel = addText(this, PANEL.x + 6, BAR.y + BAR.h / 2, '', 'label', 5).setOrigin(0, 0.5)
     this.bars = this.add.graphics()
-    this.pullPill = new Key(this, BAR.x, 278, BAR.w, 13, '', () => {}, { label: true, fontSize: 5 })
+    this.lineLabel = addText(
+      this,
+      PANEL.x + 6,
+      LINE_BAR.y + LINE_BAR.h / 2,
+      texts.fishing.reelIn.toUpperCase(),
+      'label',
+      5,
+    ).setOrigin(0, 0.5)
+    this.lineFish = this.add.image(0, LINE_BAR.y + 1, 'pond-fish', 'fish').setOrigin(0, 0)
+    this.pullPill = new Key(this, BAR.x, PULL_Y, BAR.w, 12, '', () => {}, {
+      label: true,
+      fontSize: 5,
+    })
     this.pullPill.disableInteractive()
 
     this.button = new Key(this, BUTTON.x, BUTTON.y, BUTTON.w, BUTTON.h, '', () => this.down(), {
@@ -316,6 +333,23 @@ export class FishingScene extends PixelScene {
     this.bars.fillStyle(palette.paperWhite).fillRect(BAR.x + 1, BAR.y + 1, BAR.w - 2, BAR.h - 2)
     const w = Math.round((BAR.w - 2) * Math.max(0, Math.min(1, value)))
     this.bars.fillStyle(palette[fill]).fillRect(BAR.x + 1, BAR.y + 1, w, BAR.h - 2)
+
+    // Reel-in indicator: how much line is still out. The fish swims left towards the rod as
+    // she reels and drifts back when she rests; the strip behind it is already reeled in.
+    const reeling = phase === 'reeling' || phase === 'caught'
+    this.lineLabel.setVisible(reeling)
+    this.lineFish.setVisible(reeling)
+    if (reeling) {
+      const L = LINE_BAR
+      const fishW = this.lineFish.width
+      const fx = L.x + 1 + Math.round((L.w - 2 - fishW) * (this.state.line / FISHING.line))
+      this.bars.fillStyle(palette.woodDark).fillRect(L.x, L.y, L.w, L.h)
+      this.bars.fillStyle(palette.sky).fillRect(L.x + 1, L.y + 1, L.w - 2, L.h - 2)
+      const done = L.x + L.w - 1 - (fx + fishW)
+      this.bars.fillStyle(palette.cream).fillRect(fx + fishW, L.y + 1, done, L.h - 2)
+      const fishX = fx + (phase === 'reeling' ? wiggle : 0)
+      this.lineFish.setPosition(Phaser.Math.Clamp(fishX, L.x + 1, L.x + L.w - 1 - fishW), L.y + 1)
+    }
 
     this.pullPill.setVisible(phase === 'reeling')
     this.pullPill.setCaption(texts.fishing.pull[pull]).setFill(PULL_FILL[pull])

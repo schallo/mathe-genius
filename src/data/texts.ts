@@ -78,6 +78,7 @@ export const texts = {
     none: 'Ein Fisch! Du lässt ihn wieder schwimmen. Morgen gibt es neue Sterne.',
     power: 'Kraft',
     distance: 'Weite',
+    reelIn: 'Fisch',
     pull: { weak: 'Zug: schwach', mid: 'Zug: mittel', strong: 'Zug: stark' },
     button: {
       ready: 'Auswerfen',

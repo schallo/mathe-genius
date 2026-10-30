@@ -319,6 +319,9 @@ export const ITEMS: Item[] = [
     wear: { accessory: 'diadem' },
   },
 
+  // Opens the fishing game at the village pond (NOTES "Fishing mini game"). First in the tab so
+  // she finds it without paging.
+  { id: 'angel', category: 'spielzeug', name: 'Angel', price: 120, icon: 'angel' },
   // Futter & Spielzeug: pets do a trick
   { id: 'ball', category: 'spielzeug', name: 'Ball', price: 15, icon: 'ball', trick: 'doubleHop' },
   {
@@ -371,9 +374,6 @@ export const ITEMS: Item[] = [
     icon: 'teddy',
     trick: 'hearts',
   },
-
-  // Opens the fishing game at the village pond (NOTES "Fishing mini game")
-  { id: 'angel', category: 'spielzeug', name: 'Angel', price: 120, icon: 'angel' },
 
   // Haustiere (Tierheim): everyday pets for coins …
   { id: 'hund', category: 'haustiere', name: 'Hündchen', price: 300, species: 'hund' },
