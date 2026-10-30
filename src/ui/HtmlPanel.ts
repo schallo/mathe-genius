@@ -33,6 +33,12 @@ export class HtmlPanel {
   readonly root: HTMLDivElement
   private scene: Phaser.Scene
   private onResize = () => this.place()
+  /**
+   * Follows the canvas itself: on a window resize (rotating the phone, a full-page
+   * screenshot) Phaser resizes the canvas a moment later, and measuring only on the window
+   * event could leave the panel at the canvas's in-between size (seen: 0.5 × 1 px).
+   */
+  private observer = new ResizeObserver(() => this.place())
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene
@@ -47,6 +53,8 @@ export class HtmlPanel {
     document.body.append(this.root)
     this.place()
     window.addEventListener('resize', this.onResize)
+    scene.scale.on('resize', this.onResize)
+    this.observer.observe(scene.game.canvas)
     scene.events.once('shutdown', () => this.destroy())
   }
 
@@ -83,6 +91,8 @@ export class HtmlPanel {
 
   destroy() {
     window.removeEventListener('resize', this.onResize)
+    this.scene.scale.off('resize', this.onResize)
+    this.observer.disconnect()
     this.root.remove()
   }
 }

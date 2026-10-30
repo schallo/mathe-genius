@@ -31,6 +31,7 @@ type Fishing = {
   holding: boolean
   reward: string
   goldiJumping: boolean
+  goldiJumps: number
 }
 const fishing = (page: Page): Promise<Fishing | undefined> =>
   page.evaluate(() => (window as any).__debug.fishing())
@@ -85,8 +86,17 @@ test('fishing at the pond: Goldi jumps until she bites, then a star per fish', a
   await pond(page)
   await waitForScene(page, 'Fishing', 30_000)
   await shot(page, 'fishing-start')
-  await expect.poll(async () => (await fishing(page))?.goldiJumping, { timeout: 10_000 }).toBe(true)
-  await shot(page, 'fishing-goldi-jumps')
+  // Count the jumps: a single jump is in the air for only ~0.2 s at test speed, so polling
+  // for the sprite alone can miss it on a busy machine
+  await expect
+    .poll(async () => (await fishing(page))?.goldiJumps, { timeout: 15_000 })
+    .toBeGreaterThan(0)
+  // Picture of a jump if we catch one in the air (best effort)
+  await expect
+    .poll(async () => (await fishing(page))?.goldiJumping, { timeout: 12_000 })
+    .toBe(true)
+    .then(() => shot(page, 'fishing-goldi-jumps'))
+    .catch(() => {})
 
   await catchFish(page, true)
   expect((await fishing(page))!.reward).toBe('goldi')

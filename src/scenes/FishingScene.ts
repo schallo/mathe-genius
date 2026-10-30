@@ -71,6 +71,8 @@ export class FishingScene extends PixelScene {
   private jump: { x: number; y: number; t: number } | null = null
   private nextJump = 0
   private goldiSeen = false
+  /** Jumps so far (for the tests: a single jump is visible for under a second) */
+  private goldiJumpCount = 0
 
   constructor() {
     super('Fishing')
@@ -85,6 +87,7 @@ export class FishingScene extends PixelScene {
     this.jump = null
     this.nextJump = 2500
     this.goldiSeen = false
+    this.goldiJumpCount = 0
   }
 
   create() {
@@ -224,6 +227,7 @@ export class FishingScene extends PixelScene {
         y: 120 + Math.floor(Math.random() * 90),
         t: 0,
       }
+      this.goldiJumpCount++
       if (!this.goldiSeen) {
         this.goldiSeen = true
         if (this.state.phase === 'ready' || this.state.phase === 'waiting') {
@@ -374,6 +378,7 @@ export class FishingScene extends PixelScene {
       holding: this.holding,
       reward: this.reward,
       goldiJumping: this.goldi.visible,
+      goldiJumps: this.goldiJumpCount,
       width: GAME_WIDTH,
     }
   }
