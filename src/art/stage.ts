@@ -3,19 +3,26 @@
 import type Phaser from 'phaser'
 import { GAME_HEIGHT, GAME_WIDTH } from '../display'
 import { palette } from '../palette'
+import type { StageDecor } from '../state/stage'
+import { curtainLook, decorKey, drawDecorProps } from './stageDecor'
 
 /** y of the action line: characters stand here. */
 export const STAGE_FLOOR_Y = 200
 
 /**
  * `floorY` moves the action line (screens with controls on the floor use a higher
- * stage); `open: false` draws closed curtains without light beams (title screen).
+ * stage); `open: false` draws closed curtains without light beams (title screen);
+ * `decor` puts up her stage decor (curtain and light colours, props).
  */
 export function ensureStageTexture(
   scene: Phaser.Scene,
-  { floorY = STAGE_FLOOR_Y, open = true }: { floorY?: number; open?: boolean } = {},
+  {
+    floorY = STAGE_FLOOR_Y,
+    open = true,
+    decor = {},
+  }: { floorY?: number; open?: boolean; decor?: StageDecor } = {},
 ): string {
-  const key = `stage-${floorY}-${open ? 'open' : 'closed'}`
+  const key = `stage-${floorY}-${open ? 'open' : 'closed'}-${decorKey(decor)}`
   if (scene.textures.exists(key)) return key
   const STAGE_FLOOR_Y = floorY
   const W = GAME_WIDTH
@@ -27,26 +34,27 @@ export function ensureStageTexture(
     ctx.fillRect(x, y, w, h)
   }
 
+  const curtain = curtainLook(decor)
   // Curtains: alternating vertical bands with a highlight line on the lighter ones
   for (let x = 0, i = 0; x < W; x += 8, i++) {
-    rect(x, 0, 8, STAGE_FLOOR_Y, i % 2 ? palette.curtainMid : palette.curtainDark)
-    if (i % 2) rect(x + 2, 0, 1, STAGE_FLOOR_Y, palette.curtainLight)
+    rect(x, 0, 8, STAGE_FLOOR_Y, i % 2 ? curtain.mid : curtain.dark)
+    if (i % 2) rect(x + 2, 0, 1, STAGE_FLOOR_Y, curtain.light)
   }
   // Valance at the top
-  rect(0, 0, W, 10, palette.curtainLight)
-  for (let x = 0; x < W; x += 12) rect(x + 4, 10, 4, 2, palette.curtainLight)
-  rect(0, 9, W, 1, palette.curtainMid)
+  rect(0, 0, W, 10, curtain.light)
+  for (let x = 0; x < W; x += 12) rect(x + 4, 10, 4, 2, curtain.light)
+  rect(0, 9, W, 1, curtain.mid)
 
   // Light beams: pointed at the top, wide at the floor, drawn in 4 px steps
   for (const cx of open ? [40, 90, 140] : []) {
     for (let y = 14; y < STAGE_FLOOR_Y; y += 4) {
       const half = Math.floor(((y - 14) / (STAGE_FLOOR_Y - 14)) * 14) + 1
-      rect(cx - half, y, half * 2, 4, palette.beam)
+      rect(cx - half, y, half * 2, 4, curtain.beam)
     }
   }
 
   // Closed: the two curtain halves meet in the middle
-  if (!open) rect(W / 2 - 1, 10, 2, STAGE_FLOOR_Y - 10, palette.curtainDark)
+  if (!open) rect(W / 2 - 1, 10, 2, STAGE_FLOOR_Y - 10, curtain.dark)
 
   // Stage edge and floor planks: 1 px light top line, wood-mid body, 1 px dark seam
   rect(0, STAGE_FLOOR_Y, W, 2, palette.woodEdge)
@@ -56,6 +64,7 @@ export function ensureStageTexture(
     rect(0, y + 5, W, 1, palette.woodDark)
     for (let x = (row % 2) * 24 + 10; x < W; x += 48) rect(x, y + 1, 1, 4, palette.woodDark)
   }
+  drawDecorProps(rect, decor, W, STAGE_FLOOR_Y)
   texture.refresh()
   return key
 }

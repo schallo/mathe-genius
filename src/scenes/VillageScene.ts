@@ -14,7 +14,8 @@ import { palette } from '../palette'
 import { isNapping } from '../battle/progress'
 import { activePet } from '../state/save'
 import { ROD_ITEM } from '../state/fishing'
-import { getSave } from '../state/store'
+import { getSave, updateSave } from '../state/store'
+import { markWelcomed, welcomeFor } from '../state/welcome'
 import { Caption } from '../ui/Caption'
 import { Hud } from '../ui/Hud'
 import { LabelPill } from '../ui/LabelPill'
@@ -132,6 +133,7 @@ export class VillageScene extends PixelScene {
     this.caption = new Caption(this)
     this.hud = new Hud(this)
     this.followCamera()
+    this.welcome()
 
     this.input.on('pointerup', (p: Phaser.Input.Pointer) => this.onTap(p.worldX, p.worldY))
     const kb = this.input.keyboard!
@@ -142,6 +144,18 @@ export class VillageScene extends PixelScene {
       left: [kb.addKey(K.LEFT), kb.addKey(K.A)],
       right: [kb.addKey(K.RIGHT), kb.addKey(K.D)],
     }
+  }
+
+  /** First visit of the day: her pet says hello (GAME_DESIGN §7). */
+  private welcome() {
+    const now = new Date()
+    const line = welcomeFor(getSave(), now)
+    if (!line || !this.pet) return
+    updateSave((s) => markWelcomed(s, now))
+    this.time.delayedCall(400, () => {
+      this.pet?.hop()
+      this.caption.show(line, 3500)
+    })
   }
 
   private onTap(x: number, y: number) {

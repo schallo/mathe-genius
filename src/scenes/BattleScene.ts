@@ -3,6 +3,7 @@
 // auto-confirmed once enough digits are typed; times are measured with performance.now()
 // (through gameNow(), see clock.ts).
 import Phaser from 'phaser'
+import { area } from '../world/wild'
 import { FOE_SPOT, PET_SPOT, ensureBattleTexture } from '../art/battle'
 import { icon } from '../art/icons'
 import { Pet } from '../art/pets/Pet'
@@ -91,10 +92,11 @@ export class BattleScene extends PixelScene {
 
   create() {
     this.setupCamera()
-    this.add.image(0, 0, ensureBattleTexture(this)).setOrigin(0)
     const save = getSave()
     const pet = activePet(save)
     const wild = SPECIES[this.foeId].wild
+    // The battle looks like the creature's island
+    this.add.image(0, 0, ensureBattleTexture(this, wild && area(wild.area).theme)).setOrigin(0)
     if (!pet || !wild) {
       this.goTo('Wild', { from: 'battle' })
       return

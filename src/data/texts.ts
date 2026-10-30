@@ -45,12 +45,17 @@ export const texts = {
     missingStarsShort: (stars: number) => `Noch ${stars} ★`,
     wishSet: (name: string) => `Dein Wunsch: ${name}!`,
     pick: 'Tipp etwas an!',
+    putUp: 'Aufbauen',
+    takeDown: 'Abbauen',
   },
   wardrobe: {
     rename: 'Name ändern',
     none: 'Ohne',
     wearing: '✓ An',
     putOn: 'Anziehen',
+    /** Stage decor in Mein Haus */
+    isUp: '✓ Steht',
+    putUp: 'Aufbauen',
   },
   shelter: {
     yourPets: 'Deine Tiere',
@@ -93,6 +98,14 @@ export const texts = {
   village: {
     wildSign: 'Steg',
     underConstruction: (hut: string) => `${hut}: Hier wird gebaut!`,
+    /** Daily welcome from her pet (pet name, her name) */
+    welcome: [
+      (pet: string, name: string) => `${pet}: „Hallo ${name}! Schön, dass du da bist!“`,
+      (pet: string, name: string) => `${pet} hüpft vor Freude: „Da bist du ja, ${name}!“`,
+      (pet: string) => `${pet}: „Rechnen wir heute zusammen?“`,
+      (pet: string, name: string) => `${pet}: „Guten Tag, ${name}! Ich hab dich vermisst!“`,
+      (pet: string) => `${pet} freut sich: „Heute schaffen wir was Tolles!“`,
+    ],
   },
   wild: {
     level: (level: number) => `Lv${level}`,

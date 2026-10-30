@@ -21,6 +21,7 @@ import {
   type CalendarSave,
 } from './calendar'
 import { emptyFishing, mergeFishing, parseFishing, type FishingSave } from './fishing'
+import { parseStage, type StageDecor } from './stage'
 import { TOPICS } from '../math/topics'
 import { LEVELS, type Level, type Task, type TopicId } from '../math/types'
 
@@ -103,6 +104,10 @@ export type SaveData = {
   stars: Counter
   /** Fish caught at the pond and stars from fishing per day */
   fishing: FishingSave
+  /** Decor on her stage, one item per slot (GAME_DESIGN §4 "Bühne") */
+  stage: StageDecor
+  /** Local day (yyyy-mm-dd) her pet last welcomed her in the village (GAME_DESIGN §7) */
+  welcomed: string
   settings: {
     muted: boolean
     /** An Einmaleins fact is "auswendig" after 3 correct answers faster than this */
@@ -142,6 +147,8 @@ export function emptySave(): SaveData {
     album: { claimed: [] },
     stars: {},
     fishing: emptyFishing(),
+    stage: {},
+    welcomed: '',
     settings: { muted: false, knownMs: DEFAULT_KNOWN_MS, roundsPerDay: DEFAULT_ROUNDS_PER_DAY },
   }
 }
@@ -257,6 +264,11 @@ export function parseSave(input: unknown): SaveData | null {
     },
     stars: counter(data.stars),
     fishing: parseFishing(data.fishing),
+    stage: parseStage(data.stage),
+    welcomed:
+      typeof data.welcomed === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(data.welcomed)
+        ? data.welcomed
+        : '',
     settings: {
       muted: settings?.muted === true,
       knownMs:
@@ -518,6 +530,9 @@ export function mergeSaves(a: SaveData, b: SaveData): SaveData {
     album: { claimed: [...new Set([...a.album.claimed, ...b.album.claimed])] },
     stars: mergeCounters(a.stars, b.stars),
     fishing: mergeFishing(a.fishing, b.fishing),
+    stage: newer.stage,
+    // Days compare as text (yyyy-mm-dd): the later one wins, so she isn't welcomed twice
+    welcomed: a.welcomed > b.welcomed ? a.welcomed : b.welcomed,
     settings: newer.settings,
   }
 }

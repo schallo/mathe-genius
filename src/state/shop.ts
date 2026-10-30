@@ -38,7 +38,7 @@ export function isWearing(look: CharacterLook, item: Item): boolean {
 export type BuyResult =
   { ok: true; save: SaveData } | { ok: false; reason: 'owned' | 'coins' | 'pet' }
 
-/** Buys an item and puts it on right away. Pets are adopted with `adopt` instead. */
+/** Buys an item and puts it on (or up on her stage) right away. Pets are adopted with `adopt` instead. */
 export function buy(save: SaveData, item: Item, device: string): BuyResult {
   if (item.species) return { ok: false, reason: 'pet' }
   if (isOwned(save, item)) return { ok: false, reason: 'owned' }
@@ -53,6 +53,8 @@ export function buy(save: SaveData, item: Item, device: string): BuyResult {
   if (item.wear && next.character) {
     next = { ...next, character: { ...next.character, look: tryOn(next.character.look, item) } }
   }
+  // Stage decor goes up right away
+  if (item.decor) next = { ...next, stage: { ...next.stage, [item.decor.slot]: item.id } }
   return { ok: true, save: next }
 }
 

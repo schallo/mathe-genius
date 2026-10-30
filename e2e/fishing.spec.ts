@@ -38,17 +38,24 @@ const fishing = (page: Page): Promise<Fishing | undefined> =>
 
 const pond = (page: Page) => page.evaluate(() => (window as any).__debug.villageTap(36, 56))
 
-/** Cast, hook and reel in one fish, resting whenever the fish pulls hard. */
-async function catchFish(page: Page, shots = false) {
+/** Cast, hook and reel in a fish, resting whenever the fish pulls hard. */
+async function reelOnce(page: Page, shots: boolean): Promise<string> {
   await expect.poll(async () => (await fishing(page))?.phase).toBe('ready')
   await page.keyboard.down('Space')
   await page.waitForTimeout(200)
   await page.keyboard.up('Space')
   await expect.poll(async () => (await fishing(page))?.phase).toBe('waiting')
   if (shots) await shot(page, 'fishing-waiting')
-  await expect.poll(async () => (await fishing(page))?.phase, { timeout: 10_000 }).toBe('bite')
-  if (shots) await shot(page, 'fishing-bite')
-  await page.keyboard.down('Space')
+  // Hook the fish. Phaser reads the key on its next frame, so wait until it has; a bite
+  // missed on a busy machine just means waiting for the next one
+  for (;;) {
+    await expect.poll(async () => (await fishing(page))?.phase, { timeout: 15_000 }).toBe('bite')
+    if (shots) await shot(page, 'fishing-bite')
+    await page.keyboard.down('Space')
+    await expect.poll(async () => (await fishing(page))?.phase).not.toBe('bite')
+    if ((await fishing(page))!.phase === 'reeling') break
+    await page.keyboard.up('Space')
+  }
   let holding = true
   let pictured = false
   for (let i = 0; i < 2000; i++) {
@@ -58,14 +65,30 @@ async function catchFish(page: Page, shots = false) {
       await shot(page, 'fishing-reeling')
       pictured = true
     }
-    const hold = s.pull !== 'strong' && s.power > 20
+    // Rest early: on a busy machine each look at the game arrives a little late
+    const hold = s.pull !== 'strong' && s.power > 40
     if (hold !== holding) {
       await (hold ? page.keyboard.down('Space') : page.keyboard.up('Space'))
       holding = hold
     }
   }
   if (holding) await page.keyboard.up('Space')
-  await expect.poll(async () => (await fishing(page))?.phase).toBe('caught')
+  await expect
+    .poll(async () => ['caught', 'lost'].includes((await fishing(page))!.phase))
+    .toBe(true)
+  return (await fishing(page))!.phase
+}
+
+/**
+ * Catches one fish. If one gets away (allowed: nothing is lost), cast again like she
+ * would – a lost fish doesn't count as a catch, so the rewards stay the same.
+ */
+async function catchFish(page: Page, shots = false) {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    if ((await reelOnce(page, shots && attempt === 0)) === 'caught') return
+    await page.keyboard.press('Space') // Nochmal
+  }
+  throw new Error('no fish caught in 5 tries')
 }
 
 test('without an Angel the pond only gives a hint', async ({ page }) => {

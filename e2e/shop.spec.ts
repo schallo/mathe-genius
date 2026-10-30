@@ -84,7 +84,7 @@ test('shop, Tierheim and wardrobe: buy, wish, adopt, take along, change hair', a
   await tapWorld(page, ...HOME)
   await waitForScene(page, 'Village')
   await openScene(page, 'Wardrobe', { from: 'haus' })
-  await tapWorld(page, 90, 138) // tab Frisuren
+  await tapWorld(page, 67, 138) // tab Frisuren (Mein Haus: four tabs)
   await page.waitForTimeout(300) // let the tab redraw its cards
   await tapWorld(page, ...card(1)) // Bob
   await expect.poll(async () => (await save(page)).character.look.hair).toBe('bob')

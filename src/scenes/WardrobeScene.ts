@@ -1,5 +1,5 @@
 // Mein Haus / Garderobe (GAME_DESIGN §4, §5): wear what she owns, change colours for
-// free, rename her character.
+// free, rename her character, put up or take down her stage decor.
 import {
   accessoryShades,
   hairShades,
@@ -12,6 +12,7 @@ import { CATEGORY_NAMES, type Item, type ItemCategory } from '../data/items'
 import { texts } from '../data/texts'
 import type { PaletteToken } from '../palette'
 import { isWearing, ownedItems, tryOn } from '../state/shop'
+import { isUp, toggleDecor } from '../state/stage'
 import { getSave, updateSave } from '../state/store'
 import { ItemCard } from '../ui/ItemCard'
 import { Key } from '../ui/Key'
@@ -19,11 +20,11 @@ import { Pager } from '../ui/Pager'
 import { Tabs } from '../ui/Tabs'
 import { RoomScene, cardPosition } from './RoomScene'
 
-type Tab = Extract<ItemCategory, 'kleider' | 'frisuren' | 'accessoires'>
+type Tab = Extract<ItemCategory, 'kleider' | 'frisuren' | 'accessoires' | 'buehne'>
 
 /** Free colour choices per tab (applied to what she is wearing). */
 const COLORS: Record<
-  Tab,
+  Exclude<Tab, 'buehne'>,
   { key: keyof CharacterLook; options: Record<string, { fill: PaletteToken }> }
 > = {
   kleider: { key: 'outfitColor', options: outfitShades },
@@ -58,7 +59,7 @@ export class WardrobeScene extends RoomScene {
 
   create() {
     this.createRoom()
-    const tabs: Tab[] = ['kleider', 'frisuren', 'accessoires']
+    const tabs: Tab[] = ['kleider', 'frisuren', 'accessoires', 'buehne']
     new Tabs(
       this,
       130,
@@ -94,9 +95,30 @@ export class WardrobeScene extends RoomScene {
     this.refresh()
   }
 
+  /** Stage decor: tapping puts it up, tapping it again takes it down. */
+  private toggle(item: Item) {
+    updateSave((s) => toggleDecor(s, item))
+    sfx.tick()
+    this.showStage()
+    this.refresh()
+  }
+
   private refresh() {
     for (const o of [...this.cards, ...this.swatches]) o.destroy()
+    this.swatches = []
     const look = this.savedLook()
+    if (this.tab === 'buehne') {
+      const save = getSave()
+      this.cards = this.pager.slice(ownedItems(save, 'buehne')).map((item, i) => {
+        const { x, y } = cardPosition(i)
+        const card = new ItemCard(this, x, y, item, look, () => this.toggle(item))
+        const up = isUp(save, item)
+        card.setPrice({ kind: 'text', text: up ? texts.wardrobe.isUp : texts.wardrobe.putUp })
+        card.setSelected(up)
+        return card
+      })
+      return
+    }
     const items = [
       ...ownedItems(getSave(), this.tab),
       ...(this.tab === 'accessoires' ? [NONE] : []),

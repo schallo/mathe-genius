@@ -29,7 +29,8 @@ const START = {
 const card = (i: number) => [5 + (i % 3) * 58 + 27, [150, 214][Math.floor(i / 3)] + 30] as const
 const NEXT_PAGE = [159, 331] as const
 const BUY = [51, 298] as const
-const tab = (i: number) => [4 + i * 43 + 20, 138] as const
+// Laden tabs: Kleider, Haare, Schmuck, Spiel, Bühne (32 px wide, 2 px apart)
+const tab = (i: number) => [4 + i * 34 + 16, 138] as const
 
 test('new clothes on page 2, a two-tone hoodie, cap and hair in the wardrobe', async ({ page }) => {
   test.setTimeout(150_000)

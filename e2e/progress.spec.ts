@@ -104,7 +104,7 @@ test('3 right in a row: next level and a star, then a star item in the shop', as
 
   // Laden → Schmuck: the Sternspange costs 2 stars and 30 coins
   await openScene(page, 'Shop', { from: 'laden' })
-  await tapWorld(page, 110, 138) // tab Schmuck
+  await tapWorld(page, 88, 138) // tab Schmuck
   await page.waitForTimeout(300)
   // Schmuck has three pages; the Sternspange is the 4th card on page 3
   await tapWorld(page, 159, 331) // ▶

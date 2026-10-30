@@ -15,6 +15,7 @@ import { LEVELS, type Level, type TopicId } from '../math/types'
 import { icon } from '../art/icons'
 import { palette } from '../palette'
 import { activePet } from '../state/save'
+import { stageDecor } from '../state/stage'
 import { getSave, updateSave } from '../state/store'
 import { Hud } from '../ui/Hud'
 import { Key } from '../ui/Key'
@@ -61,7 +62,9 @@ export class LearnHutScene extends PixelScene {
 
   create() {
     this.setupCamera()
-    this.add.image(0, 0, ensureStageTexture(this, { floorY: SHOW_FLOOR_Y })).setOrigin(0)
+    this.add
+      .image(0, 0, ensureStageTexture(this, { floorY: SHOW_FLOOR_Y, decor: stageDecor(getSave()) }))
+      .setOrigin(0)
     new Hud(this, { onHome: () => this.goTo('Village', { from: this.hut }) })
 
     const save = getSave()

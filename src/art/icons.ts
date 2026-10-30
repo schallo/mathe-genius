@@ -21,7 +21,73 @@ const MEDAL = [
   '...aaaaa...',
 ]
 
+const CURTAIN_ICON = ['aaaaaaa', 'bcbcbcb', 'bcbcbcb', 'bcbcbcb', 'bcbcbcb', 'bcbcbcb', 'bc...cb']
+const BEAM_ICON = ['...a...', '...a...', '..aaa..', '..aaa..', '.aaaaa.', '.aaaaa.', 'aaaaaaa']
+const RUG_ICON = ['b.....b', 'aaaaaaa', 'accccca', 'acdcdca', 'accccca', 'aaaaaaa', 'b.....b']
+
+/** Stage decor in the Laden (data/items.ts: icon `decor-<look>-<slot>`) */
+const DECOR_ICONS: Record<string, Icon> = {
+  'decor-rosa-vorhang': {
+    map: CURTAIN_ICON,
+    legend: { a: palette.cream, b: palette.roseDark, c: palette.rose },
+    outline: palette.roseDark,
+  },
+  'decor-mint-vorhang': {
+    map: CURTAIN_ICON,
+    legend: { a: palette.cream, b: palette.mintDark, c: palette.mint },
+    outline: palette.mintDark,
+  },
+  'decor-himmel-vorhang': {
+    map: CURTAIN_ICON,
+    legend: { a: palette.paperWhite, b: palette.accentBlue, c: palette.sky },
+    outline: palette.accentBlue,
+  },
+  'decor-gold-vorhang': {
+    map: CURTAIN_ICON,
+    legend: { a: palette.cream, b: palette.goldDark, c: palette.gold },
+    outline: palette.goldDark,
+  },
+  'decor-gold-licht': { map: BEAM_ICON, legend: { a: palette.gold }, outline: palette.goldDark },
+  'decor-rosa-licht': { map: BEAM_ICON, legend: { a: palette.rose }, outline: palette.roseDark },
+  'decor-lila-licht': {
+    map: BEAM_ICON,
+    legend: { a: palette.lilac },
+    outline: palette.curtainLight,
+  },
+  'decor-rot-teppich': {
+    map: RUG_ICON,
+    legend: { a: palette.roseDark, b: palette.gold, c: palette.rose, d: palette.gold },
+    outline: palette.roseDark,
+  },
+  'decor-blau-teppich': {
+    map: RUG_ICON,
+    legend: { a: palette.accentBlue, b: palette.cream, c: palette.sky, d: palette.cream },
+    outline: palette.accentBlue,
+  },
+  'decor-pflanzen-deko': {
+    map: ['.a...a.', '.aabaa.', '..aba..', 'a..b..a', '.ccccc.', '..cdc..', '..ccc..'],
+    legend: { a: palette.grassMid, b: palette.grassDark, c: palette.hero, d: palette.heroDark },
+    outline: palette.grassDark,
+  },
+  'decor-laternen-deko': {
+    map: ['...a...', '..aaa..', '.bcccb.', '.bcdcb.', '.bcccb.', '..aaa..', '...a...'],
+    legend: { a: palette.woodDark, b: palette.goldDark, c: palette.gold, d: palette.cream },
+    outline: palette.woodEdge,
+  },
+  'decor-sterne-deko': {
+    map: ['a.....a', '.a...a.', '..aba..', '.bbbbb.', '..bcb..', '.b...b.', '.......'],
+    legend: { a: palette.goldDark, b: palette.gold, c: palette.paperWhite },
+    outline: palette.goldDark,
+  },
+  'decor-publikum-publikum': {
+    map: ['.aa..bb.', 'aaaabbbb', 'aaaabbbb', '.aa..bb.', 'cccceeee', 'cccceeee'],
+    legend: { a: palette.hairBrown, b: palette.hairGinger, c: palette.rose, e: palette.mint },
+    outline: palette.ink,
+  },
+}
+
 const ICONS: Record<string, Icon> = {
+  ...DECOR_ICONS,
   medal: { map: MEDAL, legend: { a: palette.goldDark, b: palette.gold } },
   /** Empty place on the trophy shelf */
   medalSlot: { map: MEDAL, legend: { a: palette.woodEdge, b: palette.woodDark } },

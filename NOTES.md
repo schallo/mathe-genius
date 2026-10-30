@@ -44,6 +44,16 @@
 - Movement uses the real frame time (`game.loop.rawDelta`), not Phaser's smoothed delta, so walking speed stays right on slow frames.
 - **Starting look** is modelled on her (from a photo, not stored in the repo): fair skin (`skin1`), ginger hair (`hair-ginger`, new palette colour) pulled back into a ponytail, mint dress, pink bow.
 
+## Stage decor, battle backgrounds, pet welcome (v0.12.6, 2026-10-30)
+
+- **Bühne** (GAME_DESIGN §4): new Laden tab with 13 items, one per slot is put up: curtain colours (Rosa, Minz, Himmel, Gold – each brings matching light beams), light colours (Gold, Rosa, Lila – win over the curtain's beams), rugs (rot, blau), props (Pflanzen, Laternen, Sternenkette – one at a time) and a front-row Publikum. 50–300 coins.
+  - Tapping a card tries it on the stage behind her; buying puts it up at once; an owned item's button says Aufbauen/Abbauen. Mein Haus has a Bühne tab: tap to put up, tap again to take down (the plain purple stage comes back).
+  - Shown on her stages: Bonuswoche shows, learning-hut rounds, the show end, Laden, Mein Haus, Tierheim. **Not** in the Einmaleins speed modes (STYLE_GUIDE §9: no distracting decoration) and not on the title or parent screens.
+  - Laden tabs got short labels so five fit: Kleider, Haare, Schmuck, Spiel, Bühne.
+  - Not in the Sammelalbum yet (its categories are fixed); can be added as a sixth album page later.
+- **Battle backgrounds per island**: Blumenwiese soft hills, Flüsterwald a row of firs on a dark forest floor, Sonnensavanne sand with the sun and an acacia, Urzeittal a friendly volcano with a steam puff, Wolkenberg snowy peaks over a cloud floor. Platforms in the island's colours.
+- **Daily welcome** (GAME_DESIGN §7): the first village visit of a day, her active pet hops and greets her by name (5 phrases, one per day, the same all day). Once a day, never again that day, also after a sync (the later day wins). No pet (e.g. napping or none) → no greeting.
+
 ## Pets with their own traits, fishing (v0.12.2, 2026-10-30)
 
 - **Traits per pet** (GAME_DESIGN §4 updated): every Tierheim pet has its own trait, befriended wild animals keep their family trait. Effects: free mistakes, earlier streak, +1 coin per first try, +1 star per new star level, more battle time (plus tips, Volltreffer ×2, Zauber-Joker for wild families). They grow at pet level 5.

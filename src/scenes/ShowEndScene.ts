@@ -12,6 +12,7 @@ import { activePower, roundBoost, wakeAll } from '../battle/progress'
 import { finishTheaterShow } from '../state/learning'
 import { recordRound } from '../state/calendar'
 import { Caption } from '../ui/Caption'
+import { stageDecor } from '../state/stage'
 import { deviceId } from '../state/store'
 import { addCoins, getSave, updateSave } from '../state/store'
 import { Hud } from '../ui/Hud'
@@ -40,7 +41,15 @@ export class ShowEndScene extends PixelScene {
   create() {
     this.setupCamera()
     this.add
-      .image(0, 0, ensureStageTexture(this, { floorY: SHOW_FLOOR_Y, open: false }))
+      .image(
+        0,
+        0,
+        ensureStageTexture(this, {
+          floorY: SHOW_FLOOR_Y,
+          open: false,
+          decor: stageDecor(getSave()),
+        }),
+      )
       .setOrigin(0)
 
     // Per-task coins were paid during the show; the show bonus is paid now

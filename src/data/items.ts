@@ -5,7 +5,15 @@ import type { DojoOp } from '../math/einmaleins'
 import type { PetTrick } from '../art/pets/Pet'
 import type { SpeciesId } from './creatures'
 
-export type ItemCategory = 'kleider' | 'frisuren' | 'accessoires' | 'spielzeug' | 'haustiere'
+export type ItemCategory =
+  'kleider' | 'frisuren' | 'accessoires' | 'spielzeug' | 'buehne' | 'haustiere'
+
+/**
+ * Stage decor (GAME_DESIGN §4 "Bühne"): one item per slot is put up on her stage. `look`
+ * names the drawing in art/stageDecor.ts.
+ */
+export type DecorSlot = 'vorhang' | 'licht' | 'teppich' | 'deko' | 'publikum'
+export const DECOR_SLOTS: DecorSlot[] = ['vorhang', 'licht', 'teppich', 'deko', 'publikum']
 
 export type Item = {
   id: string
@@ -26,6 +34,8 @@ export type Item = {
   icon?: string
   /** Toys: the trick the pet does when she taps it in the village */
   trick?: PetTrick
+  /** Stage decor: the slot it fills and its look */
+  decor?: { slot: DecorSlot; look: string }
 }
 
 export const ITEMS: Item[] = [
@@ -375,6 +385,32 @@ export const ITEMS: Item[] = [
     trick: 'hearts',
   },
 
+  // Bühne: decor for her stage (Bonuswoche show, learning huts, Laden, Mein Haus, Tierheim)
+  ...(
+    [
+      ['vorhang-rosa', 'vorhang', 'rosa', 'Rosa Vorhang', 120],
+      ['vorhang-mint', 'vorhang', 'mint', 'Minz-Vorhang', 120],
+      ['vorhang-himmel', 'vorhang', 'himmel', 'Himmel-Vorhang', 150],
+      ['vorhang-gold', 'vorhang', 'gold', 'Gold-Vorhang', 250],
+      ['licht-gold', 'licht', 'gold', 'Goldlicht', 50],
+      ['licht-rosa', 'licht', 'rosa', 'Rosa Licht', 50],
+      ['licht-lila', 'licht', 'lila', 'Lila Licht', 60],
+      ['teppich-rot', 'teppich', 'rot', 'Roter Teppich', 80],
+      ['teppich-blau', 'teppich', 'blau', 'Blauer Teppich', 80],
+      ['pflanzen', 'deko', 'pflanzen', 'Pflanzen', 70],
+      ['laternen', 'deko', 'laternen', 'Laternen', 100],
+      ['sternenkette', 'deko', 'sterne', 'Sternenkette', 140],
+      ['publikum', 'publikum', 'publikum', 'Publikum', 300],
+    ] as const
+  ).map(([id, slot, look, name, price]): Item => ({
+    id,
+    category: 'buehne',
+    name,
+    price,
+    icon: `decor-${look}-${slot}`,
+    decor: { slot, look },
+  })),
+
   // Haustiere (Tierheim): everyday pets for coins …
   { id: 'hund', category: 'haustiere', name: 'Hündchen', price: 300, species: 'hund' },
   { id: 'katze', category: 'haustiere', name: 'Kätzchen', price: 400, species: 'katze' },
@@ -465,12 +501,26 @@ export function item(id: string): Item | undefined {
   return ITEMS.find((i) => i.id === id)
 }
 
-export const SHOP_CATEGORIES: ItemCategory[] = ['kleider', 'frisuren', 'accessoires', 'spielzeug']
+export const SHOP_CATEGORIES: ItemCategory[] = [
+  'kleider',
+  'frisuren',
+  'accessoires',
+  'spielzeug',
+  'buehne',
+]
 
 export const CATEGORY_NAMES: Record<ItemCategory, string> = {
   kleider: 'Kleider',
   frisuren: 'Frisuren',
   accessoires: 'Schmuck',
   spielzeug: 'Spielzeug',
+  buehne: 'Bühne',
   haustiere: 'Tiere',
+}
+
+/** Short tab labels where five tabs share the width (Laden) */
+export const SHORT_CATEGORY_NAMES: Record<ItemCategory, string> = {
+  ...CATEGORY_NAMES,
+  frisuren: 'Haare',
+  spielzeug: 'Spiel',
 }

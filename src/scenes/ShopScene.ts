@@ -1,6 +1,6 @@
 // Laden (GAME_DESIGN §4): category tabs, try on by tapping, buy, set a wish.
 import { sfx } from '../audio/sfx'
-import { CATEGORY_NAMES, SHOP_CATEGORIES, type Item, type ItemCategory } from '../data/items'
+import { SHORT_CATEGORY_NAMES, SHOP_CATEGORIES, type Item, type ItemCategory } from '../data/items'
 import { texts } from '../data/texts'
 import { coinBalance } from '../state/save'
 import {
@@ -13,6 +13,7 @@ import {
   shopItems,
   tryOn,
 } from '../state/shop'
+import { isUp, stageDecor, toggleDecor, tryDecor } from '../state/stage'
 import { deviceId, getSave, replaceSave, updateSave } from '../state/store'
 import { confetti } from '../ui/confetti'
 import { ItemCard } from '../ui/ItemCard'
@@ -45,7 +46,7 @@ export class ShopScene extends RoomScene {
     new Tabs(
       this,
       130,
-      SHOP_CATEGORIES.map((id) => ({ id, label: CATEGORY_NAMES[id] })),
+      SHOP_CATEGORIES.map((id) => ({ id, label: SHORT_CATEGORY_NAMES[id] })),
       (id) => {
         this.category = id
         this.pager.reset()
@@ -79,7 +80,10 @@ export class ShopScene extends RoomScene {
   private select(item: Item | undefined) {
     this.selected = item
     this.preview.setLook(item ? tryOn(this.savedLook(), item) : this.savedLook())
-    if (item && !item.wear) this.pet?.hop()
+    // Stage decor: try it on the stage behind her
+    const decor = stageDecor(getSave())
+    this.showStage(item?.decor ? tryDecor(decor, item) : decor)
+    if (item && !item.wear && !item.decor) this.pet?.hop()
     this.refresh()
   }
 
@@ -103,8 +107,17 @@ export class ShopScene extends RoomScene {
       return card
     })
     const owned = this.selected && isOwned(save, this.selected)
-    this.buyKey.setCaption(owned && this.selected?.wear ? texts.shop.wear : texts.shop.buy)
-    this.buyKey.setVisible(!!this.selected && !(owned && !this.selected.wear))
+    const decor = this.selected?.decor
+    this.buyKey.setCaption(
+      owned && decor
+        ? isUp(save, this.selected!)
+          ? texts.shop.takeDown
+          : texts.shop.putUp
+        : owned && this.selected?.wear
+          ? texts.shop.wear
+          : texts.shop.buy,
+    )
+    this.buyKey.setVisible(!!this.selected && !(owned && !this.selected.wear && !decor))
     this.wishKey.setVisible(!!this.selected && !owned)
     this.hud.setCoins(coinBalance(save))
   }
@@ -113,6 +126,13 @@ export class ShopScene extends RoomScene {
     const item = this.selected
     if (!item) return this.caption.show(texts.shop.pick)
     const save = getSave()
+    if (isOwned(save, item) && item.decor) {
+      // Already hers: put it up on the stage, or take it down again
+      updateSave((s) => toggleDecor(s, item))
+      sfx.tick()
+      this.showStage()
+      return this.refresh()
+    }
     if (isOwned(save, item)) {
       // Already hers: just put it on
       updateSave((s) =>
@@ -131,6 +151,7 @@ export class ShopScene extends RoomScene {
       return
     }
     replaceSave({ ...result.save, updatedAt: Date.now() })
+    this.showStage()
     sfx.fanfare()
     confetti(this)
     this.preview.jump()

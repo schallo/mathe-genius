@@ -35,6 +35,7 @@ import { currentLevels } from '../math/adaptive'
 import { dueReviews } from '../math/review'
 import { topic as topicOf } from '../math/topics'
 import { recordShowTask } from '../state/learning'
+import { stageDecor } from '../state/stage'
 import { addCoins, deviceId, getSave, updateSave } from '../state/store'
 import { Caption } from '../ui/Caption'
 import { Hud } from '../ui/Hud'
@@ -106,7 +107,9 @@ export class ShowScene extends PixelScene {
 
   create() {
     this.setupCamera()
-    this.add.image(0, 0, ensureStageTexture(this, { floorY: SHOW_FLOOR_Y })).setOrigin(0)
+    this.add
+      .image(0, 0, ensureStageTexture(this, { floorY: SHOW_FLOOR_Y, decor: stageDecor(getSave()) }))
+      .setOrigin(0)
 
     const save = getSave()
     this.hero = new Character(this, 150, SHOW_FLOOR_Y, save.character?.look ?? DEFAULT_LOOK)
