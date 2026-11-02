@@ -14,6 +14,10 @@ export const fastUrl = (speed = SPEED) => `/?speed=${speed}`
 export async function tapWorld(page: Page, x: number, y: number) {
   const p = await page.evaluate(([x, y]) => (window as any).__debug.toPage(x, y), [x, y])
   await page.mouse.click(p.x, p.y)
+  // Phaser handles input on its next frame: wait until it has, also on a busy machine
+  await page.evaluate(
+    () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))),
+  )
 }
 
 export const activeScene = (page: Page): Promise<string | undefined> =>

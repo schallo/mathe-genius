@@ -123,10 +123,13 @@ test('album: silhouettes, a full page gives a star; the Bibliothek door opens', 
   expect((await save(page)).stars).toBe(1)
   await page.waitForTimeout(300)
   await shot(page, 'library-album')
-  await tapWorld(page, 4 + 2 * 34 + 16, 68) // Schmuck
+  await tapWorld(page, 4 + 2 * 29 + 13, 68) // Schmuck
   await page.waitForTimeout(300)
   await shot(page, 'library-album-schmuck')
-  await tapWorld(page, 4 + 4 * 34 + 16, 68) // Tiere
+  await tapWorld(page, 4 + 4 * 29 + 13, 68) // Bühne
+  await page.waitForTimeout(300)
+  await shot(page, 'library-album-buehne')
+  await tapWorld(page, 4 + 5 * 29 + 13, 68) // Tiere
   await page.waitForTimeout(300)
   await shot(page, 'library-album-tiere')
   expect(await activeScene(page)).toBe('Library')

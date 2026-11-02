@@ -27,7 +27,7 @@
 
 ## Open questions
 
-- GitHub repo: needs to be created and pushed by you (the `gh` CLI isn't installed). Then enable _Settings → Pages → Source: GitHub Actions_.
+- None right now.
 
 ## Math engine assumptions (step 3) – please check with Leni's school
 
@@ -50,7 +50,7 @@
   - Tapping a card tries it on the stage behind her; buying puts it up at once; an owned item's button says Aufbauen/Abbauen. Mein Haus has a Bühne tab: tap to put up, tap again to take down (the plain purple stage comes back).
   - Shown on her stages: Bonuswoche shows, learning-hut rounds, the show end, Laden, Mein Haus, Tierheim. **Not** in the Einmaleins speed modes (STYLE_GUIDE §9: no distracting decoration) and not on the title or parent screens.
   - Laden tabs got short labels so five fit: Kleider, Haare, Schmuck, Spiel, Bühne.
-  - Not in the Sammelalbum yet (its categories are fixed); can be added as a sixth album page later.
+  - Sammelalbum page **Bühne** (added 2026-11-02, between Spiel and Tiere): all decor items, a full page gives a bonus star like the others.
 - **Battle backgrounds per island**: Blumenwiese soft hills, Flüsterwald a row of firs on a dark forest floor, Sonnensavanne sand with the sun and an acacia, Urzeittal a friendly volcano with a steam puff, Wolkenberg snowy peaks over a cloud floor. Platforms in the island's colours.
 - **Daily welcome** (GAME_DESIGN §7): the first village visit of a day, her active pet hops and greets her by name (5 phrases, one per day, the same all day). Once a day, never again that day, also after a sync (the later day wins). No pet (e.g. napping or none) → no greeting.
 
@@ -91,6 +91,18 @@ Done: steps 1–8, v0.8.1 (no +100 button, no door plates, faster e2e tests). Li
     - **Reward** (decided 2026-10-27): the first fish she catches is a special pet – **Goldi**, a goldfish in a water bubble (it joins her like a befriended animal, named Goldi). After that, every catch gives **1 star, at most 3 stars per day**; further catches that day are just for fun. No coins (math stays the only way to earn coins).
     - **Place** (decided 2026-10-27): the village pond at the top left (it moved there in v0.12.1).
 12. **Check with school** the open assumptions in "Math engine assumptions" below (subtraction method etc.).
+
+New huts for the rest of the 4th-grade curriculum (proposed 2026-11-02; curriculum list from memory, the LehrplanPLUS pages could not be fetched – check with school, especially Maßstab and Teiler/Vielfache). Suggested order: 13 → 14 → 16 → 15.
+
+13. **Uhrturm** – Größen beyond money: reading the clock, time spans ("Das Boot fährt um 14:35 und braucht 50 min"), lengths (km/m/cm/mm), weights (t/kg/g), capacity (l/ml), converting (3 km 40 m = ? m). Game-world contexts: boat times to the islands, weighing pet food, water for Goldi. New generators like `geld.ts`, numpad + choice, no new format. Alternative: three more topics in the Marktstand (would lift the "Sachaufgaben: money only" rule in CLAUDE.md).
+14. **Knobelhaus** – patterns and structures: number sequences ("2, 5, 11, 23, ?"), placeholders (`□ + 340 = 1000`), magic squares, Rechenvorteile ("25 · 4 · 7"), Überschlag as multiple choice. Pure generators, numpad + choice.
+15. **Bauhütte** – geometry (Raum und Form): cube buildings from a Bauplan ("Wie viele Würfel?"), completing an axis-symmetric figure on a pixel grid, area/perimeter by counting squares, cube nets, solids and views as picture choice. Needs a new tap-the-cells format (reuse parts of `WrittenCalcGrid`) and lifting "Geometry: maybe later" in GAME_DESIGN §12.
+16. **Wetterhaus** – data and chance: reading tables and bar charts (sunny hours, fish caught, her own battle wins), sicher/möglich/unmöglich as choice, combinatorics with her wardrobe ("3 Kleider und 4 Schleifen – wie viele Outfits?"). Needs pixel bar charts.
+17. **For all new huts:**
+    - Add each hut to the Bonuswoche rotation (`WEEK_HUTS` in `src/math/show.ts`).
+    - Make clock and measuring tasks battle topics for the islands where they fit (mental time arithmetic).
+    - Village space: 10 huts today; four more need a bigger map (it may scroll vertically) or a small second island.
+    - Per hut, like every topic: levels 1–5 with titles in `topics.ts`, hints and worked solutions in `hints.ts`, 1 000-task generator tests, roof board name ≤ 10 letters, update GAME_DESIGN §3a/§6 and §11.
 
 Smaller follow-ups:
 
@@ -167,6 +179,7 @@ Smaller follow-ups:
 - The tests open the game with `?speed=4`: all game time (Phaser timers and tweens, walking, battle timers, Einmaleins speed modes) runs 4× faster through one clock (`src/clock.ts`). Only active with that URL parameter, never for Leni. Real-world times (pet naps) stay real.
 - Tests jump straight into a hut with `__debug.start(scene, data)` (helper `openScene` in `e2e/helpers.ts`) instead of walking through the village.
 - `smoke.spec.ts` stays at real speed and still walks into the Theater; `dojo.spec.ts` checks that game time runs 1× without and 4× with the parameter.
+- 2026-11-02: full suite 13.1 → 4.2 min. 4 workers instead of 1 (6 made the battle defeat test flaky); the `pc` project draws WebGL on the graphics card (`--use-angle=d3d11`, the iPhone project is WebKit and stays in software); `tapWorld` waits two frames so Phaser has handled the tap. Game speed stays 4: higher speeds make walking and fishing jump too far per frame on the slow iPhone emulation.
 - Full run: 10.9 min → 5.0 min.
 
 ## Version label (2026-10-25)

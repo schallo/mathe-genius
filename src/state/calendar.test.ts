@@ -104,6 +104,12 @@ describe('album', () => {
     expect(pets.length).toBeGreaterThanOrEqual(6)
   })
 
+  it('has a Bühne page with every stage decor item', () => {
+    const decor = ITEMS.filter((i) => i.category === 'buehne')
+    expect(albumCount(emptySave(), 'buehne')).toEqual({ collected: 0, total: decor.length })
+    expect(albumCount({ ...emptySave(), owned: ['vorhang-rosa'] }, 'buehne').collected).toBe(1)
+  })
+
   it('a full category gives one bonus star, only once', () => {
     const toys = albumEntries(emptySave(), 'spielzeug').map((e) =>
       e.kind === 'item' ? e.item.id : '',

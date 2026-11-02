@@ -58,7 +58,8 @@ async function reelOnce(page: Page, shots: boolean): Promise<string> {
   }
   let holding = true
   let pictured = false
-  for (let i = 0; i < 2000; i++) {
+  // A time limit, not a number of looks: a fast machine looks more often per second
+  for (const end = Date.now() + 60_000; Date.now() < end;) {
     const s = (await fishing(page))!
     if (s.phase !== 'reeling') break
     if (shots && !pictured && s.pull === 'strong') {

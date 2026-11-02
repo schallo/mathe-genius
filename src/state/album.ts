@@ -5,13 +5,15 @@ import { ITEMS, type Item } from '../data/items'
 import { isOwned } from './shop'
 import { earnStars, type SaveData } from './save'
 
-export type AlbumCategory = 'kleider' | 'frisuren' | 'accessoires' | 'spielzeug' | 'tiere'
+export type AlbumCategory =
+  'kleider' | 'frisuren' | 'accessoires' | 'spielzeug' | 'buehne' | 'tiere'
 
 export const ALBUM_CATEGORIES: AlbumCategory[] = [
   'kleider',
   'frisuren',
   'accessoires',
   'spielzeug',
+  'buehne',
   'tiere',
 ]
 

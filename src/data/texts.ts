@@ -180,6 +180,7 @@ export const texts = {
       frisuren: 'Haare',
       accessoires: 'Schmuck',
       spielzeug: 'Spiel',
+      buehne: 'Bühne',
       tiere: 'Tiere',
     },
     count: (n: number, total: number) => `${n} von ${total} gesammelt`,
